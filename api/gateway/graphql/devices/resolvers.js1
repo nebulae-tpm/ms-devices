@@ -1,0 +1,62 @@
+const withFilter = require('graphql-subscriptions').withFilter;
+const PubSub = require('graphql-subscriptions').PubSub;
+const pubsub = new PubSub();
+const Rx = require('rxjs');
+
+
+module.exports = {
+  Query: {
+    getDeviceDetail(root, args, context) {
+      return context.broker
+        .forwardAndGetReply$(
+          'Device',
+          'gateway.graphql.query.getDeviceDetail',
+          { root, args, jwt: context.encodedToken },
+          500
+        )
+        .toPromise();
+    },
+    getDevices(root, args, context) {
+      return context.broker
+        .forwardAndGetReply$(
+          'Device',
+          'gateway.graphql.query.getDevices',
+          { root, args, jwt: context.encodedToken },
+          500
+        )
+        .toPromise();
+    },
+    getDeviceTableSize(root, args, context) { 
+      return context.broker
+      .forwardAndGetReply$(
+        'Device',
+        'gateway.graphql.query.getDeviceTableSize',
+        { root, args, jwt: context.encodedToken },
+        500
+      )
+      .toPromise();
+    }
+  },
+  Subscription: {
+    deviceDetailReportedEvent: {
+      subscribe: withFilter((payload, variables, context, info) => {
+        const subscription = context.broker.getMaterializedViewsUpdates$(['deviceDetailReportedEvent']).subscribe(
+          evt => {
+            pubsub.publish('deviceDetailReportedEvent', { deviceDetailReportedEvent: evt.data })
+          },
+          (error) => console.error('Error listening deviceDetailReportedEvent', error),
+          () => console.log('deviceDetailReportedEvent listener STOPPED')
+        );
+
+        context.webSocket.onUnSubscribe = Rx.Observable.create((observer) => {
+          subscription.unsubscribe();
+          observer.next('rxjs subscription had been terminated');
+          observer.complete();
+        });
+        return pubsub.asyncIterator('deviceDetailReportedEvent');
+      },
+        (payload, variables, context, info) => true),
+    },
+  }
+  
+};

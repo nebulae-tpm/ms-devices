@@ -1,0 +1,103 @@
+<div fxLayout="column" *ngIf="device && device.deviceNetwork" style="width: 100%; justify-content: space-between" fxLayout.gt-sm="row" >
+  <div fxLayout="column" fxFlex="100" fxFlex.gt-sm="50" fxFlex.gt-md="48">
+    <div class="network-box info-box read-form" fxLayout="column">
+
+      <header class="mat-accent-bg">
+        <div class="title">{{'DEVICE.GENERAL_INFO' | translate}} </div>
+      </header>
+      <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between" class="m-12">
+        <div style="display: flex; flex-direction: column; flex-wrap: wrap">
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.MODEM_SERIAL' | translate}}</td>
+                <td class="read-form-data">{{device.deviceNetwork.modemSn}}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.MODE' | translate}}</td>
+                <td class="read-form-data">{{device.deviceNetwork.mode}}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.BAND' | translate}}</td>
+                <td class="read-form-data">{{device.deviceNetwork.band}}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.WIFI_SERIAL' | translate}}</td>
+                <td class="read-form-data">{{device.deviceNetwork.wifiSn}}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+              <table class="info">
+                <tr class="content-form">
+                  <td class="read-form-title">MAC</td>
+                  <td class="read-form-data">{{device.deviceNetwork.mac}}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="info-line">
+                <table class="info">
+                  <tr class="content-form">
+                    <td class="read-form-title">DNS</td>
+                    <td class="read-form-data">{{device.deviceNetwork.dns}}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div class="info-line">
+                  <table class="info">
+                    <tr class="content-form">
+                      <td class="read-form-title">Gateway</td>
+                      <td class="read-form-data">{{device.deviceNetwork.gateway}}</td>
+                    </tr>
+                  </table>
+                </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div fxLayout="column" fxFlex="100" fxFlex.gt-sm="50" fxFlex.gt-md="48">
+      <div class="network-box info-box read-form" fxLayout="column">
+
+        <header class="mat-accent-bg">
+          <div class="title">{{'DEVICE.INTERFACE' | translate}} </div>
+        </header>
+        <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between" class="m-12">
+          <div style="display: flex; flex-direction: column; flex-wrap: wrap">
+
+            <div class="info-line" *ngFor="let ipmask of device.deviceNetwork.ipMaskMap">
+              <table class="info">
+                <tr class="content-form">
+                  <td class="read-form-title">{{ipmask.name}}</td>
+                </tr>
+                <tr class="content-form" *ngFor="let address of ipmask.addresses" >
+                    <td class="read-form-data">{{address}}</td>
+                </tr>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+</div>

@@ -1,0 +1,121 @@
+<div id="devices" class="page-layout carded fullwidth" fusePerfectScrollbar>
+
+  <!-- TOP BACKGROUND -->
+  <div class="top-bg mat-accent-bg"></div>
+  <!-- / TOP BACKGROUND -->
+
+  <!-- CENTER -->
+  <div class="center">
+
+    <!-- HEADER -->
+    <div class="header white-fg" fxLayout="column" fxLayoutAlign="center center" fxLayout.gt-xs="row" fxLayoutAlign.gt-xs="space-between center">
+
+      <!-- APP TITLE -->
+      <div class="logo my-12 m-sm-0" fxLayout="row" fxLayoutAlign="start center">
+        <mat-icon class="logo-icon mr-16" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'50ms',scale:'0.2'}}">speaker_phone</mat-icon>
+        <span class="logo-text h1" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'100ms',x:'-25px'}}">{{'DEVICE.DEVICES' | translate}}</span>
+      </div>
+      <!-- / APP TITLE -->
+
+      <!-- SEARCH -->
+      <div class="search-input-wrapper mx-12 m-md-0" fxFlex="1 0 auto" fxLayout="row" fxLayoutAlign="start center">
+        <label for="search" class="mr-8">
+          <mat-icon class="secondary-text">search</mat-icon>
+        </label>
+        <mat-form-field floatPlaceholder="never" fxFlex="1 0 auto">
+          <input id="search" matInput #filter placeholder="{{'DEVICE.SEARCH' | translate}}">
+        </mat-form-field>
+      </div>
+      <!-- / SEARCH -->
+
+    </div>
+    <!-- / HEADER -->
+
+    <!-- CONTENT CARD -->
+    <div class="content-card mat-white-bg">
+
+      <mat-table class="device-table" #table [dataSource]="dataSource" matSort [@animateStagger]="{value:'50'}" fusePerfectScrollbar>
+
+        <!-- Serial Column -->
+        <ng-container cdkColumnDef="serial">
+          <mat-header-cell *cdkHeaderCellDef mat-sort-header>Serial</mat-header-cell>
+          <mat-cell *cdkCellDef="let device">
+            <p class="text-truncate">{{device.deviceStatus.devSn}}</p>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container cdkColumnDef="name">
+          <mat-header-cell *cdkHeaderCellDef mat-sort-header>Name</mat-header-cell>
+          <mat-cell *cdkCellDef="let device">
+            <p class="text-truncate">{{device.deviceStatus.hostname}}</p>
+          </mat-cell>
+        </ng-container>
+
+
+        <!-- RAM Column -->
+        <ng-container cdkColumnDef="ram">
+          <mat-header-cell *cdkHeaderCellDef mat-sort-header fxHide fxShow.gt-sm>RAM</mat-header-cell>
+          <mat-cell *cdkCellDef="let device" fxHide fxShow.gt-sm>
+
+            <span class="quantity-indicator text-truncate" [ngClass]="{'mat-red-500-bg':getPercentage(device,'MEM') >= 80, 'mat-amber-500-bg':getPercentage(device,'MEM') >50 && getPercentage(device,'MEM') <= 79,'mat-green-600-bg':getPercentage(device,'MEM') <= 50}">
+            </span>
+            <span>
+              {{getPercentage(device,'MEM')}}
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- SD Column -->
+        <ng-container cdkColumnDef="sd">
+          <mat-header-cell *cdkHeaderCellDef mat-sort-header fxHide fxShow.gt-sm>SD</mat-header-cell>
+          <mat-cell *cdkCellDef="let device" fxHide fxShow.gt-sm>
+
+            <span class="quantity-indicator text-truncate" [ngClass]="{'mat-red-500-bg':getPercentage(device,'SD') >= 80, 'mat-amber-500-bg':getPercentage(device,'SD') >50 && getPercentage(device,'SD') <= 79,'mat-green-600-bg':getPercentage(device,'SD') <= 50}">
+            </span>
+            <span>
+              {{getPercentage(device,'SD')}}
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- FLASH Column -->
+        <ng-container cdkColumnDef="flash">
+          <mat-header-cell *cdkHeaderCellDef mat-sort-header fxHide fxShow.gt-sm>FLASH</mat-header-cell>
+          <mat-cell *cdkCellDef="let device" fxHide fxShow.gt-sm>
+
+            <span class="quantity-indicator text-truncate" [ngClass]="{'mat-red-500-bg':getPercentage(device,'FLASH') >= 80, 'mat-amber-500-bg':getPercentage(device,'FLASH') >50 && getPercentage(device,'FLASH') <= 79,'mat-green-600-bg':getPercentage(device,'FLASH') <= 50}">
+            </span>
+            <span>
+              {{getPercentage(device,'FLASH')}}
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Online Column -->
+        <ng-container cdkColumnDef="online">
+          <mat-header-cell *cdkHeaderCellDef mat-sort-header fxHide fxShow.gt-xs>Online</mat-header-cell>
+          <mat-cell *cdkCellDef="let device" fxHide fxShow.gt-xs>
+            <mat-icon *ngIf="device.deviceStatus.online" class="active-icon mat-green-600-bg s-16">check</mat-icon>
+            <mat-icon *ngIf="!device.deviceStatus.online" class="active-icon mat-red-500-bg s-16">close</mat-icon>
+          </mat-cell>
+        </ng-container>
+
+
+
+
+        <mat-header-row *cdkHeaderRowDef="displayedColumns"></mat-header-row>
+
+        <mat-row *cdkRowDef="let device; columns: displayedColumns;" class="product" matRipple [routerLink]="'device/'+device.id">
+        </mat-row>
+
+      </mat-table>
+
+      <mat-paginator #paginator [length]="tableSize" [pageIndex]="0" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+
+    </div>
+    <!-- / CONTENT CARD -->
+  </div>
+  <!-- / CENTER -->
+</div>

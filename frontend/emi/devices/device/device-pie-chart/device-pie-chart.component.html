@@ -1,0 +1,27 @@
+
+  <!-- CONTENT -->
+
+    <div class="content" fxLayoutAlign="center center">
+      <div class="h-200">
+        <ngx-charts-pie-chart *fuseIfOnDom [scheme]="widget.scheme" [results]="widget.data" [doughnut]="true">
+        </ngx-charts-pie-chart>
+      </div>
+    </div>
+
+    <div class="p-16" fxLayout="row" fxLayoutAlign="center center">
+
+      <div class="px-16" fxLayout="column" fxLayoutAlign="start center" *ngFor="let data of widget.data">
+
+        <div class="h4 secondary-text">{{data.name | translate}}</div>
+        <div class="h2 font-weight-300 py-8">{{data.value}}%</div>
+
+        <div fxLayout="row" fxLayoutAlign="center center">
+            <div class="h5" style="color: #ABA8A8;">
+                {{data.totalValue | number}} {{widget.unitInformation}}
+            </div>
+        </div>
+      </div>
+
+    </div>
+
+  <!-- / CONTENT -->

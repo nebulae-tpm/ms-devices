@@ -1,0 +1,59 @@
+<div id="device" class="page-layout carded fullwidth" fusePerfectScrollbar>
+
+  <!-- TOP BACKGROUND -->
+  <div class="top-bg mat-accent-bg"></div>
+  <!-- / TOP BACKGROUND -->
+
+  <!-- CENTER -->
+  <div class="center">
+
+    <!-- HEADER -->
+    <div class="header white-fg" fxLayout="row" fxLayoutAlign="space-between center">
+
+      <!-- APP TITLE -->
+      <div fxLayout="row" fxLayoutAlign="start center">
+
+        <button class="mr-0 mr-sm-16" mat-icon-button [routerLink]="'/devices'">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+
+        <div fxLayout="column" fxLayoutAlign="start start" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'100ms',x:'-25px'}}">
+          <div class="h2" *ngIf="pageType ==='edit'">
+
+          </div>
+
+          <div class="subtitle secondary-text">
+            <span>{{'DEVICE.DEVICE_DETAIL' | translate}}</span>
+          </div>
+        </div>
+      </div>
+      <!-- / APP TITLE -->
+    </div>
+    <!-- / HEADER -->
+
+    <!-- CONTENT CARD -->
+    <div class="content-card mat-white-bg">
+      <mat-tab-group>
+
+        <mat-tab label="{{'DEVICE.STATE' | translate}}">
+          <div class="tab-content p-24" fusePerfectScrollbar>
+            <app-device-state ></app-device-state>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Redes">
+          <div class="tab-content p-24" fusePerfectScrollbar>
+            <app-device-network ></app-device-network>
+          </div>
+        </mat-tab>
+
+      </mat-tab-group>
+
+      <!-- / CONTENT -->
+
+    </div>
+    <!-- / CONTENT CARD -->
+
+  </div>
+  <!-- / CENTER -->
+</div>

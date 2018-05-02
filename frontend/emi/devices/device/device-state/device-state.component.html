@@ -1,0 +1,280 @@
+<div class="left mr-32" *ngIf="device && device.deviceStatus">
+  <div fxLayout="column" fxLayoutAlign="start" fxLayout.gt-sm="row" fxLayoutAlign.gt-sm="start start">
+    <fuse-widget class="" fxLayout="column" fxFlex="100" fxFlex.gt-xs="50" fxFlex.gt-md="25">
+      <div *ngIf="device.deviceStatus.ram" class="fuse-widget-front mat-white-bg mat-elevation-z2">
+        <div class="pl-16 pr-8 py-16 h-52" fxLayout="row" fxLayoutAlign="space-between center">
+          <div class="h1 font-weight-300">{{'DEVICE.RAM_STATUS' | translate}}
+            <span style="color: #ABA8A8;" class="h3">({{getDeviceMemory(device, 'MEM').totalValue | number}} {{getDeviceMemory(device, 'MEM').unitInformation}})</span>
+          </div>
+
+          <button mat-icon-button fuseWidgetToggle aria-label="more">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </div>
+        <app-device-pie-chart widget="{{buildDevicePieWidget(device, 'MEM')}}"></app-device-pie-chart>
+      </div>
+
+      <div class="fuse-widget-back pt-32 mat-white-bg mat-elevation-z2">
+        <button mat-icon-button fuseWidgetToggle class="fuse-widget-flip-button" aria-label="Flip widget">
+          <mat-icon class="s-16">close</mat-icon>
+        </button>
+        <app-device-memory-chart widget="{{buildDeviceMemoryHistory('MEM') | async}}"></app-device-memory-chart>
+      </div>
+    </fuse-widget>
+
+    <fuse-widget class="" fxLayout="column" fxFlex="100" fxFlex.gt-xs="50" fxFlex.gt-md="25">
+      <div class="fuse-widget-front mat-white-bg mat-elevation-z2">
+        <div class="pl-16 pr-8 py-16 h-52" fxLayout="row" fxLayoutAlign="space-between center">
+          <div class="h1 font-weight-300">{{'DEVICE.SD_STATUS' | translate}}
+            <span style="color: #ABA8A8;" class="h3">({{getDeviceMemory(device, 'SD').totalValue | number}} {{getDeviceMemory(device, 'SD').unitInformation}})</span>
+          </div>
+
+          <button mat-icon-button fuseWidgetToggle aria-label="more">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </div>
+        <app-device-pie-chart class="m-widget-20" widget="{{buildDevicePieWidget(device, 'SD')}}"></app-device-pie-chart>
+      </div>
+
+      <div class="fuse-widget-back p-16 pt-32 mat-white-bg mat-elevation-z2">
+        <button mat-icon-button fuseWidgetToggle class="fuse-widget-flip-button" aria-label="Flip widget">
+          <mat-icon class="s-16">close</mat-icon>
+        </button>
+
+        <div>
+          More widget info
+        </div>
+      </div>
+    </fuse-widget>
+
+    <fuse-widget class="" fxLayout="column" fxFlex="100" fxFlex.gt-xs="50" fxFlex.gt-md="25">
+      <div class="fuse-widget-front mat-white-bg mat-elevation-z2">
+        <div class="pl-16 pr-8 py-16 h-52" fxLayout="row" fxLayoutAlign="space-between center">
+          <div class="h1 font-weight-300">{{'DEVICE.FLASH_STATUS' | translate}}
+            <span style="color: #ABA8A8;" class="h3">({{getDeviceMemory(device, 'FLASH').totalValue | number}} {{getDeviceMemory(device, 'FLASH').unitInformation}})</span>
+          </div>
+
+          <button mat-icon-button fuseWidgetToggle aria-label="more">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </div>
+        <app-device-pie-chart class="m-widget-20" widget="{{buildDevicePieWidget(device, 'FLASH')}}"></app-device-pie-chart>
+      </div>
+
+      <div class="fuse-widget-back p-16 pt-32 mat-white-bg mat-elevation-z2">
+        <button mat-icon-button fuseWidgetToggle class="fuse-widget-flip-button" aria-label="Flip widget">
+          <mat-icon class="s-16">close</mat-icon>
+        </button>
+
+        <div>
+          More widget info
+        </div>
+      </div>
+    </fuse-widget>
+
+    <div style="display: flex; flex-direction: column; flex-wrap: wrap">
+
+      <div class="m-widget-20" fxFlex.gt-sm="33">
+        <div class="fuse-card" [ngClass.gt-sm]="'mb-0 mr-32'">
+          <div class="p-16 pb-0" fxLayout="row" fxLayoutAlign="start end" fxLayoutWrap>
+            <div class="pr-16">
+              <div class="h1 font-weight-300">{{'DEVICE.VOLTAGE' | translate}}</div>
+              <div class="font-size-12 font-weight-300 line-height-1 mt-8">
+                <h2>{{'DEVICE.LOWEST_VALUE' | translate}}: </h2>
+                <h3>{{device.deviceStatus.voltage.lowestValue }}</h3>
+                <h2>{{'DEVICE.CURRENT_VALUE' | translate}}: </h2>
+                <h3>{{device.deviceStatus.voltage.currentValue }}</h3>
+                <h2>{{'DEVICE.HIGHEST_VALUE' | translate}}: </h2>
+                <h3>{{device.deviceStatus.voltage.highestValue }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="m-widget-20" style="margin-top: 10px" fxFlex.gt-sm="33">
+        <div class="fuse-card" [ngClass.gt-sm]="'mb-0 mr-32'">
+          <div class="p-16 pb-0" fxLayout="row" fxLayoutAlign="start end" fxLayoutWrap>
+            <div class="p-16 pb-0" fxLayout="row" fxLayoutAlign="start end" fxLayoutWrap>
+              <div class="pr-16">
+                <div class="h3 secondary-text">{{'DEVICE.CPU_STATUS' | translate}}</div>
+              </div>
+            </div>
+
+            <div class="h-96 w-100-p">
+              <canvas baseChart [datasets]="cpuWidget.datasets" [labels]="cpuWidget.labels" [colors]="cpuWidget.colors" [options]="cpuWidget.options"
+                [chartType]="cpuWidget.chartType">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+<div fxLayout="column" *ngIf="device && device.deviceStatus" style="width: 100%; justify-content: space-between" fxLayout.gt-sm="row">
+  <div fxLayout="column" fxFlex="100" fxFlex.gt-sm="50" fxFlex.gt-md="48">
+    <div class="device-box info-box read-form" fxLayout="column">
+
+      <header class="mat-accent-bg">
+        <div class="title">{{'DEVICE.DEVICE_STATE_TITLE' | translate}}</div>
+      </header>
+      <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between" class="m-12">
+        <div style="display: flex; flex-direction: column; flex-wrap: wrap">
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.ID' | translate}}</td>
+                <td class="read-form-data">{{device.id }}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.NAME' | translate}}</td>
+                <td class="read-form-data">{{device.deviceStatus.hostname }}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.ONLINE' | translate}}</td>
+                <mat-icon *ngIf="device.deviceStatus.online " class="active-icon mat-green-600-bg s-16">check</mat-icon>
+                <mat-icon *ngIf="!device.deviceStatus.online " class="active-icon mat-red-500-bg s-16">close</mat-icon>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.DEVICE_SERIAL' | translate}}</td>
+                <td class="read-form-data">{{device.deviceStatus.devSn }}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.TEMPERATURE' | translate}}</td>
+                <td class="read-form-data">{{device.deviceStatus.temperature }}</td>
+              </tr>
+            </table>
+          </div>
+
+        </div>
+
+        <div style="display: flex; flex-direction: column; flex-wrap: wrap">
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.SIM_STATUS' | translate}}</td>
+                <mat-icon *ngIf="device.deviceNetwork.simStatus " class="active-icon mat-green-600-bg s-16">check</mat-icon>
+                <mat-icon *ngIf="!device.deviceNetwork.simStatus " class="active-icon mat-red-500-bg s-16">close</mat-icon>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">SIM IMEI</td>
+                <td class="read-form-data">{{device.deviceNetwork.simImei }}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.CONNECTOR_SERIAL' | translate}}</td>
+                <td class="read-form-data">{{device.deviceStatus.connectorSn }}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.DISPLAY_SERIAL' | translate}}</td>
+                <td class="read-form-data">{{device.deviceStatus.displaySn }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="info-line" style="margin-top: 20px">
+          <table class="info">
+            <tr class="content-form">
+              <td class="read-form-title">{{'DEVICE.UPTIME' | translate}}</td>
+              <td class="read-form-data">{{device.deviceStatus.upTime }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div fxLayout="column " fxFlex="100" fxFlex.gt-sm="50" fxFlex.gt-md="48">
+    <div class="device-box info-box read-form" fxLayout="column">
+
+      <header class="mat-accent-bg">
+        <div class="title">{{'DEVICE.APP_STATE_TITLE' | translate}}</div>
+      </header>
+      <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between" class="m-12">
+        <div style="display: flex; flex-direction: column; flex-wrap: wrap">
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.FARE_POLICY' | translate}}</td>
+                <td class="read-form-data">{{device.appStatus.appTablesVersion.farePolicy}}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.BLACK_LIST' | translate}}</td>
+                <td class="read-form-data">{{device.appStatus.appTablesVersion.blackList}}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.APP_VERSIONS' | translate}}</td>
+                <td class="read-form-data">
+                  <a style="cursor: pointer;" (click)="openVersionDialog()">{{'DEVICE.SHOW_VERSIONS' | translate}}</a>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.TIME_STAMP' | translate}}</td>
+                <td class="read-form-data">{{device.appStatus.timestamp | date: 'yyyy-MM-dd HH:mm a'}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

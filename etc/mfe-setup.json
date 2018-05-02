@@ -1,0 +1,34 @@
+[
+    {
+        "name" : "devices",
+        "src" : "frontend/emi/devices",
+        "contents": [
+            {
+                "id": "devices",
+                "icon": "speaker_phone",
+                "translate": {
+                    "en": "Devices",
+                    "es": "Dispositivos"
+                },
+                "navURL": "/devices",
+                "path": "devices",
+                "loadChildren": "./main/content/devices/devices.module#DevicesModule",
+                "priority": 100000
+            }
+        ],
+        "preBuildCommands": [
+            
+        ],
+        "environmentVars": {
+            "default": {
+                "production": false
+            },
+            "local": {
+                "production": false
+            },
+            "prod": {
+                "production": true
+            }            
+        }
+    }
+]

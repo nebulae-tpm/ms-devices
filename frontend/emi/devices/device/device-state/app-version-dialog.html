@@ -1,0 +1,9 @@
+<h1 mat-dialog-title>{{'DEVICE.APP_VERSIONS' | translate}}</h1>
+<div mat-dialog-content>
+  <div *ngFor="let version of data.versions">
+    <p><span style="font-weight: bold;">{{version.name}}: </span>{{version.version}}</p>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-button cdkFocusInitial (click)="onNoClick()">{{'DEVICE.CLOSE' | translate}}</button>
+</div>

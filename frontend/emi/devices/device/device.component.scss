@@ -1,0 +1,196 @@
+@import 'src/app/core/scss/fuse';
+
+#device {
+  .header {
+    .subtitle {
+      margin: 6px 0 0 0;
+    }
+  }
+
+  .content {
+    .mat-tab-group,
+    .mat-tab-body-wrapper,
+    .tab-content {
+      flex: 1 1 auto;
+      max-width: 100%;
+    }
+
+    .mat-tab-body-content {
+      display: flex;
+    }
+
+    .mat-tab-label {
+      height: 64px;
+    }
+  }
+}
+
+.main-widget {
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  display: flex;
+  flex: 1 1 auto;
+  padding: 32px;
+  min-width: 0;
+
+  @include media-breakpoint-down('md') {
+    flex-direction: column;
+  }
+
+  .left {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+
+    .widget {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+  }
+
+  .right {
+    display: flex;
+    flex: 0 0 auto;
+    width: 320px;
+    min-width: 320px;
+    max-width: 320px;
+
+    @include media-breakpoint-down('md') {
+      flex: 1 0 100%;
+      margin-top: 32px;
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+    }
+  }
+}
+
+.m-widget-20 {
+  margin-left: 20px;
+  margin-top: 0px;
+}
+
+@media (max-width: 960px) {
+  .m-widget-20 {
+    margin-left: 0px;
+    margin-top: 20px;
+  }
+}
+
+.device-box {
+  margin-bottom: 16px;
+  @include mat-elevation(2);
+  margin-top: 20px;
+
+  header {
+      padding: 16px;
+
+      .title {
+          font-size: 17px;
+      }
+
+      .more {
+          cursor: pointer;
+      }
+  }
+
+  .content {
+      padding: 16px;
+      background-color: #FFF;
+  }
+
+  footer {
+      padding: 8px;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      background-color: rgba(0, 0, 0, 0.06);
+  }
+
+  &.info-box {
+
+      .info-line {
+          margin-bottom: 24px;
+
+          .title {
+              font-size: 15px;
+              font-weight: 500;
+              padding-bottom: 4px;
+          }
+
+          .info {
+
+          }
+
+          &:last-child {
+              margin-bottom: 0;
+          }
+      }
+  }
+}
+
+.network-box {
+  margin-bottom: 16px;
+  @include mat-elevation(2);
+
+  header {
+      padding: 16px;
+
+      .title {
+          font-size: 17px;
+      }
+
+      .more {
+          cursor: pointer;
+      }
+  }
+
+  .content {
+      padding: 16px;
+      background-color: #FFF;
+  }
+
+  footer {
+      padding: 8px;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      background-color: rgba(0, 0, 0, 0.06);
+  }
+
+  &.info-box {
+
+      .info-line {
+          margin-bottom: 24px;
+
+          .title {
+              font-size: 15px;
+              font-weight: 500;
+              padding-bottom: 4px;
+          }
+
+          .info {
+
+          }
+
+          &:last-child {
+              margin-bottom: 0;
+          }
+      }
+  }
+}
+
+.read-form {
+
+  .content-form {
+
+      .read-form-title {
+          padding: 0 16px 0 0;
+          font-weight: 500;
+      }
+
+      .read-form-data {
+          color: rgba(0, 0, 0, 0.54);
+      }
+  }
+}
