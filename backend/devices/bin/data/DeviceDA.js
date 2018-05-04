@@ -55,7 +55,7 @@ class DeviceDA {
    * Create or update the device info on the materialized view
    * @param {*} device
    */
-  static persistDevice$(device, eventType) {    
+  static persistDevice$(device, eventType) {
     const collection = mongoDB.db.collection('Devices');
     return Rx.Observable.of(device).mergeMap(result => {
       return Rx.Observable.fromPromise(
@@ -71,7 +71,7 @@ class DeviceDA {
         )
       )
         .mergeMap(result => {
-          if (result && result.value) {            
+          if (result && result.value) {
             this.sendDeviceResultEvent(result.value, eventType);
             return this.persistDeviceHistory(result.value);
           } else {
@@ -86,18 +86,85 @@ class DeviceDA {
 
   static persistDeviceHistory(device) {
     device.timestamp = new Date().getTime();
-    delete device._id
+    delete device._id;
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.of(device).mergeMap(result => {
       return Rx.Observable.fromPromise(collection.insertOne(device));
     });
   }
+
+  static getRamAvgInRangeOfTime$(initTime, endTime, deviceId) {
+    const collection = mongoDB.db.collection('DeviceHistory');
+    return Rx.Observable.fromPromise(
+      collection
+        .aggregate([
+          {
+            $match: {
+              timestamp: { $gte: initTime, $lt: endTime },
+              id: deviceId,
+              'deviceStatus.ram': { $exists: true } 
+            }
+          },
+          {
+            $project: {
+              date: { $add: [new Date(0), '$timestamp'] },
+              timestamp: 1,
+              'deviceStatus.ram.currentValue': 1
+            }
+          },
+          {
+            $group: {
+              _id: {
+                interval: {
+                  $add: [
+                    '$timestamp',
+                    {
+                      $subtract: [
+                        {
+                          $multiply: [
+                            {
+                              $subtract: [
+                                10,
+                                { $mod: [{ $minute: '$date' }, 10] }
+                              ]
+                            },
+                            60000
+                          ]
+                        },
+                        {
+                          $add: [
+                            { $multiply: [{ $second: '$date' }, 1000] },
+                            { $millisecond: '$date' }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              grouped_data: { $avg: '$deviceStatus.ram.currentValue' }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              interval: '$_id.interval',
+              grouped_data: 1
+            }
+          }
+        ])
+        .toArray()
+    ).map(item => {
+      return item;
+    });
+  }
+
   /**
    * Prepare and send the message to apiGateway
    * @param {*} device
    * @param {string} eventType
    */
-  static sendDeviceResultEvent(device, eventType) {    
+  static sendDeviceResultEvent(device, eventType) {
     let message;
     // DEVICE STATUS EVENTS
     switch (eventType) {

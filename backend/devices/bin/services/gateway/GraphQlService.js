@@ -19,7 +19,8 @@ class GraphQlService {
         return {
             'gateway.graphql.query.getDeviceDetail': this.devices.getDeviceDetail,
             'gateway.graphql.query.getDevices': this.devices.getDevices,
-            'gateway.graphql.query.getDeviceTableSize': this.devices.getDeviceTableSize
+            'gateway.graphql.query.getDeviceTableSize': this.devices.getDeviceTableSize,
+            'gateway.graphql.query.getRamAvgInRangeOfTime': this.devices.getRamAvgInRangeOfTime
         };
     }
 
@@ -38,7 +39,7 @@ class GraphQlService {
             //send response back if neccesary
             .subscribe(
                 ({ response, correlationId, replyTo }) => {
-                    broker.send$('MaterializedViewUpdates','gateway.graphql.Subscription.response',response);
+                    //broker.send$('MaterializedViewUpdates','gateway.graphql.Subscription.response',response);
                     if (replyTo) {
                         broker.send$(replyTo, 'gateway.graphql.Query.response', response, { correlationId });                        
                     }

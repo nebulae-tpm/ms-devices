@@ -14,15 +14,13 @@ export class DeviceNetworkComponent implements OnInit, OnDestroy {
   device$: Observable<any>;
   device: any;
   subscribers: Subscription[] = [];
-  activatedRouter: Subscription;
-  subscribeToUpdateDeviceStateEvent: Subscription;
   constructor(
     private deviceService: DeviceService,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
-    this.activatedRouter = this.route.params
+    this.subscribers.push(this.route.params
       .pipe(
         mergeMap(params => {
           return this.deviceService
@@ -57,36 +55,35 @@ export class DeviceNetworkComponent implements OnInit, OnDestroy {
 
           this.subscribers.push(this.deviceService
           .subscribeToDeviceModemStateReportedEvent$(this.device.id)
-          .subscribe(result => {
-            if (result.data) {
+            .subscribe(result => {
               console.log(`Llega evento: ${JSON.stringify(result.data)}`);
+            if (result.data) {
               const rawData = JSON.parse(
                 JSON.stringify(result.data.DeviceModemStateReportedEvent)
               );
               if (rawData.deviceNetwork) {
                 Object.keys(rawData.deviceNetwork).forEach(
                   k =>
-                    rawData.deviceNetwork[k] !== undefined &&
+                    rawData.deviceNetwork[k] === undefined &&
                     delete rawData.deviceNetwork[k]
                 );
                 const deviceNetwork = {
                   ...this.device.deviceNetwork,
-                  ...JSON.parse(JSON.stringify(rawData.deviceNetwork))
+                  ...rawData.deviceNetwork
                 };
-                console.log(`Actualiza: ${JSON.stringify(deviceNetwork)}`);
                 this.device.deviceNetwork = deviceNetwork;
               }
             }
           }));
-      });
+      }));
   }
 
   ngOnDestroy() {
-    if (this.activatedRouter) {
-      this.activatedRouter.unsubscribe();
-    }
-    if (this.subscribeToUpdateDeviceStateEvent) {
-      this.subscribeToUpdateDeviceStateEvent.unsubscribe();
+    if (this.subscribers) {
+      this.subscribers.forEach(sub => {
+        console.log(`Se finaliza sub: ${sub}`);
+        sub.unsubscribe();
+      });
     }
   }
 }

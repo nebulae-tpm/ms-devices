@@ -18,7 +18,7 @@ export class DeviceMemoryChartComponent implements OnInit {
 
   ngOnInit() {
     this.historyRanges = { ONE_HOUR: 0, TWO_HOURS: 1, THREE_HOURS: 2 };
-    this.historyChart = this.deviceServie.buildChartMemoryWidget(null, null);
+    this.historyChart = JSON.parse(this.widget);
   }
 
   doSomething($event) {

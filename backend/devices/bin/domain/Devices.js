@@ -18,6 +18,10 @@ class Devices {
         return DeviceDA.getDeviceTableSize$()
     }
 
+    getRamAvgInRangeOfTime({ root, args, jwt }, authToken) { 
+        return DeviceDA.getRamAvgInRangeOfTime$(args.initTime, args.endTime, args.deviceId);
+    }
+
 }
 
 module.exports = Devices;

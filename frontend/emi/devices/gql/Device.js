@@ -41,10 +41,6 @@ export const getDeviceState = gql`
         }
         timestamp
       }
-      deviceNetwork {
-        simImei
-        simStatus
-      }
     }
   }
 `;
@@ -65,7 +61,26 @@ export const getDeviceNetwork = gql`
         }
         band
         mode
+        simImei
+        simStatus
       }
+    }
+  }
+`;
+
+export const getRamAvgInRangeOfTime = gql`
+  query getRamAvgInRangeOfTime(
+    $initTime: BigInt
+    $endTime: BigInt
+    $deviceId: String
+  ) {
+    getRamAvgInRangeOfTime(
+      initTime: $initTime
+      endTime: $endTime
+      deviceId: $deviceId
+    ) {
+      grouped_data
+      interval
     }
   }
 `;

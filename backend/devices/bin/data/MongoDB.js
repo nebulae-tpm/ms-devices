@@ -33,8 +33,8 @@ class MongoDB {
 module.exports = () => {
   if (!instance) {
     instance = new MongoDB({
-      url: process.env.MONGODB_URL,
-      dbName: process.env.MONGODB_DB_NAME
+      url: 'mongodb://localhost:27017',
+      dbName: 'Device'
     });
     console.log(`MongoDB instance created: ${process.env.MONGODB_DB_NAME}`);
   }

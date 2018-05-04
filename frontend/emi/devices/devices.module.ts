@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from '../../../core/modules/shared.module';
 import { RouterModule } from '@angular/router';
+import { DatePipe } from '@angular/common';
 
 import { DevicesComponent } from './devices.component';
 import { DeviceStateComponent, AppVersionDialog } from './device/device-state/device-state.component'
@@ -36,6 +37,6 @@ const routes = [
   ],
   entryComponents: [AppVersionDialog],
   imports: [SharedModule, RouterModule.forChild(routes), NgxChartsModule, FuseWidgetModule],
-  providers: [DevicesService, DeviceService, DummyDataService]
+  providers: [DevicesService, DeviceService, DummyDataService, DatePipe]
 })
 export class DevicesModule {}

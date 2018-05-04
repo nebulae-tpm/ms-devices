@@ -1,5 +1,5 @@
 <div class="px-24">
-  <div class="h3 secondary-text">Metricas de ram en
+  <div class="h3 secondary-text">Metricas de {{historyChart.type}} en
     <mat-form-field>
       <mat-select class="simplified" (selectionChange)="doSomething($event)" [(ngModel)]="currentRange" aria-label="Change range">
         <mat-option *ngFor="let range of historyRanges | keys" [value]="range.value">

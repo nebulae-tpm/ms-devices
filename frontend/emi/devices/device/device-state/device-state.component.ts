@@ -5,6 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { first, map, toArray, mergeMap } from 'rxjs/operators';
 import 'rxjs/add/observable/from';
+import { DatePipe } from '@angular/common';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
@@ -17,7 +18,8 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
     private deviceService: DeviceService,
     private router: Router,
     private dialog: MatDialog,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private datePipe: DatePipe
   ) {}
 
   device$: Observable<any>;
@@ -26,114 +28,131 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   HistoryRamChart: any;
   historyRanges: any;
   subscribers: Subscription[] = [];
-
+  deviceRamHistoric: any;
+  deviceSdHistoric: any;
+  deviceFlashHistoric: any;
 
   widget5: any;
   ngOnInit() {
-    this.subscribers.push(this.route.params
-      .pipe(
-        mergeMap(params => {
-          return this.deviceService.getDeviceState(params['id']).pipe(first());
-        })
-      )
-      .subscribe(result => {
-        this.device = JSON.parse(JSON.stringify(result));
-        this.cpuWidget = this.deviceService.buildBarWidget(
-          result.deviceStatus.cpuStatus
-        );
-        this.subscribers.push(this.deviceService
-          .subscribeToDeviceDeviceStateReportedEvent$(this.device.id)
-          .subscribe(result => {
-            if (result.data) {
-              const rawData = JSON.parse(
-                JSON.stringify(result.data.DeviceDeviceStateReportedEvent)
-              );
-              if (rawData.deviceStatus) {
-                Object.keys(rawData.deviceStatus).forEach(
-                  k =>
-                    !rawData.deviceStatus[k] &&
-                    rawData.deviceStatus[k] !== undefined &&
-                    delete rawData.deviceStatus[k]
-                );
-                const deviceStatus = {
-                  ...this.device.deviceStatus,
-                  ...JSON.parse(JSON.stringify(rawData.deviceStatus))
-                };
-                this.device.deviceStatus = deviceStatus;
-              }
-            }
-          }));
+    this.subscribers.push(
+      this.route.params
+        .pipe(
+          mergeMap(params => {
+            return this.deviceService
+              .getDeviceState(params['id'])
+              .pipe(first());
+          })
+        )
+        .subscribe(result => {
+          this.device = JSON.parse(JSON.stringify(result));
+          this.buildDeviceMemoryHistory('MEM', this.device);
+          this.buildDeviceMemoryHistory('SD', this.device);
+          this.buildDeviceMemoryHistory('FLASH', this.device);
+          this.cpuWidget = this.deviceService.buildBarWidget(
+            result.deviceStatus.cpuStatus
+          );
 
-        this.subscribers.push(
-          this.deviceService
-            .subscribeToDeviceVolumesStateReportedEvent$(this.device.id)
-            .subscribe(result => {
-              if (result.data) {
-                const rawData = JSON.parse(
-                  JSON.stringify(result.data.DeviceVolumesStateReportedEvent)
-                );
-                if (rawData.deviceStatus) {
-                  Object.keys(rawData.deviceStatus).forEach(
-                    k =>
-                      !rawData.deviceStatus[k] &&
-                      rawData.deviceStatus[k] !== undefined &&
-                      delete rawData.deviceStatus[k]
+          this.subscribers.push(
+            this.deviceService
+              .subscribeToDeviceDeviceStateReportedEvent$(this.device.id)
+              .subscribe(result => {
+                if (result.data) {
+                  const rawData = JSON.parse(
+                    JSON.stringify(result.data.DeviceDeviceStateReportedEvent)
                   );
-                  const deviceStatus = {
-                    ...this.device.deviceStatus,
-                    ...JSON.parse(JSON.stringify(rawData.deviceStatus))
-                  };
-                  this.device.deviceStatus = deviceStatus;
+                  if (rawData.deviceStatus) {
+                    Object.keys(rawData.deviceStatus).forEach(
+                      k =>
+                        !rawData.deviceStatus[k] &&
+                        rawData.deviceStatus[k] !== undefined &&
+                        delete rawData.deviceStatus[k]
+                    );
+                    const deviceStatus = {
+                      ...this.device.deviceStatus,
+                      ...JSON.parse(JSON.stringify(rawData.deviceStatus))
+                    };
+                    this.device.deviceStatus = deviceStatus;
+                  }
                 }
-              }
-            }));
+              })
+          );
 
-        this.subscribers.push(this.deviceService
-          .subscribeToDeviceMainAppStateReportedEvent$(this.device.id)
-          .subscribe(result => {
-            if (result.data) {
-              const rawData = JSON.parse(
-                JSON.stringify(result.data.DeviceMainAppStateReportedEvent)
-              );
-              if (rawData.appStatus) {
-                Object.keys(rawData.appStatus).forEach(
-                  k =>
-                    !rawData.appStatus[k] &&
-                    rawData.appStatus[k] !== undefined &&
-                    delete rawData.appStatus[k]
-                );
-                const appStatus = {
-                  ...this.device.appStatus,
-                  ...JSON.parse(JSON.stringify(rawData.appStatus))
-                };
-                this.device.appStatus = appStatus;
-              }
-            }
-          }));
+          this.subscribers.push(
+            this.deviceService
+              .subscribeToDeviceVolumesStateReportedEvent$(this.device.id)
+              .subscribe(result => {
+                if (result.data) {
+                  const rawData = JSON.parse(
+                    JSON.stringify(result.data.DeviceVolumesStateReportedEvent)
+                  );
+                  if (rawData.deviceStatus) {
+                    Object.keys(rawData.deviceStatus).forEach(
+                      k =>
+                        !rawData.deviceStatus[k] &&
+                        rawData.deviceStatus[k] !== undefined &&
+                        delete rawData.deviceStatus[k]
+                    );
+                    const deviceStatus = {
+                      ...this.device.deviceStatus,
+                      ...JSON.parse(JSON.stringify(rawData.deviceStatus))
+                    };
+                    this.device.deviceStatus = deviceStatus;
+                  }
+                }
+              })
+          );
 
-        this.subscribers.push(this.deviceService
-          .subscribeToDeviceSystemStateReportedEvent$(this.device.id)
-          .subscribe(result => {
-            if (result.data) {
-              const rawData = JSON.parse(
-                JSON.stringify(result.data.DeviceSystemStateReportedEvent)
-              );
-              if (rawData.deviceStatus) {
-                Object.keys(rawData.deviceStatus).forEach(
-                  k =>
-                    !rawData.deviceStatus[k] &&
-                    rawData.deviceStatus[k] !== undefined &&
-                    delete rawData.deviceStatus[k]
-                );
-                const deviceStatus = {
-                  ...this.device.deviceStatus,
-                  ...JSON.parse(JSON.stringify(rawData.deviceStatus))
-                };
-                this.device.deviceStatus = deviceStatus;
-              }
-            }
-          }));
-      }));
+          this.subscribers.push(
+            this.deviceService
+              .subscribeToDeviceMainAppStateReportedEvent$(this.device.id)
+              .subscribe(result => {
+                if (result.data) {
+                  const rawData = JSON.parse(
+                    JSON.stringify(result.data.DeviceMainAppStateReportedEvent)
+                  );
+                  if (rawData.appStatus) {
+                    Object.keys(rawData.appStatus).forEach(
+                      k =>
+                        !rawData.appStatus[k] &&
+                        rawData.appStatus[k] !== undefined &&
+                        delete rawData.appStatus[k]
+                    );
+                    const appStatus = {
+                      ...this.device.appStatus,
+                      ...JSON.parse(JSON.stringify(rawData.appStatus))
+                    };
+                    this.device.appStatus = appStatus;
+                  }
+                }
+              })
+          );
+
+          this.subscribers.push(
+            this.deviceService
+              .subscribeToDeviceSystemStateReportedEvent$(this.device.id)
+              .subscribe(result => {
+                if (result.data) {
+                  const rawData = JSON.parse(
+                    JSON.stringify(result.data.DeviceSystemStateReportedEvent)
+                  );
+                  if (rawData.deviceStatus) {
+                    Object.keys(rawData.deviceStatus).forEach(
+                      k =>
+                        !rawData.deviceStatus[k] &&
+                        rawData.deviceStatus[k] !== undefined &&
+                        delete rawData.deviceStatus[k]
+                    );
+                    const deviceStatus = {
+                      ...this.device.deviceStatus,
+                      ...JSON.parse(JSON.stringify(rawData.deviceStatus))
+                    };
+                    this.device.deviceStatus = deviceStatus;
+                  }
+                }
+              })
+          );
+        })
+    );
   }
 
   openVersionDialog(): void {
@@ -161,24 +180,49 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
         deviceDataMemory.memoryUnitInformation
       )
     );
-    if (type == 'SD') {
-      //console.log(`Se actualiza: ${widget}`);
-    }
     return widget;
   }
 
-  buildDeviceMemoryHistory(type) {
-    //TODO: se debe cambiar por valores reales
-    return Observable.from([100, 100, 100, 7, 89, 50]).pipe(
-      map(val => {
-        return { name: `${Math.floor(Math.random() * 1000)}`, value: val };
-      }),
-      toArray(),
-      map(result =>
-        JSON.stringify(this.deviceService.buildChartMemoryWidget('RAM', result))
-      ),
-      first()
-    );
+  buildDeviceMemoryHistory(type, device) {
+    let deviceMemoryChart;
+    //TODO: cambiar por la hora actual
+    let endTime = 1525277119000;
+    const roundedEndTime =
+      endTime +
+      (10 - (Number(this.datePipe.transform(new Date(endTime), 'mm')) % 10)) *
+        60000;
+    const initTime = roundedEndTime - 600000 * 7;
+    if (type == 'MEM') {
+      deviceMemoryChart = this.deviceService.buildChartMemoryWidget(
+        initTime,
+        roundedEndTime,
+        type,
+        device.deviceStatus.ram.totalValue,
+        device.id
+      );
+    } else {
+      const deviceDataMemory = this.getDeviceMemory(device, type);
+      deviceMemoryChart = this.deviceService.buildChartMemoryWidget(
+        initTime,
+        roundedEndTime,
+        type,
+        deviceDataMemory.totalValue,
+        device.id
+      );
+    }
+    deviceMemoryChart.subscribe(result => {
+      switch (type) {
+        case 'MEM':
+          this.deviceRamHistoric = JSON.stringify(result);
+          break;
+        case 'SD':
+        this.deviceSdHistoric = JSON.stringify(result);
+          break;
+        case 'FLASH':
+        this.deviceFlashHistoric = JSON.stringify(result);
+          break;
+      }
+    });
   }
 
   ngOnDestroy() {
