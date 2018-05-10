@@ -1,0 +1,58 @@
+apiVersion: apps/v1beta2 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: devices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devices
+  template:
+    metadata:
+      labels:
+        app: devices
+    spec:      
+      containers:
+      - image: nebulaetpm/devices.backend.devices:0.0.1
+        name: devices
+        volumeMounts:
+        - name: google-application-credentials
+          mountPath: "/etc/GOOGLE_APPLICATION_CREDENTIALS"
+          readOnly: true
+        env:     
+        # EVENT STORE CONFIG 
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/GOOGLE_APPLICATION_CREDENTIALS/gcloud-service-key.json  
+        - name: EVENT_STORE_BROKER_TYPE
+          value: PUBSUB
+        - name: EVENT_STORE_BROKER_EVENTS_TOPIC
+          value: events
+        - name: EVENT_STORE_STORE_TYPE
+          value: MONGO
+        - name: EVENT_STORE_STORE_URL
+          value: mongodb://dbevents-0.dbevents:27017,dbevents-1.dbevents:27017,dbevents-2.dbevents:27017/test?replicaSet=rs0
+        - name: EVENT_STORE_STORE_AGGREGATES_DB_NAME
+          value: Aggregates
+        - name: EVENT_STORE_STORE_EVENTSTORE_DB_NAME
+          value: EventStore
+        # INTERNAL MONGO DB CONFIG
+        - name: MONGODB_URL
+          value: mongodb://devices-mongo:27017
+        - name: MONGODB_DB_NAME
+          value: Device
+        # JWT CONGIF        
+        - name: JWT_PUBLIC_KEY
+          value: -----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArdoGFIsq/MyL3DAtpuWxg/mMvpZ81+R64TUn4JWulAbN76q5M0eXRGTkxw6Hu1odji0o++R/NjvO9IMwcgVfhMqq9zhkIITj2M/AnKyT+qg56tquRi1pEli1lpNtQl+PB38AKSbALNA0fCVq+LV03OwgYlyimZbYHmsKBmoojJBqsG0hpsthXDhQPhdTYS+3K0InhLZADK4IRQISLTh/xcShPouOCi1CzOtx3fLnw3WPbGumYXuMtwnvhPbyfKZT9Z60/1489WEs2zcXlcQJjoryFkNzztmfOVTg/Ajodt7GPksbBw2SnUkwg2jJrovdsfpyDzgQnGOw2fbBcT4CsQIDAQAB\n-----END PUBLIC KEY-----
+        # API - GATEWAY CONFIG
+        - name: GATEWAY_REPLIES_TOPIC_SUBSCRIPTION
+          value: gateway-replies-topic-mbe-devices
+        - name: REPLY_TIMEOUT
+          value: '2000'
+        - name: BROKER_TYPE
+          value: PUBSUB
+        
+      volumes:
+      - name: google-application-credentials
+        secret:
+          secretName: google-application-credentials
+      
