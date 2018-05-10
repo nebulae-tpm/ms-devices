@@ -254,7 +254,8 @@ broker
 broker
   .getMaterializedViewsUpdates$(['DeviceSystemStateReportedEvent'])
   .subscribe(
-    evt => {
+  evt => {
+    console.log('Pasa por aqui');
       pubsub.publish('DeviceSystemStateReportedEvent', {
         DeviceSystemStateReportedEvent: evt.data
       });
