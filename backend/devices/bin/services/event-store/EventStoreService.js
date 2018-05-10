@@ -38,6 +38,8 @@ class EventStoreService {
             { aggregateType: 'Device', eventType: 'DeviceDisplayStateReported', onErrorHandler, onCompleteHandler },
             { aggregateType: 'Device', eventType: 'DeviceDeviceStateReported', onErrorHandler, onCompleteHandler },
             { aggregateType: 'Device', eventType: 'DeviceMainAppStateReported', onErrorHandler, onCompleteHandler },            
+            { aggregateType: 'Device', eventType: 'DeviceConnected', onErrorHandler, onCompleteHandler },            
+            { aggregateType: 'Device', eventType: 'DeviceDisconnected', onErrorHandler, onCompleteHandler },            
         ]).map(params => this.subscribeEventHandler(params));
     }
 
@@ -85,7 +87,9 @@ class EventStoreService {
             'DeviceDisplayStateReported': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
             'DeviceSystemStateReported': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
             'DeviceDeviceStateReported': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
-            'DeviceMainAppStateReported': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer }
+            'DeviceMainAppStateReported': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
+            'DeviceConnected': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
+            'DeviceDisconnected': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
         };
     }
 

@@ -1,0 +1,18 @@
+<div class="px-24">
+  <div class="h3 secondary-text">{{'DEVICE.METRICS_OF' | translate}} {{'DEVICE.VOLTAGE' | translate}} {{'DEVICE.IN' | translate}}
+    <mat-form-field>
+      <mat-select class="simplified" (selectionChange)="onHourSelected($event)" [(ngModel)]="currentRange" aria-label="Change range">
+        <mat-option *ngFor="let range of historyRanges | keys" [value]="range.value">
+          <span class="h3">{{'DEVICE.'+range.key | translate}}</span>
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>
+<div fxLayout="column">
+  <div style="width: 100%; height: 400px;" *ngIf="deviceVoltage">
+    <ngx-charts-line-chart *fuseIfOnDom [scheme]="deviceVoltage.scheme" [results]="deviceVoltage.data" [xAxis]="true" [yAxis]="true"
+      [yScaleMin]="0">
+    </ngx-charts-line-chart>
+  </div>
+</div>

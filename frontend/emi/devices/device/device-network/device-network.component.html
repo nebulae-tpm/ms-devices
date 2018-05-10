@@ -1,5 +1,5 @@
 <div fxLayout="column" *ngIf="device && device.deviceNetwork" style="width: 100%; justify-content: space-between" fxLayout.gt-sm="row">
-  <div fxLayout="column" fxFlex="100" fxFlex.gt-sm="50" fxFlex.gt-md="48">
+  <div fxLayout="column" fxFlex="100" fxFlex.gt-sm="48" fxFlex.gt-md="48">
     <div class="network-box info-box read-form" fxLayout="column">
 
       <header class="mat-accent-bg">
@@ -47,7 +47,7 @@
           <div class="info-line">
             <table class="info">
               <tr class="content-form">
-                <td class="read-form-title">MAC</td>
+                <td class="read-form-title">{{'DEVICE.MAC' | translate}}</td>
                 <td class="read-form-data">{{device.deviceNetwork.mac}}</td>
               </tr>
             </table>
@@ -75,8 +75,7 @@
             <table class="info">
               <tr class="content-form">
                 <td class="read-form-title">{{'DEVICE.SIM_STATUS' | translate}}</td>
-                <mat-icon *ngIf="device.deviceNetwork.simStatus " class="active-icon mat-green-600-bg s-16">check</mat-icon>
-                <mat-icon *ngIf="!device.deviceNetwork.simStatus " class="active-icon mat-red-500-bg s-16">close</mat-icon>
+                <td class="read-form-data">{{device.deviceNetwork.simStatus }}</td>
               </tr>
             </table>
           </div>

@@ -12,11 +12,12 @@ import { FuseUtils } from '../../../../core/fuseUtils';
 import { MatSnackBar } from '@angular/material';
 import { Location } from '@angular/common';
 import { DeviceService } from './device.service';
-import { Router } from "@angular/router";
+import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { locale as english } from '../i18n/en';
 import { locale as spanish } from '../i18n/es';
 import { FuseTranslationLoaderService } from '../../../../core/services/translation-loader.service';
+import { mergeMap, first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-device',
@@ -27,6 +28,7 @@ import { FuseTranslationLoaderService } from '../../../../core/services/translat
 })
 export class DeviceComponent implements OnInit {
   device: any;
+  deviceVal: any;
   pageType: string;
   deviceForm: FormGroup;
   ramWidget = '';
@@ -34,19 +36,27 @@ export class DeviceComponent implements OnInit {
   flashWidget = '';
   cpuWidget: any;
 
-  device$: Observable<any>;
-
   constructor(
     private translationLoader: FuseTranslationLoaderService,
     private formBuilder: FormBuilder,
     public snackBar: MatSnackBar,
     private location: Location,
     private deviceService: DeviceService,
-    private router: Router
+    private router: ActivatedRoute
   ) {
     this.translationLoader.loadTranslations(english, spanish);
   }
 
   ngOnInit() {
+    this.router.params
+      .pipe(
+        mergeMap(params => {
+          return this.deviceService.getDeviceState(params['id']).pipe(first());
+        })
+      )
+      .subscribe(result => {
+        this.device = result;
+        this.deviceVal = JSON.stringify(this.device);
+      });
   }
 }

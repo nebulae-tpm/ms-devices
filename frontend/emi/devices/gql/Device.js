@@ -9,6 +9,8 @@ export const getDeviceState = gql`
         displaySn
         connectorSn
         hostname
+        type
+        groupName
         deviceDataList {
           totalValue
           currentValue
@@ -41,14 +43,6 @@ export const getDeviceState = gql`
         }
         timestamp
       }
-    }
-  }
-`;
-
-export const getDeviceNetwork = gql`
-  query getDeviceNetwork($id: ID!) {
-    getDeviceDetail(id: $id) {
-      id
       deviceNetwork {
         modemSn
         gateway
@@ -68,18 +62,82 @@ export const getDeviceNetwork = gql`
   }
 `;
 
+
 export const getRamAvgInRangeOfTime = gql`
   query getRamAvgInRangeOfTime(
     $initTime: BigInt
     $endTime: BigInt
     $deviceId: String
+    $deltaTime: Int
   ) {
     getRamAvgInRangeOfTime(
       initTime: $initTime
       endTime: $endTime
+      deltaTime: $deltaTime
       deviceId: $deviceId
     ) {
       grouped_data
+      interval
+    }
+  }
+`;
+
+export const getVolumeAvgInRangeOfTime = gql`
+  query getVolumeAvgInRangeOfTime(
+  $initTime: BigInt
+  $endTime: BigInt
+  $deviceId: String
+  $type: String
+  $deltaTime: Int
+) {
+  getVolumeAvgInRangeOfTime(
+    initTime: $initTime
+    endTime: $endTime
+    volumeType:$type
+    deltaTime: $deltaTime
+    deviceId: $deviceId
+  ) {
+    grouped_data
+    interval
+  }
+}
+`;
+
+export const getCpuAvgInRangeOfTime = gql`
+  query getCpuAvgInRangeOfTime(
+    $initTime: BigInt
+    $endTime: BigInt
+    $deviceId: String
+    $deltaTime: Int
+  ) {
+    getCpuAvgInRangeOfTime(
+      initTime: $initTime
+      endTime: $endTime
+      deltaTime: $deltaTime
+      deviceId: $deviceId
+    ) {
+      grouped_data
+      interval
+    }
+  }
+`;
+
+export const getVoltageInRangeOfTime = gql`
+  query getVoltageInRangeOfTime(
+    $initTime: BigInt
+    $endTime: BigInt
+    $deviceId: String
+    $deltaTime: Int
+  ) {
+    getVoltageInRangeOfTime(
+      initTime: $initTime
+      endTime: $endTime
+      deltaTime: $deltaTime
+      deviceId: $deviceId
+    ) {
+      currentValue
+      lowestValue
+      highestValue
       interval
     }
   }

@@ -1,7 +1,7 @@
-<div class="px-24">
-  <div class="h3 secondary-text">Metricas de {{historyChart.type}} en
+<div *ngIf="deviceHistoric" class="px-24">
+  <div class="h3 secondary-text">{{'DEVICE.METRICS_OF' | translate}} {{deviceHistoric.type}} (%) {{'DEVICE.IN' | translate}}
     <mat-form-field>
-      <mat-select class="simplified" (selectionChange)="doSomething($event)" [(ngModel)]="currentRange" aria-label="Change range">
+      <mat-select class="simplified" (selectionChange)="changeHour($event)" [(ngModel)]="currentRange" aria-label="Change range">
         <mat-option *ngFor="let range of historyRanges | keys" [value]="range.value">
           <span class="h3">{{'DEVICE.'+range.key | translate}}</span>
         </mat-option>
@@ -11,38 +11,9 @@
 </div>
 
 <div fxLayout="column">
-  <div style="width: 100%" *ngIf="historyChart">
-    <canvas baseChart [datasets]="historyChart.datasets" [labels]="historyChart.labels" [colors]="historyChart.colors" [options]="historyChart.options"
-      [chartType]="historyChart.chartType">
+  <div style="width: 100%; height: 400px; " *ngIf="deviceHistoric">
+    <canvas baseChart [datasets]="deviceHistoric.datasets" [labels]="labels" [colors]="deviceHistoric.colors" [options]="deviceHistoric.options"
+      [chartType]="deviceHistoric.chartType">
     </canvas>
-  </div>
-
-  <div class="mat-white-bg mat-elevation-z2" style="margin-top: 10px">
-    <div class="px-24">
-      <div class="h3 secondary-text" style="margin-top: 10px">Alarmas generadas</div>
-    </div>
-    <div fxLayout="row" fxLayoutAlign="start start" fxLayoutWrap>
-
-      <div class="h-100 my-16" fxLayout="row" fxFlex="100" fxFlex.gt-sm="100">
-        <div class="alarm-summary px-24">
-          <table class="info">
-            <tr class="content-form">
-              <td class="read-form-title">Detalle de la alarma</td>
-              <td class="read-form-data">10:00 am</td>
-            </tr>
-
-            <tr class="content-form">
-              <td class="read-form-title">Detalle de la alarma</td>
-              <td class="read-form-data">10:15 am</td>
-            </tr>
-
-            <tr class="content-form">
-              <td class="read-form-title">Detalle de la alarma</td>
-              <td class="read-form-data">10:30 am</td>
-            </tr>
-          </table>
-        </div>
-      </div>
-    </div>
   </div>
 </div>

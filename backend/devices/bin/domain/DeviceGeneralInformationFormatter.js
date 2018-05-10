@@ -101,9 +101,24 @@ class DeviceGeneralInformationFormatter {
         deviceStatus['deviceStatus.devSn'] = data.sn;
         deviceStatus['deviceStatus.type'] = data.type;
         deviceStatus['deviceStatus.hostname'] = data.hostname;
+        deviceStatus['deviceStatus.groupName'] = data.groupName;
         return deviceStatus;
       });
-    } else {
+    }
+    else if (eventType == 'DeviceConnected') { 
+      return Rx.Observable.of(eventData).map(data => {
+        deviceStatus['deviceStatus.online'] = data.connected;
+        return deviceStatus;
+      });
+
+    }
+    else if (eventType == 'DeviceDisconnected') { 
+      return Rx.Observable.of(eventData).map(data => {
+        deviceStatus['deviceStatus.online'] = data.connected;
+        return deviceStatus;
+      });
+    }
+    else {
       return Rx.Observable.of(undefined);
     }
   }
@@ -137,7 +152,7 @@ class DeviceGeneralInformationFormatter {
         deviceNetwork['deviceNetwork.mode'] = data.mode;
         deviceNetwork['deviceNetwork.cellid'] = data.cellid;
         deviceNetwork['deviceNetwork.simImei'] = data.simImei;
-        deviceNetwork['deviceNetwork.simStatus'] = data.simStatus == 'OK';
+        deviceNetwork['deviceNetwork.simStatus'] = data.simStatus;
         return deviceNetwork;
       });
     } else {

@@ -14,7 +14,10 @@ import { GatewayService } from '../../../../api/gateway.service';
 import {
   getDeviceState,
   getDeviceNetwork,
-  getRamAvgInRangeOfTime
+  getRamAvgInRangeOfTime,
+  getVolumeAvgInRangeOfTime,
+  getCpuAvgInRangeOfTime,
+  getVoltageInRangeOfTime
 } from '../gql/Device';
 import { map, first, mergeMap, toArray, pairwise } from 'rxjs/operators';
 import 'rxjs/Rx';
@@ -22,12 +25,23 @@ import { Subscription } from 'rxjs/Rx';
 import { variable } from '@angular/compiler/src/output/output_ast';
 import gql from 'graphql-tag';
 import { DatePipe } from '@angular/common';
+import { Subject } from 'rxjs/Subject';
+
 @Injectable()
 export class DeviceService {
   routeParams: any;
   device: any;
   deviceWidgets: any = {};
   INTERVAL_VALUE = 600000;
+  private _subject = new Subject<any>();
+
+  newEvent(event) {
+    this._subject.next(event);
+  }
+
+  get events$() {
+    return this._subject.asObservable();
+  }
   constructor(
     private dummyDataService: DummyDataService,
     private gateway: GatewayService,
@@ -45,17 +59,82 @@ export class DeviceService {
       .pipe(map(rawData => rawData.data.getDeviceDetail));
   }
 
-  getRamAvgInRangeOfTime(initTime, endTime, deviceId): Observable<any> {
+  getRamAvgInRangeOfTime(
+    initTime,
+    endTime,
+    deltaTime,
+    deviceId
+  ): Observable<any> {
     return this.gateway.apollo
       .query<any>({
         query: getRamAvgInRangeOfTime,
         variables: {
           initTime: initTime,
           endTime: endTime,
+          deltaTime: deltaTime,
           deviceId: deviceId
         }
       })
       .pipe(map(rawData => rawData.data.getRamAvgInRangeOfTime));
+  }
+
+  getVolumeAvgInRangeOfTime(
+    initTime,
+    endTime,
+    type,
+    deltaTime,
+    deviceId
+  ): Observable<any> {
+    return this.gateway.apollo
+      .query<any>({
+        query: getVolumeAvgInRangeOfTime,
+        variables: {
+          initTime: initTime,
+          endTime: endTime,
+          type: type,
+          deltaTime: deltaTime,
+          deviceId: deviceId
+        }
+      })
+      .pipe(map(rawData => rawData.data.getVolumeAvgInRangeOfTime));
+  }
+
+  getCpuAvgInRangeOfTime(
+    initTime,
+    endTime,
+    deltaTime,
+    deviceId
+  ): Observable<any> {
+    return this.gateway.apollo
+      .query<any>({
+        query: getCpuAvgInRangeOfTime,
+        variables: {
+          initTime: initTime,
+          endTime: endTime,
+          deltaTime: deltaTime,
+          deviceId: deviceId
+        }
+      })
+      .pipe(map(rawData => rawData.data.getCpuAvgInRangeOfTime));
+  }
+
+  getVoltageInRangeOfTime(
+    initTime,
+    endTime,
+    deltaTime,
+    deviceId
+  ): Observable<any> {
+    return this.gateway.apollo
+      .query<any>({
+        query: getVoltageInRangeOfTime,
+        variables: {
+          initTime: initTime,
+          endTime: endTime,
+          deltaTime: deltaTime,
+          deviceId: deviceId
+        }
+      })
+      .pipe(map(rawData => rawData.data.getVoltageInRangeOfTime));
   }
 
   getDeviceNetwork(id): Observable<any> {
@@ -124,74 +203,117 @@ export class DeviceService {
     };
   }
 
-  buildChartMemoryWidget(initTime, endTime, name, totalValue, deviceId) {
-    const sortByHour = (a, b) => {
-      if (a.timeInterval < b.timeInterval) return -1;
-      if (a.timeInterval > b.timeInterval) return 1;
-      return 0;
-    };
-
-    return this.getRamAvgInRangeOfTime(initTime, endTime, deviceId).pipe(
-      first(),
-      mergeMap(result => {
-        return Observable.from(result as any[]).pipe(
-          map(rawData => {
-            return {
-              freeValue: Math.floor(
-                (totalValue - rawData.grouped_data) / totalValue * 100
-              ),
-              usedValue: Math.floor(rawData.grouped_data / totalValue * 100),
-              timeInterval: this.datePipe.transform(
-                new Date(rawData.interval),
-                'hh:mm a'
-              )
-            };
-          }),
-          toArray(),
-          map(unsortedArray => unsortedArray.sort(sortByHour))
-        );
-      }),
-      mergeMap(widgetInfo => {
-        let index;
-        return Observable.range(1, 7).pipe(
-          map(value => {
-            const intervalTime = initTime + this.INTERVAL_VALUE * value;
-            return this.datePipe.transform(new Date(intervalTime), 'hh:mm a');
-          }),
-          map(hour => {
-            console.log('Hora: ', hour);
-            const value = widgetInfo.filter(
-              widgetValue => widgetValue.timeInterval === hour
-            )[0];
-            return value
-              ? value
-              : { timeInterval: hour, freeValue: 100, usedValue: 0 };
-          }),
-          toArray(),
-          mergeMap(sortedIntervals =>
-            Observable.forkJoin(
-              Observable.from(sortedIntervals)
-                .map(toFreeValueList => toFreeValueList.freeValue)
-                .toArray(),
-              Observable.from(sortedIntervals)
-                .map(toUsedValueList => toUsedValueList.usedValue)
-                .toArray(),
-              Observable.from(sortedIntervals)
-                .map(toTimeIntervalList => toTimeIntervalList.timeInterval)
-                .toArray()
-            )
-          )
+  buildChartMemoryWidget(deltaList, type) {
+    return Observable.from(deltaList).pipe(
+      toArray(),
+      mergeMap(sortedIntervals => {
+        return Observable.forkJoin(
+          Observable.from(sortedIntervals)
+            .map(toFreeValueList => (toFreeValueList as any).freeValue)
+            .toArray(),
+          Observable.from(sortedIntervals)
+            .map(toUsedValueList => (toUsedValueList as any).usedValue)
+            .toArray(),
+          Observable.from(sortedIntervals)
+            .map(toTimeIntervalList => (toTimeIntervalList as any).timeInterval)
+            .toArray()
         );
       }),
       map(([freeValueList, usedValueList, timeIntervalList]) => {
-        return this.buildMemoryWidget(usedValueList,freeValueList,timeIntervalList)
+        return this.buildMemoryWidget(
+          usedValueList,
+          freeValueList,
+          timeIntervalList,
+          type
+        );
       })
     );
   }
 
-  buildMemoryWidget(usedValueList,freeValueList,timeIntervalList) {
+  buildChartVoltageWidget(deltaList, type) {
+    return Observable.from(deltaList).pipe(
+      toArray(),
+      mergeMap(sortedIntervals => {
+        return Observable.forkJoin(
+          Observable.from(sortedIntervals)
+            .map(toFreeValueList => (toFreeValueList as any).freeValue)
+            .toArray(),
+          Observable.from(sortedIntervals)
+            .map(toUsedValueList => (toUsedValueList as any).usedValue)
+            .toArray(),
+          Observable.from(sortedIntervals)
+            .map(toTimeIntervalList => (toTimeIntervalList as any).timeInterval)
+            .toArray()
+        );
+      }),
+      map(([freeValueList, usedValueList, timeIntervalList]) => {
+        return this.buildMemoryWidget(
+          usedValueList,
+          freeValueList,
+          timeIntervalList,
+          type
+        );
+      })
+    );
+  }
+
+  buildVoltageWidget(voltageList) {
+    return Observable.from(voltageList).pipe(
+      toArray(),
+      mergeMap(sortedIntervals => {
+        return Observable.forkJoin(
+          Observable.from(sortedIntervals)
+            .map(toCurrentValueList => {
+              return {name:(toCurrentValueList as any).timeInterval , value: (toCurrentValueList as any).currentValue };
+            })
+            .toArray(),
+          Observable.from(sortedIntervals)
+            .map(toHighestValueList => {
+              return {name:(toHighestValueList as any).timeInterval , value: (toHighestValueList as any).highestValue };
+            })
+            .toArray(),
+          Observable.from(sortedIntervals)
+            .map(toLowestValueList =>
+              {
+                return {name:(toLowestValueList as any).timeInterval , value: (toLowestValueList as any).lowestValue };
+              })
+            .toArray()
+        );
+      }),
+      map(([currentValueList, highestValueList, lowestValueList]) => {
+        return {
+          scheme: {
+            domain: ['#5c84f1', '#f44336', '#ffc107']
+          },
+          today: '12,540',
+          change: {
+            value: 321,
+            percentage: 2.05
+          },
+          data: [
+            {
+              name: 'Actual',
+              series: currentValueList
+            },
+            {
+              name: 'Mas alto',
+              series: highestValueList
+            },
+            {
+              name: 'Mas bajo',
+              series: lowestValueList
+            }
+          ],
+          dataMin: 538,
+          dataMax: 541
+        };
+      })
+    );
+  }
+
+  buildMemoryWidget(usedValueList, freeValueList, timeIntervalList, type) {
     return {
-      type: name,
+      type: type,
       chartType: 'line',
       datasets: [
         {
@@ -208,20 +330,20 @@ export class DeviceService {
       labels: timeIntervalList,
       colors: [
         {
-          borderColor: '#3949ab',
-          backgroundColor: '#3949ab',
-          pointBackgroundColor: '#3949ab',
-          pointHoverBackgroundColor: '#3949ab',
-          pointBorderColor: '#ffffff',
-          pointHoverBorderColor: '#ffffff'
+          borderColor: "#3949ab",
+          backgroundColor: "rgba(57, 73, 171, 0.3)",
+          pointBackgroundColor: "#3949ab",
+          pointHoverBackgroundColor: "#3949ab",
+          pointBorderColor: "#ffffff",
+          pointHoverBorderColor: "#ffffff"
         },
         {
-          borderColor: 'rgba(30, 136, 229, 0.87)',
-          backgroundColor: 'rgba(30, 136, 229, 0.87)',
-          pointBackgroundColor: 'rgba(30, 136, 229, 0.87)',
-          pointHoverBackgroundColor: 'rgba(30, 136, 229, 0.87)',
-          pointBorderColor: '#ffffff',
-          pointHoverBorderColor: '#ffffff'
+          borderColor: "rgba(30, 136, 229, 0.87)",
+          backgroundColor: "rgba(30, 136, 229, 0.3)",
+          pointBackgroundColor: "rgba(30, 136, 229, 0.87)",
+          pointHoverBackgroundColor: "rgba(30, 136, 229, 0.87)",
+          pointBorderColor: "#ffffff",
+          pointHoverBorderColor: "#ffffff"
         }
       ],
       options: {
@@ -313,7 +435,7 @@ export class DeviceService {
     return this.gateway.apollo.subscribe({
       query: gql`
         subscription {
-          DeviceVolumesStateReportedEvent(id: "${deviceId}") {
+          DeviceVolumesStateReportedEvent(ids: "${deviceId}") {
             id
             deviceStatus {
               deviceDataList {
@@ -322,6 +444,36 @@ export class DeviceService {
                 memoryUnitInformation
                 memorytype
               }
+            }
+          }
+        }
+      `
+    });
+  }
+
+  subscribeToDeviceConnectedEvent$(deviceId): Observable<any> {
+    return this.gateway.apollo.subscribe({
+      query: gql`
+        subscription {
+          DeviceConnectedEvent(ids: "${deviceId}") {
+            id
+            deviceStatus {
+              online
+            }
+          }
+        }
+      `
+    });
+  }
+
+  subscribeToDeviceDisconnectedEvent$(deviceId): Observable<any> {
+    return this.gateway.apollo.subscribe({
+      query: gql`
+        subscription {
+          subscribeToDeviceDisconnectedEvent(ids: "${deviceId}") {
+            id
+            deviceStatus {
+              online
             }
           }
         }
@@ -348,7 +500,7 @@ export class DeviceService {
     return this.gateway.apollo.subscribe({
       query: gql`
         subscription {
-          DeviceSystemStateReportedEvent(id: "${deviceId}") {
+          DeviceSystemStateReportedEvent(ids: "${deviceId}") {
             id
             deviceStatus {
               temperature
@@ -375,11 +527,13 @@ export class DeviceService {
     return this.gateway.apollo.subscribe({
       query: gql`
         subscription {
-          DeviceDeviceStateReportedEvent(id: "${deviceId}") {
+          DeviceDeviceStateReportedEvent(ids: "${deviceId}") {
             id
             deviceStatus {
               devSn
               hostname
+              groupName
+              type
             }
           }
         }

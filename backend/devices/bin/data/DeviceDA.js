@@ -31,11 +31,45 @@ class DeviceDA {
    * gets Devices
    *
    */
-  static getDevices$(page, count) {
+  static getDevices$(page, count, filter, sortColumn, order) {
+    let filterObject = {};
+    const orderObject = {};
+    if (filter && filter != '') {
+      filterObject = {
+        $or: [
+          { 'deviceStatus.hostname': { $regex: `${filter}.*`, $options: 'i' } },
+          { 'deviceStatus.type': { $regex: `${filter}.*`, $options: 'i' } },
+          { 'deviceStatus.groupName': { $regex: `${filter}.*`, $options: 'i' } },
+          { id: { $regex: `${filter}.*`, $options: 'i' } }
+        ]
+      };
+    }    
+    if (sortColumn && order) {
+      let column;
+      switch (sortColumn) {
+        case 'serial':
+          column = 'id';
+          break;
+        case 'hostName':
+          column = 'deviceStatus.hostname';
+          break;
+        case 'groupName':
+          column = 'deviceStatus.groupName';
+          break;
+        case 'ram':
+          column = 'deviceStatus.ram.currentValue';
+          break;
+        case 'online':
+          column = 'deviceStatus.online';
+          break;
+      }
+      orderObject[column] = order == 'asc' ? 1 : -1;
+    }
     const collection = mongoDB.db.collection('Devices');
     return Rx.Observable.fromPromise(
       collection
-        .find({})
+        .find(filterObject)
+        .sort(orderObject)
         .skip(count * page)
         .limit(count)
         .toArray()
@@ -83,7 +117,10 @@ class DeviceDA {
         });
     });
   }
-
+  /**
+   * Persist new register in the collection DeviceHistory
+   * @param {*} device
+   */
   static persistDeviceHistory(device) {
     device.timestamp = new Date().getTime();
     delete device._id;
@@ -92,8 +129,14 @@ class DeviceDA {
       return Rx.Observable.fromPromise(collection.insertOne(device));
     });
   }
-
-  static getRamAvgInRangeOfTime$(initTime, endTime, deviceId) {
+  /**
+   * Returns a list that contains the metrics in time of RAM
+   * @param {Number} initTime
+   * @param {Number} endTime
+   * @param {Number} deltaTime
+   * @param {string} deviceId
+   */
+  static getRamAvgInRangeOfTime$(initTime, endTime, deltaTime, deviceId) {
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.fromPromise(
       collection
@@ -102,7 +145,7 @@ class DeviceDA {
             $match: {
               timestamp: { $gte: initTime, $lt: endTime },
               id: deviceId,
-              'deviceStatus.ram': { $exists: true } 
+              'deviceStatus.ram': { $exists: true }
             }
           },
           {
@@ -124,8 +167,8 @@ class DeviceDA {
                           $multiply: [
                             {
                               $subtract: [
-                                10,
-                                { $mod: [{ $minute: '$date' }, 10] }
+                                deltaTime,
+                                { $mod: [{ $minute: '$date' }, deltaTime] }
                               ]
                             },
                             60000
@@ -143,6 +186,254 @@ class DeviceDA {
                 }
               },
               grouped_data: { $avg: '$deviceStatus.ram.currentValue' }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              interval: '$_id.interval',
+              grouped_data: 1
+            }
+          }
+        ])
+        .toArray()
+    ).map(item => {
+      return item;
+    });
+  }
+  /**
+   * Returns a list that contains the metrics in time of volume memory
+   * @param {Number} initTime
+   * @param {Number} endTime
+   * @param {string} type
+   * @param {Number} deltaTime
+   * @param {string} deviceId
+   */
+  static getVolumeAvgInRangeOfTime$(
+    initTime,
+    endTime,
+    type,
+    deltaTime,
+    deviceId
+  ) {
+    const collection = mongoDB.db.collection('DeviceHistory');
+    return Rx.Observable.fromPromise(
+      collection
+        .aggregate([
+          {
+            $match: {
+              timestamp: { $gte: initTime, $lt: endTime },
+              id: deviceId,
+              'deviceStatus.deviceDataList': { $exists: true }
+            }
+          },
+          {
+            $project: {
+              date: { $add: [new Date(0), '$timestamp'] },
+              timestamp: 1,
+              currValue: {
+                $filter: {
+                  input: '$deviceStatus.deviceDataList',
+                  as: 'value',
+                  cond: { $eq: ['$$value.memorytype', type] }
+                }
+              }
+            }
+          },
+          {
+            $project: {
+              date: 1,
+              timestamp: 1,
+              customValue: {
+                $arrayElemAt: ['$currValue.currentValue', 0]
+              }
+            }
+          },
+          {
+            $group: {
+              _id: {
+                interval: {
+                  $add: [
+                    '$timestamp',
+                    {
+                      $subtract: [
+                        {
+                          $multiply: [
+                            {
+                              $subtract: [
+                                deltaTime,
+                                { $mod: [{ $minute: '$date' }, deltaTime] }
+                              ]
+                            },
+                            60000
+                          ]
+                        },
+                        {
+                          $add: [
+                            { $multiply: [{ $second: '$date' }, 1000] },
+                            { $millisecond: '$date' }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              grouped_data: { $avg: '$customValue' }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              interval: '$_id.interval',
+              grouped_data: 1
+            }
+          }
+        ])
+        .toArray()
+    ).map(item => {
+      return item;
+    });
+  }
+
+  /**
+   * Returns a list that contains the metrics in time of Voltage status
+   * @param {Number} initTime
+   * @param {Number} endTime
+   * @param {Number} deltaTime
+   * @param {string} deviceId
+   */
+  static getVoltageInRangeOfTime$(initTime, endTime, deltaTime, deviceId) {
+    const collection = mongoDB.db.collection('DeviceHistory');
+    return Rx.Observable.fromPromise(
+      collection
+        .aggregate([
+          {
+            $match: {
+              timestamp: { $gte: initTime, $lt: endTime },
+              id: deviceId,
+              'deviceStatus.voltage': { $exists: true }
+            }
+          },
+          {
+            $project: {
+              date: { $add: [new Date(0), '$timestamp'] },
+              timestamp: 1,
+              'deviceStatus.voltage.currentValue': 1,
+              'deviceStatus.voltage.highestValue': 1,
+              'deviceStatus.voltage.lowestValue': 1
+            }
+          },
+          {
+            $group: {
+              _id: {
+                interval: {
+                  $add: [
+                    '$timestamp',
+                    {
+                      $subtract: [
+                        {
+                          $multiply: [
+                            {
+                              $subtract: [
+                                deltaTime,
+                                { $mod: [{ $minute: '$date' }, deltaTime] }
+                              ]
+                            },
+                            60000
+                          ]
+                        },
+                        {
+                          $add: [
+                            { $multiply: [{ $second: '$date' }, 1000] },
+                            { $millisecond: '$date' }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              currentValue: { $avg: '$deviceStatus.voltage.currentValue' },
+              highestValue: { $avg: '$deviceStatus.voltage.highestValue' },
+              lowestValue: { $avg: '$deviceStatus.voltage.lowestValue' }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              interval: '$_id.interval',
+              currentValue: 1,
+              highestValue: 1,
+              lowestValue: 1
+            }
+          }
+        ])
+        .toArray()
+    ).map(item => {
+      return item;
+    });
+  }
+
+  /**
+   * Returns a list that contains the metrics in time of CPU status
+   * @param {Number} initTime
+   * @param {Number} endTime
+   * @param {Number} deltaTime
+   * @param {string} deviceId
+   */
+  static getCpuAvgInRangeOfTime$(initTime, endTime, deltaTime, deviceId) {
+    const collection = mongoDB.db.collection('DeviceHistory');
+    return Rx.Observable.fromPromise(
+      collection
+        .aggregate([
+          {
+            $match: {
+              timestamp: { $gte: initTime, $lt: endTime },
+              id: deviceId,
+              'deviceStatus.cpuStatus': { $exists: true }
+            }
+          },
+          {
+            $project: {
+              date: { $add: [new Date(0), '$timestamp'] },
+              timestamp: 1,
+              customValue: {
+                $arrayElemAt: ['$deviceStatus.cpuStatus', 0]
+              }
+            }
+          },
+          {
+            $group: {
+              _id: {
+                interval: {
+                  $add: [
+                    '$timestamp',
+                    {
+                      $subtract: [
+                        {
+                          $multiply: [
+                            {
+                              $subtract: [
+                                deltaTime,
+                                { $mod: [{ $minute: '$date' }, deltaTime] }
+                              ]
+                            },
+                            60000
+                          ]
+                        },
+                        {
+                          $add: [
+                            { $multiply: [{ $second: '$date' }, 1000] },
+                            { $millisecond: '$date' }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              grouped_data: { $avg: '$customValue' }
             }
           },
           {
@@ -193,7 +484,16 @@ class DeviceDA {
         message.id = device.id;
         message.deviceStatus.devSn = device.deviceStatus.devSn;
         message.deviceStatus.type = device.deviceStatus.type;
+        message.deviceStatus.groupName = device.deviceStatus.groupName;
         message.deviceStatus.hostname = device.deviceStatus.hostname;
+        break;
+      case 'DeviceConnected':
+        message = { deviceStatus: {} };
+        message.deviceStatus.online = device.deviceStatus.online;
+        break;
+      case 'DeviceDisconnected':
+        message = { deviceStatus: {} };
+        message.deviceStatus.online = device.deviceStatus.online;
         break;
       // DEVICE NETWORK EVENTS
       case 'DeviceNetworkStateReported':

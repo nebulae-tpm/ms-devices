@@ -1,24 +1,25 @@
 "Device detail info"
-type Device {  
+type Device {
   "Device id"
-  id: ID  
+  id: ID
   "Current device status"
   deviceStatus: DeviceStatus
   "Current app status"
   appStatus: AppStatus
   "Device network params"
   deviceNetwork: DeviceNetwork
-  
 }
 
 "Current device status"
-type DeviceStatus {  
+type DeviceStatus {
   "Device serial"
-  devSn: String  
+  devSn: String
   "Display serial"
-  displaySn: String  
+  displaySn: String
+  "Device type"
+  type: String
   "Connector Serial"
-  connectorSn: String  
+  connectorSn: String
   "Device name"
   hostname: String
   "information of device memory"
@@ -26,7 +27,7 @@ type DeviceStatus {
   "Information of device voltage"
   voltage: Voltage
   "Device uptime"
-  upTime: String  
+  upTime: String
   "Device temperature"
   temperature: Int
   "CPU status"
@@ -35,7 +36,8 @@ type DeviceStatus {
   online: Boolean
   "Device Ram status"
   ram: DeviceData
-  
+  "Group name where is integrated the device"
+  groupName: String
 }
 
 "Current app status"
@@ -45,7 +47,7 @@ type AppStatus {
   "Current tables availables in device"
   appVersions: [AppVersionDescription]
   "App time stamp"
-  timestamp: BigInt  
+  timestamp: BigInt
 }
 
 "Device network params"
@@ -53,7 +55,7 @@ type DeviceNetwork {
   "Modem serial"
   modemSn: String
   "Gatway"
-  gateway: String 
+  gateway: String
   "Wifi serial"
   wifiSn: String
   "Mac address"
@@ -61,15 +63,15 @@ type DeviceNetwork {
   "DNS address"
   dns: String
   "Curent SIM status"
-  simStatus: Boolean
+  simStatus: String
   "SIM IMEI"
-  simImei: String  
+  simImei: String
   "Information of interfaces in a device"
   ipMaskMap: [Interface]
   "Modem band"
   band: String
   "Modem mode"
-  mode: String 
+  mode: String
 }
 
 "Information of interfaces in a device"
@@ -119,6 +121,8 @@ enum MemoryType {
 }
 
 enum MemoryUnitInformation {
+  "Byte"
+  B
   "Kibibyte"
   KiB
   "Mebibite"
@@ -138,7 +142,14 @@ type Voltage {
 }
 
 type AvgInRangeOfTime {
-  grouped_data: Float,
+  grouped_data: Float
+  interval: BigInt
+}
+
+type VoltageAvgInRangeOfTime {
+  currentValue: Float
+  lowestValue: Float
+  highestValue: Float
   interval: BigInt
 }
 
@@ -147,22 +158,51 @@ type Query {
   getDeviceDetail(id: ID!): Device
 
   "Get all devices"
-  getDevices(page: Int!, count: Int!): [Device]
+  getDevices(page: Int!, count: Int!, filter: String, sortColumn: String, sortOrder: String): [Device]
 
   "Get the size of table Device"
   getDeviceTableSize: Int
 
-  getRamAvgInRangeOfTime(initTime: BigInt, endTime: BigInt, deviceId: String): [AvgInRangeOfTime]
+  getRamAvgInRangeOfTime(
+    initTime: BigInt
+    endTime: BigInt
+    deltaTime: Int
+    deviceId: String
+  ): [AvgInRangeOfTime]
+
+  getVolumeAvgInRangeOfTime(
+    initTime: BigInt
+    endTime: BigInt
+    volumeType: String
+    deltaTime: Int
+    deviceId: String
+  ): [AvgInRangeOfTime]
+
+  getCpuAvgInRangeOfTime(
+    initTime: BigInt
+    endTime: BigInt
+    deltaTime: Int
+    deviceId: String
+  ): [AvgInRangeOfTime]
+
+  getVoltageInRangeOfTime(
+    initTime: BigInt
+    endTime: BigInt
+    deltaTime: Int
+    deviceId: String
+  ): [VoltageAvgInRangeOfTime]
 }
 
 type Subscription {
-  DeviceVolumesStateReportedEvent(id: ID): Device
+  DeviceVolumesStateReportedEvent(ids: [ID]): Device
   DeviceDisplayStateReportedEvent(id: ID): Device
-  DeviceSystemStateReportedEvent(id: ID): Device
-  DeviceDeviceStateReportedEvent(id: ID): Device
+  DeviceSystemStateReportedEvent(ids: [ID]): Device
+  DeviceDeviceStateReportedEvent(ids: [ID]): Device
   DeviceLowestVoltageReportedEvent(id: ID): Device
   DeviceHighestVoltageReportedEvent(id: ID): Device
   DeviceNetworkStateReportedEvent(id: ID): Device
   DeviceModemStateReportedEvent(id: ID): Device
   DeviceMainAppStateReportedEvent(id: ID): Device
+  DeviceConnectedEvent(ids: [ID]): Device
+  DeviceDisconnectedEvent(ids: [ID]): Device
 }

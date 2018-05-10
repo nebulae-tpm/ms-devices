@@ -8,7 +8,7 @@ import {
 import { DataSource } from '@angular/cdk/collections';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { fuseAnimations } from '../../../core/animations';
-import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
+import { MatPaginator, MatSort, MatTableDataSource, Sort } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
 import { DevicesService } from './devices.service';
 import { FuseUtils } from '../../../core/fuseUtils';
@@ -31,17 +31,21 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class DevicesComponent implements OnInit {
   dataSource = new MatTableDataSource();
-  displayedColumns = ['name', 'serial', 'ram', 'sd', 'flash', 'online'];
+  displayedColumns = ['name', 'serial', 'type', 'groupName', 'ram', 'sd', 'online'];
   tableSize: number;
   keyUpSubscriber: Subscription;
   paginatorSubscriber: Subscription;
   tableSizeSubscription: Subscription;
   deviceDataListSubscription: Subscription;
+  page = 0;
+  count = 10;
+  filterText = '';
+  sortColumn = null;
+  sortOrder = null;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild('filter') filter: ElementRef;
   @ViewChild(MatSort) sort: MatSort;
-  devicesList$: Observable<any[]>;
 
   constructor(
     private translationLoader: FuseTranslationLoaderService,
@@ -51,28 +55,42 @@ export class DevicesComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.refreshDataTable(0, 10, '');
+    this.refreshDataTable(this.page, this.count, this.filterText, this.sortColumn, this.sortOrder);
     this.keyUpSubscriber = Observable.fromEvent(this.filter.nativeElement, 'keyup')
       .debounceTime(150)
       .distinctUntilChanged()
       .subscribe(() => {
-        let filterValue = this.filter.nativeElement.value;
-        filterValue = filterValue.trim();
-        filterValue = filterValue.toLowerCase();
-        this.dataSource.filter = this.filter.nativeElement.value;
+        if (this.filter.nativeElement) {
+          let filterValue = this.filter.nativeElement.value;
+          filterValue = filterValue.trim();
+          this.filterText = filterValue;
+          this.refreshDataTable(this.page, this.count, filterValue, this.sortColumn, this.sortOrder);
+        }
       });
     this.paginatorSubscriber = this.paginator.page.subscribe(pageChanged => {
-      this.refreshDataTable(pageChanged.pageIndex, pageChanged.pageSize, '');
+      this.page = pageChanged.pageIndex;
+      this.count = pageChanged.pageSize;
+      this.refreshDataTable(pageChanged.pageIndex, pageChanged.pageSize, this.filterText, this.sortColumn, this.sortOrder);
     });
     this.tableSizeSubscription = this.devicesService.getDeviceTableSize().subscribe(result => {
       this.tableSize = result;
     });
   }
+  sortData(sort: Sort) {
+    if (sort.direction !== '') {
+      this.sortOrder = sort.direction;
+      this.sortColumn = sort.active;
+    }
+    else {
+      this.sortOrder = null;
+      this.sortColumn = null;
+    }
+    console.log(`column: ${this.sortColumn} order: ${this.sortOrder}`)
+    this.refreshDataTable(this.page, this.count, this.filterText, this.sortColumn, this.sortOrder);
+  }
 
-  refreshDataTable(page, count, filter) {
-    this.devicesList$ = this.devicesService.getDevices$(page, count);
-    this.deviceDataListSubscription = this.devicesList$.subscribe(model => {
-      console.log(JSON.stringify(model));
+  refreshDataTable(page, count, filter, sortColumn, sortOrder) {
+    this.devicesService.getDevices$(page, count, filter, sortColumn, sortOrder).pipe(first()).subscribe(model => {
       this.dataSource.data = model;
     });
   }

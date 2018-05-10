@@ -14,6 +14,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { DummyDataService } from './dummy-data.service';
 import { FuseWidgetModule } from '../../../core/components/widget/widget.module';
 import { DeviceMemoryChartComponent } from './device/device-memory-chart/device-memory-chart.component';
+import { DeviceVoltageChartComponent } from './device/device-voltage-chart/device-voltage-chart.component';
 
 const routes = [
   {
@@ -33,9 +34,10 @@ const routes = [
     DeviceStateComponent,
     DeviceNetworkComponent,
     AppVersionDialog,
-    DeviceMemoryChartComponent
+    DeviceMemoryChartComponent,
+    DeviceVoltageChartComponent
   ],
-  entryComponents: [AppVersionDialog],
+  entryComponents: [AppVersionDialog, DeviceMemoryChartComponent, DeviceVoltageChartComponent],
   imports: [SharedModule, RouterModule.forChild(routes), NgxChartsModule, FuseWidgetModule],
   providers: [DevicesService, DeviceService, DummyDataService, DatePipe]
 })

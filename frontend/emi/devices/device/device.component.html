@@ -18,12 +18,12 @@
         </button>
 
         <div fxLayout="column" fxLayoutAlign="start start" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'100ms',x:'-25px'}}">
-          <div class="h2" *ngIf="pageType ==='edit'">
-
+          <div class="h2">
+            {{device.deviceStatus.hostname}}
           </div>
 
           <div class="subtitle secondary-text">
-            <span>{{'DEVICE.DEVICE_DETAIL' | translate}}</span>
+            <span>{{device.id}}</span>
           </div>
         </div>
       </div>
@@ -37,13 +37,13 @@
 
         <mat-tab label="{{'DEVICE.STATE' | translate}}">
           <div class="tab-content p-24" fusePerfectScrollbar>
-            <app-device-state ></app-device-state>
+            <app-device-state deviceValue="{{deviceVal}}"></app-device-state>
           </div>
         </mat-tab>
 
         <mat-tab label="Redes">
           <div class="tab-content p-24" fusePerfectScrollbar>
-            <app-device-network ></app-device-network>
+            <app-device-network deviceValue="{{deviceVal}}"></app-device-network>
           </div>
         </mat-tab>
 

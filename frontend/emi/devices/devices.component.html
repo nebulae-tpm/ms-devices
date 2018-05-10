@@ -34,11 +34,11 @@
     <!-- CONTENT CARD -->
     <div class="content-card mat-white-bg">
 
-      <mat-table class="device-table" #table [dataSource]="dataSource" matSort [@animateStagger]="{value:'50'}" fusePerfectScrollbar>
+      <mat-table class="device-table" #table (matSortChange)="sortData($event)" [dataSource]="dataSource" matSort [@animateStagger]="{value:'50'}" fusePerfectScrollbar>
 
         <!-- Serial Column -->
         <ng-container cdkColumnDef="serial">
-          <mat-header-cell *cdkHeaderCellDef mat-sort-header>Serial</mat-header-cell>
+          <mat-header-cell mat-sort-header="serial" *cdkHeaderCellDef >{{'DEVICE.DEVICE_SERIAL' | translate}}</mat-header-cell>
           <mat-cell *cdkCellDef="let device">
             <p class="text-truncate">{{device.deviceStatus.devSn}}</p>
           </mat-cell>
@@ -46,16 +46,32 @@
 
         <!-- Name Column -->
         <ng-container cdkColumnDef="name">
-          <mat-header-cell *cdkHeaderCellDef mat-sort-header>Name</mat-header-cell>
+          <mat-header-cell mat-sort-header="hostName" *cdkHeaderCellDef >{{'DEVICE.HOST_NAME' | translate}}</mat-header-cell>
           <mat-cell *cdkCellDef="let device">
             <p class="text-truncate">{{device.deviceStatus.hostname}}</p>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Group Name Column -->
+        <ng-container cdkColumnDef="groupName">
+          <mat-header-cell mat-sort-header="groupName" *cdkHeaderCellDef >{{'DEVICE.GROUP' | translate}}</mat-header-cell>
+          <mat-cell *cdkCellDef="let device">
+            <p class="text-truncate">{{device.deviceStatus.groupName}}</p>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Type Column -->
+        <ng-container cdkColumnDef="type">
+          <mat-header-cell *cdkHeaderCellDef >{{'DEVICE.TYPE' | translate}}</mat-header-cell>
+          <mat-cell *cdkCellDef="let device">
+            <p class="text-truncate">{{device.deviceStatus.type}}</p>
           </mat-cell>
         </ng-container>
 
 
         <!-- RAM Column -->
         <ng-container cdkColumnDef="ram">
-          <mat-header-cell *cdkHeaderCellDef mat-sort-header fxHide fxShow.gt-sm>RAM</mat-header-cell>
+          <mat-header-cell *cdkHeaderCellDef  fxHide fxShow.gt-sm>RAM (%)</mat-header-cell>
           <mat-cell *cdkCellDef="let device" fxHide fxShow.gt-sm>
 
             <span class="quantity-indicator text-truncate" [ngClass]="{'mat-red-500-bg':getPercentage(device,'MEM') >= 80, 'mat-amber-500-bg':getPercentage(device,'MEM') >50 && getPercentage(device,'MEM') <= 79,'mat-green-600-bg':getPercentage(device,'MEM') <= 50}">
@@ -68,7 +84,7 @@
 
         <!-- SD Column -->
         <ng-container cdkColumnDef="sd">
-          <mat-header-cell *cdkHeaderCellDef mat-sort-header fxHide fxShow.gt-sm>SD</mat-header-cell>
+          <mat-header-cell *cdkHeaderCellDef  fxHide fxShow.gt-sm>SD (%)</mat-header-cell>
           <mat-cell *cdkCellDef="let device" fxHide fxShow.gt-sm>
 
             <span class="quantity-indicator text-truncate" [ngClass]="{'mat-red-500-bg':getPercentage(device,'SD') >= 80, 'mat-amber-500-bg':getPercentage(device,'SD') >50 && getPercentage(device,'SD') <= 79,'mat-green-600-bg':getPercentage(device,'SD') <= 50}">
@@ -79,22 +95,9 @@
           </mat-cell>
         </ng-container>
 
-        <!-- FLASH Column -->
-        <ng-container cdkColumnDef="flash">
-          <mat-header-cell *cdkHeaderCellDef mat-sort-header fxHide fxShow.gt-sm>FLASH</mat-header-cell>
-          <mat-cell *cdkCellDef="let device" fxHide fxShow.gt-sm>
-
-            <span class="quantity-indicator text-truncate" [ngClass]="{'mat-red-500-bg':getPercentage(device,'FLASH') >= 80, 'mat-amber-500-bg':getPercentage(device,'FLASH') >50 && getPercentage(device,'FLASH') <= 79,'mat-green-600-bg':getPercentage(device,'FLASH') <= 50}">
-            </span>
-            <span>
-              {{getPercentage(device,'FLASH')}}
-            </span>
-          </mat-cell>
-        </ng-container>
-
         <!-- Online Column -->
         <ng-container cdkColumnDef="online">
-          <mat-header-cell *cdkHeaderCellDef mat-sort-header fxHide fxShow.gt-xs>Online</mat-header-cell>
+          <mat-header-cell mat-sort-header="online" *cdkHeaderCellDef  fxHide fxShow.gt-xs>{{'DEVICE.ONLINE' | translate}}</mat-header-cell>
           <mat-cell *cdkCellDef="let device" fxHide fxShow.gt-xs>
             <mat-icon *ngIf="device.deviceStatus.online" class="active-icon mat-green-600-bg s-16">check</mat-icon>
             <mat-icon *ngIf="!device.deviceStatus.online" class="active-icon mat-red-500-bg s-16">close</mat-icon>
