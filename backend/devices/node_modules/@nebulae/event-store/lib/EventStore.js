@@ -35,6 +35,8 @@ class EventStore {
                 const MqttBroker = require('./broker/MqttBroker');
                 this.broker = new MqttBroker(brokerConfig);
                 break;
+            default:
+                throw new Error(`Invalid EventStore broker type: ${brokerConfig.type} `);
         }
 
         switch (storeConfig.type) {
@@ -42,6 +44,8 @@ class EventStore {
                 const MongoStore = require('./store/MongoStore');
                 this.storeDB = new MongoStore(storeConfig);
                 break;
+            default:
+                throw new Error(`Invalid EventStore store type: ${storeConfig.type} `);
         }
     }
 

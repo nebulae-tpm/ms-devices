@@ -11,7 +11,7 @@ class BrokerFactory {
             case 'PUBSUB':
                 const PubSubBroker = require('./PubSubBroker');
                 this.broker = new PubSubBroker({
-                    replyTimeOut: process.env.REPLY_TIMEOUT || 2000,
+                    replyTimeout: process.env.REPLY_TIMEOUT || 2000
                 });
                 break;
             case 'MQTT':

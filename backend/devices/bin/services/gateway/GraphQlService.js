@@ -54,18 +54,22 @@ class GraphQlService {
             }
           )
         )
+        .mergeMap(({ response, correlationId, replyTo }) => {
+          if (replyTo) {
+            return broker.send$(
+              replyTo,
+              'gateway.graphql.Query.response',
+              response,
+              { correlationId }
+            );
+          } else {
+            return Rx.Observable.of(undefined);
+          }
+        })
         //send response back if neccesary
-        .subscribe(
-          ({ response, correlationId, replyTo }) => {
+        .subscribe(val => {
             // broker.send$('MaterializedViewUpdates','gateway.graphql.Subscription.response',response);
-            if (replyTo) {
-              broker.send$(
-                replyTo,
-                'gateway.graphql.Query.response',
-                response,
-                { correlationId }
-              );
-            }
+            console.log('Query response => ', val);
           },
           error => console.error('Error listening to messages', error),
           () => {

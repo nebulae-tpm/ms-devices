@@ -4,6 +4,8 @@ const Rx = require('rxjs');
 let mongoDB = require('./MongoDB')();
 const broker = require('../tools/broker/BrokerFactory')();
 
+const MATERIALIZED_VIEW_TOPIC = 'materialized-view-updates';
+
 class DeviceDA {
   static initTestMongoDB(mongo) {
     return new Promise((resolve, reject) => {
@@ -106,8 +108,10 @@ class DeviceDA {
       )
         .mergeMap(result => {
           if (result && result.value) {
-            this.sendDeviceResultEvent(result.value, eventType);
-            return this.persistDeviceHistory(result.value);
+            return Rx.Observable.concat(              
+              this.persistDeviceHistory$(result.value),
+              this.sendDeviceResultEvent$(result.value, eventType)
+            )            
           } else {
             return Rx.Observable.of(undefined);
           }
@@ -121,7 +125,7 @@ class DeviceDA {
    * Persist new register in the collection DeviceHistory
    * @param {*} device
    */
-  static persistDeviceHistory(device) {
+  static persistDeviceHistory$(device) {
     device.timestamp = new Date().getTime();
     delete device._id;
     const collection = mongoDB.db.collection('DeviceHistory');
@@ -455,7 +459,7 @@ class DeviceDA {
    * @param {*} device
    * @param {string} eventType
    */
-  static sendDeviceResultEvent(device, eventType) {
+  static sendDeviceResultEvent$(device, eventType) {
     let message;
     // DEVICE STATUS EVENTS
     switch (eventType) {
@@ -523,8 +527,8 @@ class DeviceDA {
         message.appStatus.appVersions = device.appStatus.appVersions;
         break;
     }
-    broker.send$(
-      'MaterializedViewUpdates',
+    return broker.send$(
+      MATERIALIZED_VIEW_TOPIC,
       `${eventType}Event`,
       JSON.parse(JSON.stringify(message))
     );
