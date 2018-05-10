@@ -453,6 +453,7 @@ class DeviceDA {
       return item;
     });
   }
+  
 
   /**
    * Prepare and send the message to apiGateway
