@@ -69,7 +69,7 @@ class GraphQlService {
         //send response back if neccesary
         .subscribe(val => {
             // broker.send$('MaterializedViewUpdates','gateway.graphql.Subscription.response',response);
-            console.log('Query response => ', val);
+            // console.log('Query response => ', val);
           },
           error => console.error('Error listening to messages', error),
           () => {
