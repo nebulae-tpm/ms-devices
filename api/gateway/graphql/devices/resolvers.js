@@ -77,6 +77,7 @@ module.exports = {
         .toPromise();
     }
   },
+  
   Subscription: {
     DeviceVolumesStateReportedEvent: {
       subscribe: withFilter(
