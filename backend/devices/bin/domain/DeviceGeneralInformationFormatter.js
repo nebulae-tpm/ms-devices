@@ -124,6 +124,16 @@ class DeviceGeneralInformationFormatter {
   static extractDeviceNetworkStateReported$(eventData, eventType) {
     const deviceNetwork = {};
     if (eventType == 'DeviceNetworkStateReported') {
+      const deviceInterfacesConverter$ = eventData.interfaces
+      ? Rx.Observable.from(Object.keys(eventData.interfaces))
+          .map(ipMaskMap => {
+            return {
+              name: ipMaskMap,
+              addresses: eventData.interfaces[ipMaskMap]
+            };
+          })
+          .toArray()
+      : Rx.Observable.of(undefined);
       return Rx.Observable.forkJoin(
         Rx.Observable.of(eventData).map(data => {
           deviceNetwork['deviceNetwork.gateway'] = data.gateway;
@@ -132,14 +142,7 @@ class DeviceGeneralInformationFormatter {
           deviceNetwork['deviceNetwork.hostname'] = data.hostname;
           return deviceNetwork;
         }),
-        Rx.Observable.from(Object.keys(eventData.interfaces))
-          .map(ipMaskMap => {
-            return {
-              name: ipMaskMap,
-              addresses: eventData.interfaces[ipMaskMap]
-            };
-          })
-          .toArray()
+        deviceInterfacesConverter$
       ).map(([deviceNetwork, deviceNetworkInteraces]) => {
         deviceNetwork['deviceNetwork.ipMaskMap'] = deviceNetworkInteraces;
         return deviceNetwork;
@@ -159,15 +162,15 @@ class DeviceGeneralInformationFormatter {
   }
 
   static extractDeviceAppStatus$(eventData, eventType, timestamp) {
-    const appStatus = {};
-    const appVersConverter$ = eventData.appVers
+    const appStatus = {};    
+    if (eventType == 'DeviceMainAppStateReported') {
+      const appVersConverter$ = eventData.appVers
       ? Rx.Observable.from(Object.keys(eventData.appVers))
           .map(data => {
             return { name: data, version: eventData.appVers[data] };
           })
           .toArray()
       : Rx.Observable.of(undefined);
-    if (eventType == 'DeviceMainAppStateReported') {
       return Rx.Observable.forkJoin(
         Rx.Observable.of(eventData).map(data => {
           appStatus['appStatus.timestamp'] = timestamp;
