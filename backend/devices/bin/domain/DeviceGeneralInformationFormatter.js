@@ -138,7 +138,7 @@ class DeviceGeneralInformationFormatter {
         Rx.Observable.of(eventData).map(data => {
           deviceNetwork['deviceNetwork.gateway'] = data.gateway;
           deviceNetwork['deviceNetwork.mac'] = data.mac;
-          deviceNetwork['deviceNetwork.dns'] = data.dns[0];
+          deviceNetwork['deviceNetwork.dns'] = data.dns.length > 0 ? data.dns[0]: undefined;
           deviceNetwork['deviceNetwork.hostname'] = data.hostname;
           return deviceNetwork;
         }),
