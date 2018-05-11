@@ -313,12 +313,15 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   getDeviceMemory(device, type) {
     if (type == 'MEM') {
       return device.deviceStatus.ram;
-    } else {
+    } else if (device && device.deviceStatus && device.deviceStatus.deviceDataList) {
       return (
         device.deviceStatus.deviceDataList.filter(
           data => data.memorytype == type
         )[0] || { totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' }
       );
+    }
+    else {
+      return ({ totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' });
     }
   }
 

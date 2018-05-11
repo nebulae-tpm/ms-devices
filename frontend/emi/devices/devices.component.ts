@@ -97,13 +97,16 @@ export class DevicesComponent implements OnInit {
 
   getPercentage(device, type) {
     if (type == 'MEM') {
-      return device.deviceStatus.ram?Math.floor(device.deviceStatus.ram.currentValue / device.deviceStatus.ram.totalValue * 100):0;
+      return device.deviceStatus.ram ? Math.floor(device.deviceStatus.ram.currentValue / device.deviceStatus.ram.totalValue * 100) : 0;
     }
-    else {
+    else if (device && device.deviceStatus && device.deviceStatus.deviceDataList) {
       const deviceDataMemory = device.deviceStatus.deviceDataList.filter(
         data => data.memorytype == type
       )[0];
-      return deviceDataMemory?Math.floor(deviceDataMemory.currentValue / deviceDataMemory.totalValue * 100):0;
+      return deviceDataMemory ? Math.floor(deviceDataMemory.currentValue / deviceDataMemory.totalValue * 100) : 0;
+    }
+    else {
+      return 0;
     }
   }
 
