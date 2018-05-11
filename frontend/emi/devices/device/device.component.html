@@ -11,13 +11,13 @@
     <div class="header white-fg" fxLayout="row" fxLayoutAlign="space-between center">
 
       <!-- APP TITLE -->
-      <div fxLayout="row" fxLayoutAlign="start center">
+      <div *ngIf="device.deviceStatus" fxLayout="row" fxLayoutAlign="start center">
 
         <button class="mr-0 mr-sm-16" mat-icon-button [routerLink]="'/devices'">
           <mat-icon>arrow_back</mat-icon>
         </button>
 
-        <div *ngIf="device.deviceStatus" fxLayout="column" fxLayoutAlign="start start" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'100ms',x:'-25px'}}">
+        <div fxLayout="column" fxLayoutAlign="start start" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'100ms',x:'-25px'}}">
           <div class="h2">
             {{device.deviceStatus.hostname}}
           </div>
