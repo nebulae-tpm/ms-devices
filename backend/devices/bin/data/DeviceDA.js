@@ -41,11 +41,13 @@ class DeviceDA {
         $or: [
           { 'deviceStatus.hostname': { $regex: `${filter}.*`, $options: 'i' } },
           { 'deviceStatus.type': { $regex: `${filter}.*`, $options: 'i' } },
-          { 'deviceStatus.groupName': { $regex: `${filter}.*`, $options: 'i' } },
+          {
+            'deviceStatus.groupName': { $regex: `${filter}.*`, $options: 'i' }
+          },
           { id: { $regex: `${filter}.*`, $options: 'i' } }
         ]
       };
-    }    
+    }
     if (sortColumn && order) {
       let column;
       switch (sortColumn) {
@@ -96,10 +98,14 @@ class DeviceDA {
     console.log(JSON.stringify(device));
     console.log('***********************************************************');
 
-    console.log('-------------------------------------------------------------------');
+    console.log(
+      '-------------------------------------------------------------------'
+    );
     const collection = mongoDB.db.collection('Devices');
     console.log('Collection: ', collection);
-    console.log('-------------------------------------------------------------------');
+    console.log(
+      '-------------------------------------------------------------------'
+    );
     return Rx.Observable.of(device).mergeMap(result => {
       return Rx.Observable.fromPromise(
         collection.findOneAndUpdate(
@@ -118,10 +124,10 @@ class DeviceDA {
           console.log(JSON.stringify(result));
           console.log('///////////////////////////////////////////////////');
           if (result && result.value) {
-            return Rx.Observable.concat(              
+            return Rx.Observable.concat(
               this.persistDeviceHistory$(result.value),
               this.sendDeviceResultEvent$(result.value, eventType)
-            )            
+            );
           } else {
             return Rx.Observable.of(undefined);
           }
@@ -463,7 +469,6 @@ class DeviceDA {
       return item;
     });
   }
-  
 
   /**
    * Prepare and send the message to apiGateway
@@ -475,76 +480,98 @@ class DeviceDA {
     // DEVICE STATUS EVENTS
     switch (eventType) {
       case 'DeviceVolumesStateReported':
-        message = { deviceStatus: {} };
-        message.id = device.id;
-        message.deviceStatus.deviceDataList =
-          device.deviceStatus.deviceDataList;
+        if (device.deviceStatus.deviceDataList) {
+          message = { deviceStatus: {} };
+          message.id = device.id;
+          message.deviceStatus.deviceDataList =
+            device.deviceStatus.deviceDataList;
+        }
         break;
       case 'DeviceDisplayStateReported':
-        message = { deviceStatus: {} };
-        message.id = device.id;
-        message.deviceStatus.displaySn = device.deviceStatus.displaySn;
+        if (device.deviceStatus) {
+          message = { deviceStatus: {} };
+          message.id = device.id;
+          message.deviceStatus.displaySn = device.deviceStatus.displaySn;
+        }
         break;
       case 'DeviceSystemStateReported':
-        message = { deviceStatus: {} };
-        message.id = device.id;
-        message.deviceStatus.temperature = device.deviceStatus.temperature;
-        message.deviceStatus.cpuStatus = device.deviceStatus.cpuStatus;
-        message.deviceStatus.upTime = device.deviceStatus.upTime;
-        message.deviceStatus.voltage = device.deviceStatus.voltage;
-        message.deviceStatus.ram = device.deviceStatus.ram;
+        if (device.deviceStatus) {
+          message = { deviceStatus: {} };
+          message.id = device.id;
+          message.deviceStatus.temperature = device.deviceStatus.temperature;
+          message.deviceStatus.cpuStatus = device.deviceStatus.cpuStatus;
+          message.deviceStatus.upTime = device.deviceStatus.upTime;
+          message.deviceStatus.voltage = device.deviceStatus.voltage;
+          message.deviceStatus.ram = device.deviceStatus.ram;
+        }
         break;
       case 'DeviceDeviceStateReported':
-        message = { deviceStatus: {} };
-        message.id = device.id;
-        message.deviceStatus.devSn = device.deviceStatus.devSn;
-        message.deviceStatus.type = device.deviceStatus.type;
-        message.deviceStatus.groupName = device.deviceStatus.groupName;
-        message.deviceStatus.hostname = device.deviceStatus.hostname;
+        if (device.deviceStatus) {
+          message = { deviceStatus: {} };
+          message.id = device.id;
+          message.deviceStatus.devSn = device.deviceStatus.devSn;
+          message.deviceStatus.type = device.deviceStatus.type;
+          message.deviceStatus.groupName = device.deviceStatus.groupName;
+          message.deviceStatus.hostname = device.deviceStatus.hostname;
+        }
         break;
       case 'DeviceConnected':
-        message = { deviceStatus: {} };
-        message.deviceStatus.online = device.deviceStatus.online;
+        if (device.deviceStatus) {
+          message = { deviceStatus: {} };
+          message.deviceStatus.online = device.deviceStatus.online;
+        }
         break;
       case 'DeviceDisconnected':
-        message = { deviceStatus: {} };
-        message.deviceStatus.online = device.deviceStatus.online;
+        if (device.deviceStatus) {
+          message = { deviceStatus: {} };
+          message.deviceStatus.online = device.deviceStatus.online;
+        }
         break;
       // DEVICE NETWORK EVENTS
       case 'DeviceNetworkStateReported':
-        message = { deviceNetwork: {} };
-        message.id = device.id;
-        message.deviceNetwork.gateway = device.deviceNetwork.gateway;
-        message.deviceNetwork.mac = device.deviceNetwork.mac;
-        message.deviceNetwork.dns = device.deviceNetwork.dns;
-        message.deviceNetwork.hostname = device.deviceNetwork.hostname;
-        message.deviceNetwork.ipMaskMap = device.deviceNetwork.ipMaskMap;
+        if (device.deviceNetwork) {
+          message = { deviceNetwork: {} };
+          message.id = device.id;
+          message.deviceNetwork.gateway = device.deviceNetwork.gateway;
+          message.deviceNetwork.mac = device.deviceNetwork.mac;
+          message.deviceNetwork.dns = device.deviceNetwork.dns;
+          message.deviceNetwork.hostname = device.deviceNetwork.hostname;
+          message.deviceNetwork.ipMaskMap = device.deviceNetwork.ipMaskMap;
+        }
         break;
       case 'DeviceModemStateReported':
-        message = { deviceNetwork: {} };
-        message.id = device.id;
-        message.deviceNetwork.band = device.deviceNetwork.band;
-        message.deviceNetwork.cellid = device.deviceNetwork.cellid;
-        message.deviceNetwork.mode = device.deviceNetwork.mode;
-        message.deviceNetwork.simImei = device.deviceNetwork.simImei;
-        message.deviceNetwork.simStatus = device.deviceNetwork.simStatus;
+        if (device.deviceNetwork) {
+          message = { deviceNetwork: {} };
+          message.id = device.id;
+          message.deviceNetwork.band = device.deviceNetwork.band;
+          message.deviceNetwork.cellid = device.deviceNetwork.cellid;
+          message.deviceNetwork.mode = device.deviceNetwork.mode;
+          message.deviceNetwork.simImei = device.deviceNetwork.simImei;
+          message.deviceNetwork.simStatus = device.deviceNetwork.simStatus;
+        }
         break;
       // APP STATUS EVENTS
       case 'DeviceMainAppStateReported':
-        message = { appStatus: {} };
-        message.id = device.id;
-        message.appStatus.timestamp = device.appStatus.timestamp;
-        message.appStatus.appTablesVersion = device.appStatus.appTablesVersion;
-        message.appStatus.appVersions = device.appStatus.appVersions;
+        if (device.appStatus) { 
+          message = { appStatus: {} };
+          message.id = device.id;
+          message.appStatus.timestamp = device.appStatus.timestamp;
+          message.appStatus.appTablesVersion = device.appStatus.appTablesVersion;
+          message.appStatus.appVersions = device.appStatus.appVersions;
+        }          
         break;
     }
-    return broker.send$(
-      MATERIALIZED_VIEW_TOPIC,
-      `${eventType}Event`,
-      JSON.parse(JSON.stringify(message))
-    );
+    if (message) {
+      return broker.send$(
+        MATERIALIZED_VIEW_TOPIC,
+        `${eventType}Event`,
+        JSON.parse(JSON.stringify(message))
+      );
+    }
+    else { 
+      return Rx.Observable.of(undefined);
+    }
   }
 }
 
 module.exports = DeviceDA;
-
