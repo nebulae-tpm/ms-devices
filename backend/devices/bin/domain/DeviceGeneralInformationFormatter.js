@@ -193,4 +193,5 @@ class DeviceGeneralInformationFormatter {
   }
 }
 
+
 module.exports = DeviceGeneralInformationFormatter;
