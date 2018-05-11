@@ -94,18 +94,7 @@ class DeviceDA {
    * @param {*} device
    */
   static persistDevice$(device, eventType) {
-    console.log('********************SE PERSISTE DISPOSITIVO****************');
-    console.log(JSON.stringify(device));
-    console.log('***********************************************************');
-
-    console.log(
-      '-------------------------------------------------------------------'
-    );
     const collection = mongoDB.db.collection('Devices');
-    console.log('Collection: ', collection);
-    console.log(
-      '-------------------------------------------------------------------'
-    );
     return Rx.Observable.of(device).mergeMap(result => {
       return Rx.Observable.fromPromise(
         collection.findOneAndUpdate(
@@ -120,9 +109,6 @@ class DeviceDA {
         )
       )
         .mergeMap(result => {
-          console.log('///////////////////////////////////////////////////');
-          console.log(JSON.stringify(result));
-          console.log('///////////////////////////////////////////////////');
           if (result && result.value) {
             return Rx.Observable.concat(
               this.persistDeviceHistory$(result.value),
