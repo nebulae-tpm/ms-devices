@@ -25,7 +25,7 @@ class DeviceGeneralInformationFormatter {
           'Incoming Device General Information has an unsupported version: ' +
             incomingEvent.v
         );
-      
+
         break;
     }
   }
@@ -86,13 +86,15 @@ class DeviceGeneralInformationFormatter {
         deviceStatus['deviceStatus.upTime'] = data.upTime;
         if (data.voltage) {
           deviceStatus['deviceStatus.voltage.lowestValue'] = data.voltage.low;
-          deviceStatus['deviceStatus.voltage.currentValue'] = data.voltage.current;
+          deviceStatus['deviceStatus.voltage.currentValue'] =
+            data.voltage.current;
           deviceStatus['deviceStatus.voltage.highestValue'] = data.voltage.high;
         }
-        if (data.ram) { 
+        if (data.ram) {
           deviceStatus['deviceStatus.ram.currentValue'] = data.ram.current;
           deviceStatus['deviceStatus.ram.totalValue'] = data.ram.total;
-          deviceStatus['deviceStatus.ram.memoryUnitInformation'] = data.ram.unit;
+          deviceStatus['deviceStatus.ram.memoryUnitInformation'] =
+            data.ram.unit;
         }
         return deviceStatus;
       });
@@ -104,21 +106,17 @@ class DeviceGeneralInformationFormatter {
         deviceStatus['deviceStatus.groupName'] = data.groupName;
         return deviceStatus;
       });
-    }
-    else if (eventType == 'DeviceConnected') { 
+    } else if (eventType == 'DeviceConnected') {
       return Rx.Observable.of(eventData).map(data => {
         deviceStatus['deviceStatus.online'] = data.connected;
         return deviceStatus;
       });
-
-    }
-    else if (eventType == 'DeviceDisconnected') { 
+    } else if (eventType == 'DeviceDisconnected') {
       return Rx.Observable.of(eventData).map(data => {
         deviceStatus['deviceStatus.online'] = data.connected;
         return deviceStatus;
       });
-    }
-    else {
+    } else {
       return Rx.Observable.of(undefined);
     }
   }
@@ -162,6 +160,13 @@ class DeviceGeneralInformationFormatter {
 
   static extractDeviceAppStatus$(eventData, eventType, timestamp) {
     const appStatus = {};
+    const appVersConverter$ = eventData.appVers
+      ? Rx.Observable.from(Object.keys(eventData.appVers))
+          .map(data => {
+            return { name: data, version: eventData.appVers[data] };
+          })
+          .toArray()
+      : Rx.Observable.of(undefined);
     if (eventType == 'DeviceMainAppStateReported') {
       return Rx.Observable.forkJoin(
         Rx.Observable.of(eventData).map(data => {
@@ -174,11 +179,7 @@ class DeviceGeneralInformationFormatter {
           }
           return appStatus;
         }),
-        Rx.Observable.from(Object.keys(eventData.appVers))
-          .map(data => {
-            return { name: data, version: eventData.appVers[data] };
-          })
-          .toArray()
+        appVersConverter$
       ).map(([appStatus, appVers]) => {
         appStatus['appStatus.appVersions'] = appVers;
         return appStatus;
