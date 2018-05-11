@@ -11,7 +11,7 @@
     <div class="header white-fg" fxLayout="row" fxLayoutAlign="space-between center">
 
       <!-- APP TITLE -->
-      <div *ngIf="device.deviceStatus" fxLayout="row" fxLayoutAlign="start center">
+      <div *ngIf="device && device.deviceStatus" fxLayout="row" fxLayoutAlign="start center">
 
         <button class="mr-0 mr-sm-16" mat-icon-button [routerLink]="'/devices'">
           <mat-icon>arrow_back</mat-icon>
