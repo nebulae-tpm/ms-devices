@@ -194,7 +194,7 @@ export class DeviceService {
               display: true,
               ticks: {
                 min: 1,
-                max: 100
+                max: 200
               }
             }
           ]
@@ -415,12 +415,12 @@ export class DeviceService {
       },
       data: [
         {
-          name: 'DEVICE.USED',
+          name: 'Usado',
           value: valueStatus,
           totalValue: currentValue
         },
         {
-          name: 'DEVICE.FREE',
+          name: 'Libre',
           value: 100 - valueStatus,
           totalValue: totalValue - currentValue
         }
