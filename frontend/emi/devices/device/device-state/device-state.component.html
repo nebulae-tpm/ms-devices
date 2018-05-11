@@ -148,7 +148,7 @@
     </div>
   </div>
 
-  <div fxLayout="column " fxFlex="100" fxFlex.gt-sm="50" fxFlex.gt-md="48">
+  <div *ngIf="device.appStatus.appTablesVersion"fxLayout="column " fxFlex="100" fxFlex.gt-sm="50" fxFlex.gt-md="48">
     <div class="device-box info-box read-form" fxLayout="column">
 
       <header class="mat-accent-bg">
