@@ -283,7 +283,7 @@ export class DeviceService {
       map(([currentValueList, highestValueList, lowestValueList]) => {
         return {
           scheme: {
-            domain: ['#5c84f1', '#f44336', '#ffc107']
+            domain: [ '#ffc107','#5c84f1', '#f44336']
           },
           today: '12,540',
           change: {
@@ -292,16 +292,16 @@ export class DeviceService {
           },
           data: [
             {
+              name: 'Mas bajo',
+              series: lowestValueList
+            },
+            {
               name: 'Actual',
               series: currentValueList
             },
             {
               name: 'Mas alto',
               series: highestValueList
-            },
-            {
-              name: 'Mas bajo',
-              series: lowestValueList
             }
           ],
           dataMin: 538,
