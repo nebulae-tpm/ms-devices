@@ -1,82 +1,87 @@
 <div class="left" *ngIf="device && device.deviceStatus">
-  <div fxLayout="column" fxLayoutAlign="start" fxLayout.gt-sm="row" fxLayoutAlign.gt-sm="start start">
-    <fuse-widget fxLayout="column" fxFlex="100" fxFlex.gt-xs="50" fxFlex.gt-md="25">
-      <div *ngIf="device.deviceStatus.ram" class="fuse-widget-front mat-white-bg mat-elevation-z2">
-        <div class="pl-16 pr-8 py-16 h-52" fxLayout="row" fxLayoutAlign="space-between center">
-          <div class="h1 font-weight-300">{{'DEVICE.RAM_STATUS' | translate}}
-            <span style="color: #ABA8A8;" class="h3">({{getDeviceMemory(device, 'MEM').totalValue | number}} {{getDeviceMemory(device, 'MEM').memoryUnitInformation}})</span>
+  <div fxLayout="column" style="width: 100%; justify-content: space-between" fxLayout.gt-sm="row">
+
+      <!-- RAM PIE -->
+      <fuse-widget fxLayout="column" class="device-widget" fxFlex="100" fxFlex.gt-xs="25" fxFlex.gt-md="25">
+        <div *ngIf="device.deviceStatus.ram" class="fuse-widget-front mat-white-bg mat-elevation-z2">
+          <div class="pl-16 pr-8 py-16 h-96" fxLayout="row" fxLayoutAlign="space-between center">
+            <div class="h1 font-weight-300">{{'DEVICE.RAM_STATUS' | translate}}
+              <span style="color: #ABA8A8;" class="h3">({{getDeviceMemory(device, 'MEM').totalValue | number}} {{getDeviceMemory(device, 'MEM').memoryUnitInformation}})</span>
+            </div>
+
+            <button mat-icon-button aria-label="more" (click)="openDeviceMemoryDialog('MEM')">
+              <mat-icon>more_vert</mat-icon>
+            </button>
           </div>
-
-          <button mat-icon-button aria-label="more" (click)="openDeviceMemoryDialog('MEM')">
-            <mat-icon>more_vert</mat-icon>
-          </button>
+          <app-device-pie-chart widget="{{buildDevicePieWidget(device, 'MEM')}}"></app-device-pie-chart>
         </div>
-        <app-device-pie-chart widget="{{buildDevicePieWidget(device, 'MEM')}}"></app-device-pie-chart>
-      </div>
-    </fuse-widget>
+      </fuse-widget>
 
-    <fuse-widget class="" fxLayout="column" fxFlex="100" fxFlex.gt-xs="50" fxFlex.gt-md="25">
-      <div class="fuse-widget-front mat-white-bg mat-elevation-z2">
-        <div class="pl-16 pr-8 py-16 h-52" fxLayout="row" fxLayoutAlign="space-between center">
-          <div class="h1 font-weight-300">{{'DEVICE.SD_STATUS' | translate}}
-            <span style="color: #ABA8A8;" class="h3">({{getDeviceMemory(device, 'SD').totalValue | number}} {{getDeviceMemory(device, 'SD').memoryUnitInformation}})</span>
+      <!-- SD PIE -->
+      <fuse-widget class="device-widget" fxLayout="column" fxFlex="100" fxFlex.gt-xs="25" fxFlex.gt-md="25">
+        <div class="fuse-widget-front mat-white-bg mat-elevation-z2">
+          <div class="pl-16 pr-8 py-16 h-96" fxLayout="row" fxLayoutAlign="space-between center">
+            <div class="h1 font-weight-300">{{'DEVICE.SD_STATUS' | translate}}
+              <span style="color: #ABA8A8;" class="h3">({{getDeviceMemory(device, 'SD').totalValue | number}} {{getDeviceMemory(device, 'SD').memoryUnitInformation}})</span>
+            </div>
+
+            <button mat-icon-button aria-label="more" (click)="openDeviceMemoryDialog('SD')">
+              <mat-icon>more_vert</mat-icon>
+            </button>
           </div>
-
-          <button mat-icon-button aria-label="more" (click)="openDeviceMemoryDialog('SD')">
-            <mat-icon>more_vert</mat-icon>
-          </button>
+          <app-device-pie-chart class="m-widget-20" widget="{{buildDevicePieWidget(device, 'SD')}}"></app-device-pie-chart>
         </div>
-        <app-device-pie-chart class="m-widget-20" widget="{{buildDevicePieWidget(device, 'SD')}}"></app-device-pie-chart>
-      </div>
+      </fuse-widget>
 
-    </fuse-widget>
+      <!-- CPU CHART -->
+      <fuse-widget class="device-widget" fxLayout="column" fxFlex="100" fxFlex.gt-xs="25" fxFlex.gt-md="25">
+        <div class="fuse-widget-front mat-white-bg mat-elevation-z2">
+          <div class="pl-16 pr-8 py-16 h-96" fxLayout="row" fxLayoutAlign="space-between center">
+            <div class="h1 font-weight-300">{{'DEVICE.CPU_STATUS' | translate}} (%)</div>
 
-    <fuse-widget class="" fxLayout="column" fxFlex="100" fxFlex.gt-xs="50" fxFlex.gt-md="25">
-      <div class="fuse-widget-front mat-white-bg mat-elevation-z2">
-        <div class="pl-16 pr-8 py-16 h-52" fxLayout="row" fxLayoutAlign="space-between center">
-          <div class="h1 font-weight-300">{{'DEVICE.CPU_STATUS' | translate}} (%)</div>
-
-          <button mat-icon-button aria-label="more" (click)="openDeviceMemoryDialog('CPU')">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-        </div>
-        <div class="content" fxLayoutAlign="center center">
-          <div style="height: 315px;" class="w-100-p">
-            <canvas baseChart [datasets]="cpuWidget.datasets" [labels]="cpuWidget.labels" [colors]="cpuWidget.colors" [options]="cpuWidget.options"
-              [chartType]="cpuWidget.chartType">
-            </canvas>
+            <button mat-icon-button aria-label="more" (click)="openDeviceMemoryDialog('CPU')">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+          </div>
+          <div class="content" fxLayoutAlign="center center">
+            <div style="height: 315px;" class="w-100-p">
+              <canvas baseChart [datasets]="cpuWidget.datasets" [labels]="cpuWidget.labels" [colors]="cpuWidget.colors" [options]="cpuWidget.options"
+                [chartType]="cpuWidget.chartType">
+              </canvas>
+            </div>
           </div>
         </div>
-      </div>
-    </fuse-widget>
+      </fuse-widget>
 
-    <fuse-widget *ngIf="device.deviceStatus && device.deviceStatus.voltage" fxLayout="column" fxFlex="100" fxFlex.gt-xs="50" fxFlex.gt-md="25">
-      <div class="fuse-widget-front mat-white-bg mat-elevation-z2">
-        <div class="pl-16 pr-8 py-16 h-52" fxLayout="row" fxLayoutAlign="space-between center">
-          <div class="h1 font-weight-300">{{'DEVICE.VOLTAGE_STATUS' | translate}}</div>
+      <!-- VOLTAJE STATUS -->
+      <fuse-widget class="device-widget" *ngIf="device.deviceStatus && device.deviceStatus.voltage" fxLayout="column" fxFlex="100" fxFlex.gt-xs="25"
+        fxFlex.gt-md="25">
+        <div class="fuse-widget-front mat-white-bg mat-elevation-z2">
+          <div class="pl-16 pr-8 py-16 h-96" fxLayout="row" fxLayoutAlign="space-between center">
+            <div class="h1 font-weight-300">{{'DEVICE.VOLTAGE_STATUS' | translate}}</div>
 
-          <button mat-icon-button aria-label="more" (click)="openDeviceVoltageDialog()">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-        </div>
-        <div class="content" fxLayoutAlign="center center">
-          <div style="height: 315px;" class="w-100-p">
-            <div class="p-16 pb-0" fxLayout="row" fxLayoutAlign="start end" fxLayoutWrap>
-              <div class="pr-16">
-                <div class="font-size-12 font-weight-300 line-height-1 mt-8">
-                  <h2>{{'DEVICE.LOWEST_VALUE' | translate}}: </h2>
-                  <h3>{{device.deviceStatus.voltage.lowestValue }} Vdc</h3>
-                  <h2>{{'DEVICE.CURRENT_VALUE' | translate}}: </h2>
-                  <h3>{{device.deviceStatus.voltage.currentValue }} Vdc</h3>
-                  <h2>{{'DEVICE.HIGHEST_VALUE' | translate}}: </h2>
-                  <h3>{{device.deviceStatus.voltage.highestValue }} Vdc</h3>
+            <button mat-icon-button aria-label="more" (click)="openDeviceVoltageDialog()">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+          </div>
+          <div class="content" fxLayoutAlign="center center">
+            <div style="height: 315px;" class="w-100-p">
+              <div class="p-16 pb-0" fxLayout="row" fxLayoutAlign="start end" fxLayoutWrap>
+                <div class="pr-16">
+                  <div class="font-size-12 font-weight-300 line-height-1 mt-8">
+                    <h2>{{'DEVICE.LOWEST_VALUE' | translate}}: </h2>
+                    <h3>{{device.deviceStatus.voltage.lowestValue }} Vdc</h3>
+                    <h2>{{'DEVICE.CURRENT_VALUE' | translate}}: </h2>
+                    <h3>{{device.deviceStatus.voltage.currentValue }} Vdc</h3>
+                    <h2>{{'DEVICE.HIGHEST_VALUE' | translate}}: </h2>
+                    <h3>{{device.deviceStatus.voltage.highestValue }} Vdc</h3>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </fuse-widget>
+      </fuse-widget>
 
   </div>
 </div>
@@ -120,7 +125,7 @@
 
         </div>
 
-        <div *ngIf="true" style="display: flex; flex-direction: column; flex-wrap: wrap">
+        <div style="display: flex; flex-direction: column; flex-wrap: wrap">
 
 
           <div class="info-line">
@@ -148,7 +153,7 @@
     </div>
   </div>
 
-  <div *ngIf="device.appStatus.appTablesVersion"fxLayout="column " fxFlex="100" fxFlex.gt-sm="50" fxFlex.gt-md="48">
+  <div *ngIf="device.appStatus.appTablesVersion" fxLayout="column " fxFlex="100" fxFlex.gt-sm="50" fxFlex.gt-md="48">
     <div class="device-box info-box read-form" fxLayout="column">
 
       <header class="mat-accent-bg">
