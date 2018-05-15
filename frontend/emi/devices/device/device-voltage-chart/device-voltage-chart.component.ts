@@ -83,7 +83,16 @@ export class DeviceVoltageChartComponent implements OnInit {
     );
 
     this.sortVoltageAvgResult(originWidgetInfo).subscribe(rawData => {
-      console.log('Llega voltaje: ', rawData)
+      const currentHour = this.datePipe.transform(
+        new Date(roundedEndTime),
+        'HH:mm'
+      );
+      rawData[0] = {
+        currentValue: this.data.device.deviceStatus.voltage.currentValue,
+        highestValue: this.data.device.deviceStatus.voltage.highestValue,
+        lowestValue: this.data.device.deviceStatus.voltage.lowestValue,
+        timeInterval: currentHour
+      };
       this.buildAvgDeltas(roundedEndTime, intervalValue).subscribe(deltas => {
         let widgetValueList = [];
         let lastValue;
