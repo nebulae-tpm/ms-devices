@@ -15,7 +15,7 @@
         <mat-icon class="logo-icon mr-16" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'50ms',scale:'0.2'}}">speaker_phone</mat-icon>
         <span class="logo-text h1" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'100ms',x:'-25px'}}">{{'DEVICE.DEVICES' | translate}}</span>
       </div>
-      
+
       <!-- / APP TITLE -->
 
       <!-- SEARCH -->
@@ -72,7 +72,7 @@
 
         <!-- RAM Column -->
         <ng-container cdkColumnDef="ram">
-          <mat-header-cell *cdkHeaderCellDef  fxHide fxShow.gt-sm>RAM (%)</mat-header-cell>
+          <mat-header-cell *cdkHeaderCellDef fxHide fxShow.gt-sm>RAM (%)</mat-header-cell>
           <mat-cell *cdkCellDef="let device" fxHide fxShow.gt-sm>
 
             <span class="quantity-indicator text-truncate" [ngClass]="{'mat-red-500-bg':getPercentage(device,'MEM') >= 80, 'mat-amber-500-bg':getPercentage(device,'MEM') >50 && getPercentage(device,'MEM') <= 79,'mat-green-600-bg':getPercentage(device,'MEM') <= 50}">
@@ -85,7 +85,7 @@
 
         <!-- SD Column -->
         <ng-container cdkColumnDef="sd">
-          <mat-header-cell *cdkHeaderCellDef  fxHide fxShow.gt-sm>SD (%)</mat-header-cell>
+          <mat-header-cell *cdkHeaderCellDef fxHide fxShow.gt-sm>SD (%)</mat-header-cell>
           <mat-cell *cdkCellDef="let device" fxHide fxShow.gt-sm>
 
             <span class="quantity-indicator text-truncate" [ngClass]="{'mat-red-500-bg':getPercentage(device,'SD') >= 80, 'mat-amber-500-bg':getPercentage(device,'SD') >50 && getPercentage(device,'SD') <= 79,'mat-green-600-bg':getPercentage(device,'SD') <= 50}">

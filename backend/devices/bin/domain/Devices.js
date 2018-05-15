@@ -10,7 +10,8 @@ class Devices {
   }
 
   getDevices({ root, args, jwt }, authToken) {
-    return DeviceDA.getDevices$(args.page, args.count, args.filter, args.sortColumn, args.sortOrder);
+    return DeviceDA.getDevices$(args.page, args.count, args.filter, args.sortColumn, args.sortOrder)
+      .do(result => console.log(`RETORNA DISPOSITIVOS:      ${JSON.stringify(result)}`));
   }
 
   getDeviceTableSize({ root, args, jwt }, authToken) {

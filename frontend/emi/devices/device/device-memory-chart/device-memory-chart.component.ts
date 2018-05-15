@@ -118,6 +118,21 @@ export class DeviceMemoryChartComponent implements OnInit {
         originWidgetInfo,
         deviceDataMemory
       ).subscribe(rawData => {
+        const currentHour = this.datePipe.transform(
+          new Date(roundedEndTime),
+          'HH:mm'
+        );
+        rawData[0] = {
+          timeInterval: currentHour,
+          freeValue: Math.floor(
+            (deviceDataMemory.totalValue - deviceDataMemory.currentValue) /
+              deviceDataMemory.totalValue *
+              100
+          ),
+          usedValue: Math.floor(
+            deviceDataMemory.currentValue / deviceDataMemory.totalValue * 100
+          )
+        };
         this.buildAvgDeltas(roundedEndTime, intervalValue).subscribe(deltas => {
           let widgetValueList = [];
           let lastValue;
@@ -172,6 +187,18 @@ export class DeviceMemoryChartComponent implements OnInit {
       device.id
     );
     this.sortCpuAvgResult(originWidgetInfo).subscribe(rawData => {
+      const currentHour = this.datePipe.transform(
+        new Date(roundedEndTime),
+        'HH:mm'
+      );
+      const cpuStatus= (device.deviceStatus.cpuStatus.length>0) ?device.deviceStatus.cpuStatus[0]:0
+      rawData[0] = {
+        timeInterval: currentHour,
+        freeValue: Math.floor(
+          (100 - cpuStatus)
+        ),
+        usedValue: Math.floor(cpuStatus)
+      };
       this.buildAvgDeltas(roundedEndTime, intervalValue).subscribe(deltas => {
         let widgetValueList = [];
         let lastValue;
