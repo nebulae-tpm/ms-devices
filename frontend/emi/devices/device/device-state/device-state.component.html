@@ -1,6 +1,6 @@
-<div class="left mr-32" *ngIf="device && device.deviceStatus">
+<div class="left" *ngIf="device && device.deviceStatus">
   <div fxLayout="column" fxLayoutAlign="start" fxLayout.gt-sm="row" fxLayoutAlign.gt-sm="start start">
-    <fuse-widget class="" fxLayout="column" fxFlex="100" fxFlex.gt-xs="50" fxFlex.gt-md="25">
+    <fuse-widget fxLayout="column" fxFlex="100" fxFlex.gt-xs="50" fxFlex.gt-md="25">
       <div *ngIf="device.deviceStatus.ram" class="fuse-widget-front mat-white-bg mat-elevation-z2">
         <div class="pl-16 pr-8 py-16 h-52" fxLayout="row" fxLayoutAlign="space-between center">
           <div class="h1 font-weight-300">{{'DEVICE.RAM_STATUS' | translate}}

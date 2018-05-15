@@ -1,34 +1,44 @@
 [
-    {
-        "name" : "devices",
-        "src" : "frontend/emi/devices",
-        "contents": [
-            {
-                "id": "devices",
-                "icon": "speaker_phone",
-                "translate": {
-                    "en": "Devices",
-                    "es": "Dispositivos"
-                },
-                "navURL": "/devices",
-                "path": "devices",
-                "loadChildren": "./main/content/devices/devices.module#DevicesModule",
-                "priority": 100000
-            }
-        ],
-        "preBuildCommands": [
-            
-        ],
-        "environmentVars": {
-            "default": {
-                "production": false
-            },
-            "local": {
-                "production": false
-            },
-            "prod": {
-                "production": true
-            }            
-        }
+  {
+    "name": "devices",
+    "src": "frontend/emi/devices",
+    "groups": [
+      {
+        "id": "DEVICES",
+        "icon": "location_searching",
+        "translate": {
+          "en": "Devices",
+          "es": "Dispositivos"
+        },
+        "priority": 1000
+      }
+    ],
+    "contents": [
+      {
+        "groupId": "DEVICES",
+        "id": "devices",
+        "icon": "speaker_phone",
+        "translate": {
+          "en": "Device detail",
+          "es": "Detalle dispositivos"
+        },
+        "navURL": "/devices",
+        "path": "devices",
+        "loadChildren": "./main/content/devices/devices.module#DevicesModule",
+        "priority": 100000
+      }
+    ],
+    "preBuildCommands": [],
+    "environmentVars": {
+      "default": {
+        "production": false
+      },
+      "local": {
+        "production": false
+      },
+      "prod": {
+        "production": true
+      }
     }
+  }
 ]
