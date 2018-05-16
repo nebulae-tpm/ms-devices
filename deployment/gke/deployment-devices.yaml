@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: devices-flagfiles-pv
+  name: devices-flagfiles-pvc
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 0.5Gi
@@ -24,7 +24,7 @@ spec:
         app: devices
     spec:      
       containers:
-      - image: nebulaetpm/devices.backend.devices:0.0.17
+      - image: nebulaetpm/devices.backend.devices:0.0.18
         name: devices
         volumeMounts:
         - name: devices-persistent-flags
@@ -70,4 +70,4 @@ spec:
           secretName: google-application-credentials
       - name: devices-persistent-flags
         persistentVolumeClaim:
-          claimName: devices-flagfiles-pv
+          claimName: devices-flagfiles-pvc
