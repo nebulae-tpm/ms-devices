@@ -23,10 +23,6 @@ if [ -d /opt/flags ]; then
 	while [ ! -f /opt/flags/lock_finalize ]; do
 		sleep $(( $RANDOM % 20 ))
 	done
-	if [ "$(hostname)" = "$(cat /opt/flags/lock_initialize)" ]; then
-		rm /opt/flags/lock_initialize
-		sync -f /opt/flags
-	fi
 fi
 
 exec "$@"
