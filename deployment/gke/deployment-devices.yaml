@@ -1,3 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: devices-flagFiles-pv
+spec:
+  accessModes:
+    - ReadWrite
+  resources:
+    requests:
+      storage: 0.5Gi
+---
 apiVersion: apps/v1beta2 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
@@ -13,9 +24,11 @@ spec:
         app: devices
     spec:      
       containers:
-      - image: nebulaetpm/devices.backend.devices:0.0.14
+      - image: nebulaetpm/devices.backend.devices:0.0.15
         name: devices
         volumeMounts:
+        - name: devices-persistent-flags
+          mountPath: "/opt/flags/"
         - name: google-application-credentials
           mountPath: "/etc/GOOGLE_APPLICATION_CREDENTIALS"
           readOnly: true
@@ -55,4 +68,6 @@ spec:
       - name: google-application-credentials
         secret:
           secretName: google-application-credentials
-      
+      - name: devices-persistent-flags
+        persistentVolumeClaim:
+          claimName: devices-flagFiles-pv
