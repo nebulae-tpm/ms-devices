@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: devices-flagFiles-pv
+  name: devices-flagfiles-pv
 spec:
   accessModes:
     - ReadWriteMany
@@ -70,4 +70,4 @@ spec:
           secretName: google-application-credentials
       - name: devices-persistent-flags
         persistentVolumeClaim:
-          claimName: devices-flagFiles-pv
+          claimName: devices-flagfiles-pv
