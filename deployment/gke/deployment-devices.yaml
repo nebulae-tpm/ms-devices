@@ -24,7 +24,7 @@ spec:
         app: devices
     spec:      
       containers:
-      - image: nebulaetpm/devices.backend.devices:0.0.16
+      - image: nebulaetpm/devices.backend.devices:0.0.17
         name: devices
         volumeMounts:
         - name: devices-persistent-flags
