@@ -4,7 +4,9 @@ metadata:
   name: devices-flagFiles-pv
 spec:
   accessModes:
-    - ReadWrite
+    - ReadWriteMany
+  reclaimPolicy:
+    - Recycle
   resources:
     requests:
       storage: 0.5Gi
@@ -14,7 +16,7 @@ kind: Deployment
 metadata:
   name: devices
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: devices
@@ -24,7 +26,7 @@ spec:
         app: devices
     spec:      
       containers:
-      - image: nebulaetpm/devices.backend.devices:0.0.15
+      - image: nebulaetpm/devices.backend.devices:0.0.16
         name: devices
         volumeMounts:
         - name: devices-persistent-flags
