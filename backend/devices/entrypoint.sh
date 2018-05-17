@@ -8,10 +8,7 @@ while [ 0 ]; do
 	# exec lock
 	/mbinit --step 1 --podName "$(hostname)" --url "$MONGODB_URL" \
 		&& echo "ESTA LINEA SE REEMPLAZA POR EL COMANDO npm PARA LA INITICIALIZACION" \
-		&& sleep 60
            	#############################################################################
-
-	sleep $(( $RANDOM % 10 ))
 
 	# exec wait
 	/mbinit --step 2 --podName "$(hostname)" --url "$MONGODB_URL" || continue
