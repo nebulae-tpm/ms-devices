@@ -8,6 +8,8 @@ type Device {
   appStatus: AppStatus
   "Device network params"
   deviceNetwork: DeviceNetwork
+  "Message timestamp"
+  timestamp: BigInt
 }
 
 "Current device status"
@@ -31,7 +33,7 @@ type DeviceStatus {
   "Device temperature"
   temperature: Int
   "CPU status"
-  cpuStatus: [Float]
+  cpuStatus: [Int]
   "Device iot connected"
   online: Boolean
   "Device Ram status"
@@ -141,16 +143,20 @@ type Voltage {
   lowestValue: Float
 }
 
-type AvgInRangeOfTime {
-  grouped_data: Float
-  interval: BigInt
-}
-
 type VoltageAvgInRangeOfTime {
   currentValue: Float
   lowestValue: Float
   highestValue: Float
   interval: BigInt
+}
+
+type VolumeInRageOfTime {
+  value: Float
+  timestamp: BigInt
+}
+type CpuInRageOfTime {
+  value: Float
+  timestamp: BigInt
 }
 
 type Query {
@@ -166,31 +172,28 @@ type Query {
   getRamAvgInRangeOfTime(
     initTime: BigInt
     endTime: BigInt
-    deltaTime: Int
     deviceId: String
-  ): [AvgInRangeOfTime]
+  ): [Device]
 
   getVolumeAvgInRangeOfTime(
     initTime: BigInt
     endTime: BigInt
     volumeType: String
-    deltaTime: Int
     deviceId: String
-  ): [AvgInRangeOfTime]
+  ): [VolumeInRageOfTime]
 
   getCpuAvgInRangeOfTime(
     initTime: BigInt
     endTime: BigInt
     deltaTime: Int
     deviceId: String
-  ): [AvgInRangeOfTime]
+  ): [CpuInRageOfTime]
 
   getVoltageInRangeOfTime(
     initTime: BigInt
     endTime: BigInt
-    deltaTime: Int
     deviceId: String
-  ): [VoltageAvgInRangeOfTime]
+  ): [Device]
 }
 
 type Subscription {

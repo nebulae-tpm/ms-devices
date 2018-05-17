@@ -69,12 +69,12 @@
               <div class="p-16 pb-0" fxLayout="row" fxLayoutAlign="start end" fxLayoutWrap>
                 <div class="pr-16">
                   <div class="font-size-12 font-weight-300 line-height-1 mt-8">
-                    <h2>{{'DEVICE.LOWEST_VALUE' | translate}}: </h2>
-                    <h3>{{device.deviceStatus.voltage.lowestValue }} Vdc</h3>
-                    <h2>{{'DEVICE.CURRENT_VALUE' | translate}}: </h2>
-                    <h3>{{device.deviceStatus.voltage.currentValue }} Vdc</h3>
                     <h2>{{'DEVICE.HIGHEST_VALUE' | translate}}: </h2>
-                    <h3>{{device.deviceStatus.voltage.highestValue }} Vdc</h3>
+                    <h3>{{device.deviceStatus.voltage.highestValue | number}} Vdc</h3>
+                    <h2>{{'DEVICE.CURRENT_VALUE' | translate}}: </h2>
+                    <h3>{{device.deviceStatus.voltage.currentValue | number}} Vdc</h3>
+                    <h2>{{'DEVICE.LOWEST_VALUE' | translate}}: </h2>
+                    <h3>{{device.deviceStatus.voltage.lowestValue | number}} Vdc</h3>
                   </div>
                 </div>
               </div>

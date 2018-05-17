@@ -10,8 +10,7 @@ class Devices {
   }
 
   getDevices({ root, args, jwt }, authToken) {
-    return DeviceDA.getDevices$(args.page, args.count, args.filter, args.sortColumn, args.sortOrder)
-      .do(result => console.log(`RETORNA DISPOSITIVOS:      ${JSON.stringify(result)}`));
+    return DeviceDA.getDevices$(args.page, args.count, args.filter, args.sortColumn, args.sortOrder);
   }
 
   getDeviceTableSize({ root, args, jwt }, authToken) {
@@ -22,7 +21,6 @@ class Devices {
     return DeviceDA.getRamAvgInRangeOfTime$(
       args.initTime,
       args.endTime,
-      args.deltaTime,
       args.deviceId
     );
   }
@@ -32,7 +30,6 @@ class Devices {
       args.initTime,
       args.endTime,
       args.volumeType,
-      args.deltaTime,
       args.deviceId
     );
   }
@@ -40,7 +37,6 @@ class Devices {
     return DeviceDA.getCpuAvgInRangeOfTime$(
       args.initTime,
       args.endTime,
-      args.deltaTime,
       args.deviceId
     );
   }
@@ -48,7 +44,6 @@ class Devices {
     return DeviceDA.getVoltageInRangeOfTime$(
       args.initTime,
       args.endTime,
-      args.deltaTime,
       args.deviceId
     );
   }

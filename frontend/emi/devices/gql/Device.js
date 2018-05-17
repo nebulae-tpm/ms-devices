@@ -62,45 +62,47 @@ export const getDeviceState = gql`
   }
 `;
 
-
 export const getRamAvgInRangeOfTime = gql`
   query getRamAvgInRangeOfTime(
     $initTime: BigInt
     $endTime: BigInt
     $deviceId: String
-    $deltaTime: Int
   ) {
     getRamAvgInRangeOfTime(
       initTime: $initTime
       endTime: $endTime
-      deltaTime: $deltaTime
       deviceId: $deviceId
     ) {
-      grouped_data
-      interval
+      timestamp
+      deviceStatus {
+        ram {
+          totalValue
+          currentValue
+          memoryUnitInformation
+          memorytype
+        }
+      }
     }
   }
 `;
 
 export const getVolumeAvgInRangeOfTime = gql`
   query getVolumeAvgInRangeOfTime(
-  $initTime: BigInt
-  $endTime: BigInt
-  $deviceId: String
-  $type: String
-  $deltaTime: Int
-) {
-  getVolumeAvgInRangeOfTime(
-    initTime: $initTime
-    endTime: $endTime
-    volumeType:$type
-    deltaTime: $deltaTime
-    deviceId: $deviceId
+    $initTime: BigInt
+    $endTime: BigInt
+    $deviceId: String
+    $type: String
   ) {
-    grouped_data
-    interval
+    getVolumeAvgInRangeOfTime(
+      initTime: $initTime
+      endTime: $endTime
+      volumeType: $type
+      deviceId: $deviceId
+    ) {
+      timestamp
+      value
+    }
   }
-}
 `;
 
 export const getCpuAvgInRangeOfTime = gql`
@@ -108,16 +110,14 @@ export const getCpuAvgInRangeOfTime = gql`
     $initTime: BigInt
     $endTime: BigInt
     $deviceId: String
-    $deltaTime: Int
   ) {
     getCpuAvgInRangeOfTime(
       initTime: $initTime
       endTime: $endTime
-      deltaTime: $deltaTime
       deviceId: $deviceId
     ) {
-      grouped_data
-      interval
+      value
+      timestamp
     }
   }
 `;
@@ -127,18 +127,20 @@ export const getVoltageInRangeOfTime = gql`
     $initTime: BigInt
     $endTime: BigInt
     $deviceId: String
-    $deltaTime: Int
   ) {
     getVoltageInRangeOfTime(
       initTime: $initTime
       endTime: $endTime
-      deltaTime: $deltaTime
       deviceId: $deviceId
     ) {
-      currentValue
-      lowestValue
-      highestValue
-      interval
+      deviceStatus{
+        voltage{
+          currentValue
+          highestValue
+          lowestValue
+        }
+      }
+      timestamp
     }
   }
 `;

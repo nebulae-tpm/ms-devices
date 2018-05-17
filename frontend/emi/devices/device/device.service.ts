@@ -62,20 +62,22 @@ export class DeviceService {
   getRamAvgInRangeOfTime(
     initTime,
     endTime,
-    deltaTime,
     deviceId
   ): Observable<any> {
+    console.log(`iniTime: ${initTime} endTime: ${endTime} deviceId: ${deviceId}`)
     return this.gateway.apollo
       .query<any>({
         query: getRamAvgInRangeOfTime,
         variables: {
           initTime: initTime,
           endTime: endTime,
-          deltaTime: deltaTime,
           deviceId: deviceId
         }
       })
-      .pipe(map(rawData => rawData.data.getRamAvgInRangeOfTime));
+      .pipe(map(rawData => {
+        console.log('llega de Graphql: ', JSON.stringify(rawData));
+        return rawData.data.getRamAvgInRangeOfTime;
+      }));
   }
 
   getVolumeAvgInRangeOfTime(
@@ -203,53 +205,22 @@ export class DeviceService {
     };
   }
 
-  buildChartMemoryWidget(deltaList, type) {
-    return Observable.from(deltaList).pipe(
+  buildChartMemoryWidget(deviceList, type) {
+    return Observable.from(deviceList).pipe(
       toArray(),
       mergeMap(sortedIntervals => {
         return Observable.forkJoin(
           Observable.from(sortedIntervals)
-            .map(toFreeValueList => (toFreeValueList as any).freeValue)
-            .toArray(),
-          Observable.from(sortedIntervals)
-            .map(toUsedValueList => (toUsedValueList as any).usedValue)
+            .map(toValueList => (toValueList as any).value)
             .toArray(),
           Observable.from(sortedIntervals)
             .map(toTimeIntervalList => (toTimeIntervalList as any).timeInterval)
             .toArray()
         );
       }),
-      map(([freeValueList, usedValueList, timeIntervalList]) => {
+      map(([valueList, timeIntervalList]) => {
         return this.buildMemoryWidget(
-          usedValueList,
-          freeValueList,
-          timeIntervalList,
-          type
-        );
-      })
-    );
-  }
-
-  buildChartVoltageWidget(deltaList, type) {
-    return Observable.from(deltaList).pipe(
-      toArray(),
-      mergeMap(sortedIntervals => {
-        return Observable.forkJoin(
-          Observable.from(sortedIntervals)
-            .map(toFreeValueList => (toFreeValueList as any).freeValue)
-            .toArray(),
-          Observable.from(sortedIntervals)
-            .map(toUsedValueList => (toUsedValueList as any).usedValue)
-            .toArray(),
-          Observable.from(sortedIntervals)
-            .map(toTimeIntervalList => (toTimeIntervalList as any).timeInterval)
-            .toArray()
-        );
-      }),
-      map(([freeValueList, usedValueList, timeIntervalList]) => {
-        return this.buildMemoryWidget(
-          usedValueList,
-          freeValueList,
+          valueList,
           timeIntervalList,
           type
         );
@@ -311,37 +282,32 @@ export class DeviceService {
     );
   }
 
-  buildMemoryWidget(usedValueList, freeValueList, timeIntervalList, type) {
+  buildMemoryWidget(valueList, timeIntervalList, type) {
     return {
       type: type,
       chartType: 'line',
       datasets: [
         {
-          label: 'Usado',
-          data: usedValueList,
-          fill: 'start'
-        },
-        {
-          label: 'Libre',
-          data: freeValueList,
+          label: `${type}(%)`,
+          data: valueList,
           fill: 'start'
         }
       ],
       labels: timeIntervalList,
       colors: [
         {
-          borderColor: "#3949ab",
-          backgroundColor: "rgba(57, 73, 171, 0.3)",
-          pointBackgroundColor: "#3949ab",
-          pointHoverBackgroundColor: "#3949ab",
+          borderColor: "rgba(30, 136, 229, 0.0)",
+          backgroundColor: "rgba(30, 136, 229, 0.0)",
+          pointBackgroundColor: "rgba(30, 136, 229, 1)",
+          pointHoverBackgroundColor: "rgba(30, 136, 229, 1)",
           pointBorderColor: "#ffffff",
           pointHoverBorderColor: "#ffffff"
         },
         {
-          borderColor: "rgba(30, 136, 229, 0.87)",
-          backgroundColor: "rgba(30, 136, 229, 0.3)",
-          pointBackgroundColor: "rgba(30, 136, 229, 0.87)",
-          pointHoverBackgroundColor: "rgba(30, 136, 229, 0.87)",
+          borderColor: "rgba(30, 136, 229, 0.0)",
+          backgroundColor: "rgba(30, 136, 229, 0.0)",
+          pointBackgroundColor: "rgba(30, 136, 229, 1)",
+          pointHoverBackgroundColor: "rgba(30, 136, 229, 1)",
           pointBorderColor: "#ffffff",
           pointHoverBorderColor: "#ffffff"
         }

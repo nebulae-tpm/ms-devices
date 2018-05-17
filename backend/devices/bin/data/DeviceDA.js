@@ -73,6 +73,11 @@ class DeviceDA {
     return Rx.Observable.fromPromise(
       collection
         .find(filterObject)
+        .project({
+          _id: 0,
+          id: 1,
+          deviceStatus: 1
+        })
         .sort(orderObject)
         .skip(count * page)
         .limit(count)
@@ -142,66 +147,21 @@ class DeviceDA {
    * @param {Number} deltaTime
    * @param {string} deviceId
    */
-  static getRamAvgInRangeOfTime$(initTime, endTime, deltaTime, deviceId) {
+  static getRamAvgInRangeOfTime$(initTime, endTime, deviceId) {
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.fromPromise(
       collection
-        .aggregate([
-          {
-            $match: {
-              timestamp: { $gte: initTime, $lt: endTime },
-              id: deviceId,
-              'deviceStatus.ram': { $exists: true }
-            }
-          },
-          {
-            $project: {
-              date: { $add: [new Date(0), '$timestamp'] },
-              timestamp: 1,
-              'deviceStatus.ram.currentValue': 1
-            }
-          },
-          {
-            $group: {
-              _id: {
-                interval: {
-                  $add: [
-                    '$timestamp',
-                    {
-                      $subtract: [
-                        {
-                          $multiply: [
-                            {
-                              $subtract: [
-                                deltaTime,
-                                { $mod: [{ $minute: '$date' }, deltaTime] }
-                              ]
-                            },
-                            60000
-                          ]
-                        },
-                        {
-                          $add: [
-                            { $multiply: [{ $second: '$date' }, 1000] },
-                            { $millisecond: '$date' }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              },
-              grouped_data: { $avg: '$deviceStatus.ram.currentValue' }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              interval: '$_id.interval',
-              grouped_data: 1
-            }
-          }
-        ])
+        .find({
+          timestamp: { $gte: initTime, $lt: endTime },
+          id: deviceId,
+          'deviceStatus.ram': { $exists: true }
+        })
+        .project({
+          _id: 0,
+          id: 1,
+          timestamp: 1,
+          'deviceStatus.ram': 1
+        })
         .toArray()
     ).map(item => {
       return item;
@@ -215,13 +175,7 @@ class DeviceDA {
    * @param {Number} deltaTime
    * @param {string} deviceId
    */
-  static getVolumeAvgInRangeOfTime$(
-    initTime,
-    endTime,
-    type,
-    deltaTime,
-    deviceId
-  ) {
+  static getVolumeAvgInRangeOfTime$(initTime, endTime, type, deviceId) {
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.fromPromise(
       collection
@@ -235,7 +189,6 @@ class DeviceDA {
           },
           {
             $project: {
-              date: { $add: [new Date(0), '$timestamp'] },
               timestamp: 1,
               currValue: {
                 $filter: {
@@ -248,51 +201,10 @@ class DeviceDA {
           },
           {
             $project: {
-              date: 1,
               timestamp: 1,
-              customValue: {
+              value: {
                 $arrayElemAt: ['$currValue.currentValue', 0]
               }
-            }
-          },
-          {
-            $group: {
-              _id: {
-                interval: {
-                  $add: [
-                    '$timestamp',
-                    {
-                      $subtract: [
-                        {
-                          $multiply: [
-                            {
-                              $subtract: [
-                                deltaTime,
-                                { $mod: [{ $minute: '$date' }, deltaTime] }
-                              ]
-                            },
-                            60000
-                          ]
-                        },
-                        {
-                          $add: [
-                            { $multiply: [{ $second: '$date' }, 1000] },
-                            { $millisecond: '$date' }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              },
-              grouped_data: { $avg: '$customValue' }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              interval: '$_id.interval',
-              grouped_data: 1
             }
           }
         ])
@@ -309,72 +221,21 @@ class DeviceDA {
    * @param {Number} deltaTime
    * @param {string} deviceId
    */
-  static getVoltageInRangeOfTime$(initTime, endTime, deltaTime, deviceId) {
+  static getVoltageInRangeOfTime$(initTime, endTime, deviceId) {
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.fromPromise(
       collection
-        .aggregate([
-          {
-            $match: {
-              timestamp: { $gte: initTime, $lt: endTime },
-              id: deviceId,
-              'deviceStatus.voltage': { $exists: true }
-            }
-          },
-          {
-            $project: {
-              date: { $add: [new Date(0), '$timestamp'] },
-              timestamp: 1,
-              'deviceStatus.voltage.currentValue': 1,
-              'deviceStatus.voltage.highestValue': 1,
-              'deviceStatus.voltage.lowestValue': 1
-            }
-          },
-          {
-            $group: {
-              _id: {
-                interval: {
-                  $add: [
-                    '$timestamp',
-                    {
-                      $subtract: [
-                        {
-                          $multiply: [
-                            {
-                              $subtract: [
-                                deltaTime,
-                                { $mod: [{ $minute: '$date' }, deltaTime] }
-                              ]
-                            },
-                            60000
-                          ]
-                        },
-                        {
-                          $add: [
-                            { $multiply: [{ $second: '$date' }, 1000] },
-                            { $millisecond: '$date' }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              },
-              currentValue: { $avg: '$deviceStatus.voltage.currentValue' },
-              highestValue: { $avg: '$deviceStatus.voltage.highestValue' },
-              lowestValue: { $avg: '$deviceStatus.voltage.lowestValue' }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              interval: '$_id.interval',
-              currentValue: 1,
-              highestValue: 1,
-              lowestValue: 1
-            }
-          }
-        ])
+        .find({
+          timestamp: { $gte: initTime, $lt: endTime },
+          id: deviceId,
+          'deviceStatus.voltage': { $exists: true }
+        })
+        .project({
+          _id: 0,
+          id: 1,
+          timestamp: 1,
+          'deviceStatus.voltage': 1
+        })
         .toArray()
     ).map(item => {
       return item;
@@ -385,10 +246,9 @@ class DeviceDA {
    * Returns a list that contains the metrics in time of CPU status
    * @param {Number} initTime
    * @param {Number} endTime
-   * @param {Number} deltaTime
    * @param {string} deviceId
    */
-  static getCpuAvgInRangeOfTime$(initTime, endTime, deltaTime, deviceId) {
+  static getCpuAvgInRangeOfTime$(initTime, endTime, deviceId) {
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.fromPromise(
       collection
@@ -402,51 +262,10 @@ class DeviceDA {
           },
           {
             $project: {
-              date: { $add: [new Date(0), '$timestamp'] },
               timestamp: 1,
-              customValue: {
+              value: {
                 $arrayElemAt: ['$deviceStatus.cpuStatus', 0]
               }
-            }
-          },
-          {
-            $group: {
-              _id: {
-                interval: {
-                  $add: [
-                    '$timestamp',
-                    {
-                      $subtract: [
-                        {
-                          $multiply: [
-                            {
-                              $subtract: [
-                                deltaTime,
-                                { $mod: [{ $minute: '$date' }, deltaTime] }
-                              ]
-                            },
-                            60000
-                          ]
-                        },
-                        {
-                          $add: [
-                            { $multiply: [{ $second: '$date' }, 1000] },
-                            { $millisecond: '$date' }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              },
-              grouped_data: { $avg: '$customValue' }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              interval: '$_id.interval',
-              grouped_data: 1
             }
           }
         ])
@@ -538,13 +357,14 @@ class DeviceDA {
         break;
       // APP STATUS EVENTS
       case 'DeviceMainAppStateReported':
-        if (device.appStatus) { 
+        if (device.appStatus) {
           message = { appStatus: {} };
           message.id = device.id;
           message.appStatus.timestamp = device.appStatus.timestamp;
-          message.appStatus.appTablesVersion = device.appStatus.appTablesVersion;
+          message.appStatus.appTablesVersion =
+            device.appStatus.appTablesVersion;
           message.appStatus.appVersions = device.appStatus.appVersions;
-        }          
+        }
         break;
     }
     if (message) {
@@ -553,12 +373,10 @@ class DeviceDA {
         `${eventType}Event`,
         JSON.parse(JSON.stringify(message))
       );
-    }
-    else { 
+    } else {
       return Rx.Observable.of(undefined);
     }
   }
 }
 
 module.exports = DeviceDA;
-

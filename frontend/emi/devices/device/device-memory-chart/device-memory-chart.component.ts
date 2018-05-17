@@ -3,7 +3,12 @@ import { DeviceService } from '../device.service';
 import * as shape from 'd3-shape';
 import { range } from 'rxjs/observable/range';
 import { scan, first, mergeMap, map, toArray } from 'rxjs/operators';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import {
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatSnackBar
+} from '@angular/material';
 import { DatePipe } from '@angular/common';
 import { Observable } from 'rxjs/Observable';
 
@@ -30,7 +35,8 @@ export class DeviceMemoryChartComponent implements OnInit {
     private deviceService: DeviceService,
     public dialogRef: MatDialogRef<DeviceMemoryChartComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    public snackBar: MatSnackBar
   ) {
     this.buildDeviceMemoryHistory(
       this.data.type,
@@ -44,7 +50,6 @@ export class DeviceMemoryChartComponent implements OnInit {
     this.deviceService.events$.forEach(event => {
       event.type = event.type == 'MEM' ? 'RAM' : event.type;
       if (this.deviceHistoric.type == event.type) {
-        console.log('ingresa a actualizar: ', event.type);
         this.buildDeviceMemoryHistory(
           event.type,
           event.value,
@@ -87,13 +92,7 @@ export class DeviceMemoryChartComponent implements OnInit {
       this.histogramHour[type] = deltaTime;
       const intervalValue = deltaTime * 60000;
       let endTime = new Date().getTime();
-      const roundedEndTime =
-        endTime +
-        (deltaTime -
-          Number(this.datePipe.transform(new Date(endTime), 'mm')) %
-            deltaTime) *
-          60000;
-      const initTime = roundedEndTime - intervalValue * 7;
+      const initTime = endTime - intervalValue * 12;
       let lastValue: any;
       const deviceDataMemory =
         type == 'RAM'
@@ -103,65 +102,40 @@ export class DeviceMemoryChartComponent implements OnInit {
         type == 'RAM'
           ? this.deviceService.getRamAvgInRangeOfTime(
               initTime,
-              roundedEndTime,
-              deltaTime,
+              endTime,
               device.id
             )
           : this.deviceService.getVolumeAvgInRangeOfTime(
               initTime,
-              roundedEndTime,
+              endTime,
               type,
               deltaTime,
               device.id
             );
-      this.sortDeviceMemoryAvgResult(
-        originWidgetInfo,
-        deviceDataMemory
-      ).subscribe(rawData => {
-        const currentHour = this.datePipe.transform(
-          new Date(roundedEndTime),
-          'HH:mm'
-        );
-        rawData[0] = {
-          timeInterval: currentHour,
-          freeValue: Math.floor(
-            (deviceDataMemory.totalValue - deviceDataMemory.currentValue) /
-              deviceDataMemory.totalValue *
-              100
-          ),
-          usedValue: Math.floor(
-            deviceDataMemory.currentValue / deviceDataMemory.totalValue * 100
+      this.sortDeviceMemoryAvgResult(originWidgetInfo, deviceDataMemory, type)
+        .pipe(
+          mergeMap(rawData =>
+            this.deviceService.buildChartMemoryWidget(rawData, type)
           )
-        };
-        this.buildAvgDeltas(roundedEndTime, intervalValue).subscribe(deltas => {
-          let widgetValueList = [];
-          let lastValue;
-          deltas.forEach(hour => {
-            const temporalDelta = rawData.filter(
-              widgetValue => widgetValue.timeInterval === hour
-            )[0];
-            const currentDelta = temporalDelta
-              ? temporalDelta
-              : {
-                  timeInterval: hour,
-                  freeValue: lastValue ? lastValue.freeValue : 100,
-                  usedValue: lastValue ? lastValue.usedValue : 0
-                };
-            widgetValueList.push(currentDelta);
-            lastValue = currentDelta;
-          });
-          widgetValueList.sort(this.sortByHour);
-          this.deviceService
-            .buildChartMemoryWidget(widgetValueList, type)
-            .subscribe(result => {
-              this.deviceHistoric = result;
-              this.labels.length = 0;
-              for (let i = 0; i < this.deviceHistoric.labels.length; i++) {
-                this.labels.push(this.deviceHistoric.labels[i]);
+        )
+        .subscribe(rawData => {
+          if (rawData && rawData.labels.length > 0) {
+            this.deviceHistoric = rawData;
+            this.labels.length = 0;
+            for (let i = 0; i < this.deviceHistoric.labels.length; i++) {
+              this.labels.push(this.deviceHistoric.labels[i]);
+            }
+          } else {
+            this.snackBar.open(
+              'No se encontraron datos para graficar',
+              'Cerrar',
+              {
+                duration: 2000
               }
-            });
+            );
+            this.dialogRef.close();
+          }
         });
-      });
     }
   }
 
@@ -173,60 +147,33 @@ export class DeviceMemoryChartComponent implements OnInit {
   buildDeviceCpuHistory(device, deltaTime) {
     const intervalValue = deltaTime * 60000;
     let endTime = new Date().getTime();
-    const roundedEndTime =
-      endTime +
-      (deltaTime -
-        Number(this.datePipe.transform(new Date(endTime), 'mm')) % deltaTime) *
-        60000;
-    const initTime = roundedEndTime - intervalValue * 7;
+    const initTime = endTime - intervalValue * 12;
     let lastValue: any;
     const originWidgetInfo = this.deviceService.getCpuAvgInRangeOfTime(
       initTime,
-      roundedEndTime,
+      endTime,
       deltaTime,
       device.id
     );
     this.sortCpuAvgResult(originWidgetInfo).subscribe(rawData => {
-      const currentHour = this.datePipe.transform(
-        new Date(roundedEndTime),
-        'HH:mm'
-      );
-      const cpuStatus= (device.deviceStatus.cpuStatus.length>0) ?device.deviceStatus.cpuStatus[0]:0
-      rawData[0] = {
-        timeInterval: currentHour,
-        freeValue: Math.floor(
-          (100 - cpuStatus)
-        ),
-        usedValue: Math.floor(cpuStatus)
-      };
-      this.buildAvgDeltas(roundedEndTime, intervalValue).subscribe(deltas => {
-        let widgetValueList = [];
-        let lastValue;
-        deltas.forEach(hour => {
-          const temporalDelta = rawData.filter(
-            widgetValue => widgetValue.timeInterval === hour
-          )[0];
-          const currentDelta = temporalDelta
-            ? temporalDelta
-            : {
-                timeInterval: hour,
-                freeValue: lastValue ? lastValue.freeValue : 100,
-                usedValue: lastValue ? lastValue.usedValue : 0
-              };
-          widgetValueList.push(currentDelta);
-          lastValue = currentDelta;
+      if (rawData.length < 1) {
+        this.snackBar.open('No se encontraron datos para graficar', 'Cerrar', {
+          duration: 2000
         });
-        widgetValueList.sort(this.sortByHour);
+        this.dialogRef.close();
+        return;
+      }
+      else {
         this.deviceService
-          .buildChartMemoryWidget(widgetValueList, 'CPU')
-          .subscribe(result => {
-            this.deviceHistoric = result;
-            this.labels.length = 0;
-            for (let i = 0; i < this.deviceHistoric.labels.length; i++) {
-              this.labels.push(this.deviceHistoric.labels[i]);
-            }
-          });
-      });
+        .buildChartMemoryWidget(rawData, 'CPU')
+        .subscribe(result => {
+          this.deviceHistoric = result;
+          this.labels.length = 0;
+          for (let i = 0; i < this.deviceHistoric.labels.length; i++) {
+            this.labels.push(this.deviceHistoric.labels[i]);
+          }
+        });
+      }
     });
   }
 
@@ -242,26 +189,35 @@ export class DeviceMemoryChartComponent implements OnInit {
     }
   }
 
-  sortDeviceMemoryAvgResult(obsResult, deviceDataMemory) {
+  sortDeviceMemoryAvgResult(obsResult, deviceDataMemory, type) {
     return (obsResult as Observable<any>).pipe(
       first(),
       mergeMap(result => {
         return Observable.from(result as any[]).pipe(
           map(rawData => {
-            return {
-              freeValue: Math.floor(
-                (deviceDataMemory.totalValue - rawData.grouped_data) /
-                  deviceDataMemory.totalValue *
-                  100
-              ),
-              usedValue: Math.floor(
-                rawData.grouped_data / deviceDataMemory.totalValue * 100
-              ),
-              timeInterval: this.datePipe.transform(
-                new Date(rawData.interval),
-                'HH:mm'
-              )
-            };
+            if (type == 'RAM') {
+              return {
+                value: Math.floor(
+                  rawData.deviceStatus.ram.currentValue /
+                    deviceDataMemory.totalValue *
+                    100
+                ),
+                timeInterval: this.datePipe.transform(
+                  new Date(rawData.timestamp),
+                  'HH:mm'
+                )
+              };
+            } else {
+              return {
+                value: Math.floor(
+                  rawData.value / deviceDataMemory.totalValue * 100
+                ),
+                timeInterval: this.datePipe.transform(
+                  new Date(rawData.timestamp),
+                  'HH:mm'
+                )
+              };
+            }
           }),
           toArray(),
           map(unsortedArray => unsortedArray.sort(this.sortByHour))
@@ -277,10 +233,9 @@ export class DeviceMemoryChartComponent implements OnInit {
         return Observable.from(result as any[]).pipe(
           map(rawData => {
             return {
-              freeValue: Math.floor(100 - rawData.grouped_data),
-              usedValue: Math.floor(rawData.grouped_data),
+              value: Math.floor(rawData.value),
               timeInterval: this.datePipe.transform(
-                new Date(rawData.interval),
+                new Date(rawData.timestamp),
                 'HH:mm'
               )
             };
@@ -289,18 +244,6 @@ export class DeviceMemoryChartComponent implements OnInit {
           map(unsortedArray => unsortedArray.sort(this.sortByHour))
         );
       })
-    );
-  }
-
-  buildAvgDeltas(endTime, intervalValue) {
-    //TODO: organizar range dinamico
-    endTime = endTime + intervalValue;
-    return Observable.range(1, 12).pipe(
-      map(value => {
-        const intervalTime = endTime - intervalValue * value;
-        return this.datePipe.transform(new Date(intervalTime), 'HH:mm');
-      }),
-      toArray()
     );
   }
 }
