@@ -120,7 +120,7 @@ jobs:
             export DOCKERHUB_TAG=0.0.20
             export HOMEUSER=$(dirname ~/nebulae)
             mkdir -p $HOMEUSER/nebulae/go/bin
-            docker run -it --rm -v $HOMEUSER/nebulae/go/bin/:/go/bin/ golang:1.9-alpine /bin/sh -c '/sbin/apk add --no-cache git && go get github.com/dumacp/mbinit && go install github.com/dumacp/mbinit'
+            docker run -it --rm -v $HOMEUSER/nebulae/go/bin/:/go/bin/ golang:1.9-alpine /bin/sh -c "/sbin/apk add --no-cache git && go get github.com/dumacp/mbinit && go install github.com/dumacp/mbinit"
             cp $HOMEUSER/nebulae/go/bin/mbinit ~/nebulae/repo/backend/devices/
             gitChanged backend/devices || docker build  -t $DOCKERHUB_NAMESPACE/$DOCKERHUB_IMAGE:$DOCKERHUB_TAG -t $DOCKERHUB_NAMESPACE/$DOCKERHUB_IMAGE:latest ~/nebulae/repo/backend/devices/
             gitChanged backend/devices || docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
