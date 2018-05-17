@@ -2,28 +2,23 @@
 
 set -x
 
-if [ -d /opt/flags ]; then
-	sync -f /opt/flags
-	if [ ! -f /opt/flags/lock_initialize ]; then
-		sleep $(( $RANDOM % 10 ))
-		echo $(hostname) > /opt/flags/lock_initialize
-		sync /opt/flags/lock_initialize
-		sleep $(( $RANDOM % 10 ))
-		if [ "$(hostname)" = "$(cat /opt/flags/lock_initialize)" ]; then
+sleep $(( $RANDOM % 10 ))
 
-			##########################################################################
-			echo "ESTA LINEA SE REEMPLAZA POR EL COMANDO npm PARA LA INITICIALIZACION"
-			sleep $(( $RANDOM % 60 ))
-			##########################################################################
+while [ 0 ]; do
+	# exec lock
+	/mbinit --step 1 --podName "$(hostname)" --url "$MONGODB_URL" \
+		&& echo "ESTA LINEA SE REEMPLAZA POR EL COMANDO npm PARA LA INITICIALIZACION" \
+		&& sleep 60
+           	#############################################################################
 
-			echo $(hostname) > /opt/flags/lock_finalize
-			sync /opt/flags/lock_finalize
-		fi
-	fi
-	while [ ! -f /opt/flags/lock_finalize ]; do
-		sleep $(( $RANDOM % 20 ))
-	done
-fi
+	sleep $(( $RANDOM % 10 ))
 
+	# exec wait
+	/mbinit --step 2 --podName "$(hostname)" --url "$MONGODB_URL" || continue
+	# exec unlock
+	/mbinit --step 3 --podName "$(hostname)" --url "$MONGODB_URL" || continue
+
+	break
+done
 
 exec "$@"

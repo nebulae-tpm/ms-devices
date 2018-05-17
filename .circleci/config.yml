@@ -117,7 +117,10 @@ jobs:
             cd ~/nebulae/repo/
             mkdir ~/nebulae/backend
             export DOCKERHUB_IMAGE=devices.backend.devices
-            export DOCKERHUB_TAG=0.0.18
+            export DOCKERHUB_TAG=0.0.19
+            mkdir -p /tmp/go/bin
+            docker run -it --rm -v /tmp/go/bin/:/go/bin/ golang:1.9-alpine /bin/sh -c '/sbin/apk add --no-cache git && go get github.com/dumacp/mbinit && go install github.com/dumacp/mbinit'
+            cp /tmp/go/bin/mbinit ~/nebulae/repo/backend/devices/
             gitChanged backend/devices || docker build  -t $DOCKERHUB_NAMESPACE/$DOCKERHUB_IMAGE:$DOCKERHUB_TAG -t $DOCKERHUB_NAMESPACE/$DOCKERHUB_IMAGE:latest ~/nebulae/repo/backend/devices/
             gitChanged backend/devices || docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
             gitChanged backend/devices || docker push $DOCKERHUB_NAMESPACE/$DOCKERHUB_IMAGE:$DOCKERHUB_TAG
