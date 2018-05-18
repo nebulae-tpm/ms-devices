@@ -99,34 +99,40 @@ class DeviceDA {
    * @param {*} device
    */
   static persistDevice$(device, eventType) {
-    const collection = mongoDB.db.collection('Devices');
-    return Rx.Observable.of(device).mergeMap(result => {
-      return Rx.Observable.fromPromise(
-        collection.findOneAndUpdate(
-          {
-            id: device.id
-          },
-          { $set: result },
-          {
-            upsert: true,
-            returnOriginal: false
-          }
+    if (device && device.id) {
+      const collection = mongoDB.db.collection('Devices');
+      return Rx.Observable.of(device).mergeMap(result => {
+        return Rx.Observable.fromPromise(
+          collection.findOneAndUpdate(
+            {
+              id: device.id
+            },
+            { $set: result },
+            {
+              upsert: true,
+              returnOriginal: false
+            }
+          )
         )
-      )
-        .mergeMap(result => {
-          if (result && result.value) {
-            return Rx.Observable.concat(
-              this.persistDeviceHistory$(result.value),
-              this.sendDeviceResultEvent$(result.value, eventType)
-            );
-          } else {
-            return Rx.Observable.of(undefined);
-          }
-        })
-        .map(resultHistory => {
-          return JSON.stringify(result);
-        });
-    });
+          .mergeMap(result => {
+            if (result && result.value) {
+              return Rx.Observable.concat(
+                this.persistDeviceHistory$(result.value),
+                this.sendDeviceResultEvent$(result.value, eventType)
+              );
+            } else {
+              return Rx.Observable.of(undefined);
+            }
+          })
+          .map(resultHistory => {
+            return JSON.stringify(result);
+          });
+      });
+    }
+    else { 
+      return Rx.Observable.of(undefined);
+    }
+    
   }
   /**
    * Persist new register in the collection DeviceHistory
