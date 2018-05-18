@@ -2,7 +2,16 @@ import { Component, OnInit, Input, Inject } from '@angular/core';
 import { DeviceService } from '../device.service';
 import * as shape from 'd3-shape';
 import { range } from 'rxjs/observable/range';
-import { scan, first, mergeMap, map, toArray, distinct, groupBy, tap } from 'rxjs/operators';
+import {
+  scan,
+  first,
+  mergeMap,
+  map,
+  toArray,
+  distinct,
+  groupBy,
+  tap
+} from 'rxjs/operators';
 import {
   MatDialog,
   MatDialogRef,
@@ -119,12 +128,9 @@ export class DeviceMemoryChartComponent implements OnInit {
           )
         )
         .subscribe(rawData => {
-          if (rawData && rawData.labels.length > 0) {
+          if (rawData && rawData.data && rawData.data.length > 0) {
             this.deviceHistoric = rawData;
-            this.labels.length = 0;
-            for (let i = 0; i < this.deviceHistoric.labels.length; i++) {
-              this.labels.push(this.deviceHistoric.labels[i]);
-            }
+            console.log('deviceHistoric: ', this.deviceHistoric);
           } else {
             this.snackBar.open(
               'No se encontraron datos para graficar',
@@ -162,17 +168,16 @@ export class DeviceMemoryChartComponent implements OnInit {
         });
         this.dialogRef.close();
         return;
-      }
-      else {
+      } else {
         this.deviceService
-        .buildChartMemoryWidget(rawData, 'CPU')
-        .subscribe(result => {
-          this.deviceHistoric = result;
-          this.labels.length = 0;
-          for (let i = 0; i < this.deviceHistoric.labels.length; i++) {
-            this.labels.push(this.deviceHistoric.labels[i]);
-          }
-        });
+          .buildChartMemoryWidget(rawData, 'CPU')
+          .subscribe(result => {
+            this.deviceHistoric = result;
+            this.labels.length = 0;
+            for (let i = 0; i < this.deviceHistoric.labels.length; i++) {
+              this.labels.push(this.deviceHistoric.labels[i]);
+            }
+          });
       }
     });
   }
@@ -199,8 +204,8 @@ export class DeviceMemoryChartComponent implements OnInit {
               return {
                 value: Math.floor(
                   rawData.deviceStatus.ram.currentValue /
-                  deviceDataMemory.totalValue *
-                  100
+                    deviceDataMemory.totalValue *
+                    100
                 ),
                 timeInterval: this.datePipe.transform(
                   new Date(rawData.timestamp),
@@ -223,11 +228,13 @@ export class DeviceMemoryChartComponent implements OnInit {
           }),
           toArray(),
           map(unsortedArray => {
-            return unsortedArray.sort(this.sortByHour)
+            return unsortedArray.sort(this.sortByHour);
           }),
           mergeMap(sortedArray => {
-            return Observable.from(sortedArray).pipe(groupBy(memoryValue => (memoryValue as any).timeInterval),
-            mergeMap(group => group.pipe(first())),)
+            return Observable.from(sortedArray).pipe(
+              groupBy(memoryValue => (memoryValue as any).timeInterval),
+              mergeMap(group => group.pipe(first()))
+            );
           }),
           toArray()
         );
@@ -252,11 +259,13 @@ export class DeviceMemoryChartComponent implements OnInit {
           }),
           toArray(),
           map(unsortedArray => {
-            return unsortedArray.sort(this.sortByHour)
+            return unsortedArray.sort(this.sortByHour);
           }),
           mergeMap(sortedArray => {
-            return Observable.from(sortedArray).pipe(groupBy(memoryValue => (memoryValue as any).timeInterval),
-            mergeMap(group => group.pipe(first())),)
+            return Observable.from(sortedArray).pipe(
+              groupBy(memoryValue => (memoryValue as any).timeInterval),
+              mergeMap(group => group.pipe(first()))
+            );
           }),
           toArray()
         );

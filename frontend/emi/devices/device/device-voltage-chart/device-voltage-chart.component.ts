@@ -80,7 +80,6 @@ export class DeviceVoltageChartComponent implements OnInit {
 
     this.sortVoltageAvgResult(originWidgetInfo)
       .pipe(mergeMap(rawData => {
-        console.log('RawData: ', rawData);
         return rawData.length>0 ?this.deviceService.buildVoltageWidget(rawData): Observable.of(undefined);
       }))
       .subscribe(rawData => {
@@ -92,8 +91,7 @@ export class DeviceVoltageChartComponent implements OnInit {
           duration: 2000
         });
         this.dialogRef.close();
-        return;
-      };
+      }
     });
   }
 

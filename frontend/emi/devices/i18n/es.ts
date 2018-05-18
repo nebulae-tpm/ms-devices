@@ -40,16 +40,16 @@ export const locale = {
       VOLTAGE_STATUS: 'Estado de voltaje',
       VOLTAGE: 'Voltaje',
       MAC: 'MAC de la interfaz eht0',
-      LOWEST_VALUE: 'Valor Min.',
+      LOWEST_VALUE: 'Valor Min',
       CURRENT_VALUE: 'Valor actual',
-      HIGHEST_VALUE: 'Valor Max.',
+      HIGHEST_VALUE: 'Valor Max',
       CPU_STATUS: 'Estado de CPU',
       UPTIME: 'Tiempo de Actividad',
       TIME_STAMP: 'Último mensaje recibido',
       SIM_STATUS: 'Estado de SIM',
       USED: 'Usado',
       FREE: 'Libre',
-      METRICS_OF: 'Metricas de',
+      METRICS_OF: 'Métricas de',
       IN: 'en'
     }
   }

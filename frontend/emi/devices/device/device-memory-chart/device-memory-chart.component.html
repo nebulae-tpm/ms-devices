@@ -12,8 +12,8 @@
 
 <div fxLayout="column">
   <div style="width: 100%; height: 400px; " *ngIf="deviceHistoric">
-    <canvas baseChart [datasets]="deviceHistoric.datasets" [labels]="labels" [colors]="deviceHistoric.colors" [options]="deviceHistoric.options"
-      [chartType]="deviceHistoric.chartType">
-    </canvas>
+    <ngx-charts-line-chart *fuseIfOnDom [scheme]="deviceHistoric.scheme" [results]="deviceHistoric.data" [xAxis]="true" [yAxis]="true"
+      [yScaleMin]="0" [yScaleMax]="100">
+    </ngx-charts-line-chart>
   </div>
 </div>

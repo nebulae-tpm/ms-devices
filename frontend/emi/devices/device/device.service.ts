@@ -59,11 +59,7 @@ export class DeviceService {
       .pipe(map(rawData => rawData.data.getDeviceDetail));
   }
 
-  getRamAvgInRangeOfTime(
-    initTime,
-    endTime,
-    deviceId
-  ): Observable<any> {
+  getRamAvgInRangeOfTime(initTime, endTime, deviceId): Observable<any> {
     return this.gateway.apollo
       .query<any>({
         query: getRamAvgInRangeOfTime,
@@ -73,9 +69,11 @@ export class DeviceService {
           deviceId: deviceId
         }
       })
-      .pipe(map(rawData => {
-        return rawData.data.getRamAvgInRangeOfTime;
-      }));
+      .pipe(
+        map(rawData => {
+          return rawData.data.getRamAvgInRangeOfTime;
+        })
+      );
   }
 
   getVolumeAvgInRangeOfTime(
@@ -205,23 +203,15 @@ export class DeviceService {
 
   buildChartMemoryWidget(deviceList, type) {
     return Observable.from(deviceList).pipe(
-      toArray(),
-      mergeMap(sortedIntervals => {
-        return Observable.forkJoin(
-          Observable.from(sortedIntervals)
-            .map(toValueList => (toValueList as any).value)
-            .toArray(),
-          Observable.from(sortedIntervals)
-            .map(toTimeIntervalList => (toTimeIntervalList as any).timeInterval)
-            .toArray()
-        );
+      map(memoryValue => {
+        return {
+          name: (memoryValue as any).timeInterval,
+          value: (memoryValue as any).value
+        };
       }),
-      map(([valueList, timeIntervalList]) => {
-        return this.buildMemoryWidget(
-          valueList,
-          timeIntervalList,
-          type
-        );
+      toArray(),
+      map(memoryList => {
+        return this.buildMemoryWidget(memoryList, type);
       })
     );
   }
@@ -233,26 +223,34 @@ export class DeviceService {
         return Observable.forkJoin(
           Observable.from(sortedIntervals)
             .map(toCurrentValueList => {
-              return {name:(toCurrentValueList as any).timeInterval , value: (toCurrentValueList as any).currentValue };
+              return {
+                name: (toCurrentValueList as any).timeInterval,
+                value: (toCurrentValueList as any).currentValue
+              };
             })
             .toArray(),
           Observable.from(sortedIntervals)
             .map(toHighestValueList => {
-              return {name:(toHighestValueList as any).timeInterval , value: (toHighestValueList as any).highestValue };
+              return {
+                name: (toHighestValueList as any).timeInterval,
+                value: (toHighestValueList as any).highestValue
+              };
             })
             .toArray(),
           Observable.from(sortedIntervals)
-            .map(toLowestValueList =>
-              {
-                return {name:(toLowestValueList as any).timeInterval , value: (toLowestValueList as any).lowestValue };
-              })
+            .map(toLowestValueList => {
+              return {
+                name: (toLowestValueList as any).timeInterval,
+                value: (toLowestValueList as any).lowestValue
+              };
+            })
             .toArray()
         );
       }),
       map(([currentValueList, highestValueList, lowestValueList]) => {
         return {
           scheme: {
-            domain: [ '#ffc107','#5c84f1', '#f44336']
+            domain: ['#ffc107', '#5c84f1', '#f44336']
           },
           today: '12,540',
           change: {
@@ -261,7 +259,7 @@ export class DeviceService {
           },
           data: [
             {
-              name: 'Mas bajo',
+              name: 'Min.',
               series: lowestValueList
             },
             {
@@ -269,7 +267,7 @@ export class DeviceService {
               series: currentValueList
             },
             {
-              name: 'Mas alto',
+              name: 'Max',
               series: highestValueList
             }
           ],
@@ -280,89 +278,16 @@ export class DeviceService {
     );
   }
 
-  buildMemoryWidget(valueList, timeIntervalList, type) {
+  buildMemoryWidget(memoryList, type) {
     return {
-      type: type,
-      chartType: 'line',
-      datasets: [
-        {
-          label: `${type}(%)`,
-          data: valueList,
-          fill: 'start'
-        }
-      ],
-      labels: timeIntervalList,
-      colors: [
-        {
-          borderColor: "rgba(30, 136, 229, 0.0)",
-          backgroundColor: "rgba(30, 136, 229, 0.0)",
-          pointBackgroundColor: "rgba(30, 136, 229, 1)",
-          pointHoverBackgroundColor: "rgba(30, 136, 229, 1)",
-          pointBorderColor: "#ffffff",
-          pointHoverBorderColor: "#ffffff"
-        },
-        {
-          borderColor: "rgba(30, 136, 229, 0.0)",
-          backgroundColor: "rgba(30, 136, 229, 0.0)",
-          pointBackgroundColor: "rgba(30, 136, 229, 1)",
-          pointHoverBackgroundColor: "rgba(30, 136, 229, 1)",
-          pointBorderColor: "#ffffff",
-          pointHoverBorderColor: "#ffffff"
-        }
-      ],
-      options: {
-        spanGaps: false,
-        legend: {
-          display: false
-        },
-        maintainAspectRatio: false,
-        tooltips: {
-          position: 'nearest',
-          mode: 'index',
-          intersect: false
-        },
-        layout: {
-          padding: {
-            left: 24,
-            right: 32
-          }
-        },
-        elements: {
-          point: {
-            radius: 4,
-            borderWidth: 2,
-            hoverRadius: 4,
-            hoverBorderWidth: 2
-          }
-        },
-        scales: {
-          xAxes: [
-            {
-              gridLines: {
-                display: false
-              },
-              ticks: {
-                fontColor: 'rgba(0,0,0,0.54)'
-              }
-            }
-          ],
-          yAxes: [
-            {
-              gridLines: {
-                tickMarkLength: 16
-              },
-              ticks: {
-                stepSize: 50
-              }
-            }
-          ]
-        },
-        plugins: {
-          filler: {
-            propagate: false
-          }
-        }
+      scheme: {
+        domain: ['#5c84f1']
+      },
+      data: [{
+        name: type,
+        series: memoryList
       }
+      ]
     };
   }
 
