@@ -33,7 +33,7 @@ type DeviceStatus {
   "Device temperature"
   temperature: Int
   "CPU status"
-  cpuStatus: [Int]
+  cpuStatus: [Float]
   "Device iot connected"
   online: Boolean
   "Device Ram status"

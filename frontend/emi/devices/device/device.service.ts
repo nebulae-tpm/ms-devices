@@ -75,7 +75,6 @@ export class DeviceService {
         }
       })
       .pipe(map(rawData => {
-        console.log('llega de Graphql: ', JSON.stringify(rawData));
         return rawData.data.getRamAvgInRangeOfTime;
       }));
   }
