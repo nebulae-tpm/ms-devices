@@ -118,10 +118,7 @@ jobs:
             mkdir ~/nebulae/backend
             export DOCKERHUB_IMAGE=devices.backend.devices
             export DOCKERHUB_TAG=0.0.21
-            #export HOMEUSER=$(dirname ~/nebulae)
-            #mkdir -p $HOMEUSER/nebulae/go/bin
-            #docker run -it --rm -v $HOMEUSER/nebulae/go/bin/:/go/bin/ golang:1.9-alpine /bin/sh -c "/sbin/apk add --no-cache git && go get github.com/dumacp/mbinit && go install github.com/dumacp/mbinit"
-            #cp $HOMEUSER/nebulae/go/bin/mbinit ~/nebulae/repo/backend/devices/
+            cp ~/nebulae/go/mbinit ~/nebulae/repo/backend/devices/
             gitChanged backend/devices || docker build  -t $DOCKERHUB_NAMESPACE/$DOCKERHUB_IMAGE:$DOCKERHUB_TAG -t $DOCKERHUB_NAMESPACE/$DOCKERHUB_IMAGE:latest ~/nebulae/repo/backend/devices/
             gitChanged backend/devices || docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
             gitChanged backend/devices || docker push $DOCKERHUB_NAMESPACE/$DOCKERHUB_IMAGE:$DOCKERHUB_TAG
@@ -130,6 +127,29 @@ jobs:
           root: ~/nebulae/
           paths:
             - backend
+
+# ################ MBINIT ################ 
+            
+  build-mbinit:    
+    working_directory: ~/nebulae/
+    docker:
+      - image: golang/1.9-alpine
+        command: sh
+    steps:
+      - attach_workspace:
+          at: ~/nebulae
+      - run:
+          name: Build mbinit for devices
+          command: |
+            mkdir ~/nebulae/go
+            apk add --no-cache git
+            go get github.com/dumacp/mbinit
+            go install github.com/dumacp/mbinit
+            cp /go/bin/mbinit ~/nebulae/go/
+      - persist_to_workspace:
+          root: ~/nebulae/
+          paths:
+            - go
 
 # ################ DEPLOYMENT ################ 
 
@@ -181,6 +201,11 @@ workflows:
           requires:
             - prepare
       - build-backend:
+          context: TPM
+          requires:
+            - prepare
+            - build-mbinit
+      - build-mbinit:
           context: TPM
           requires:
             - prepare
