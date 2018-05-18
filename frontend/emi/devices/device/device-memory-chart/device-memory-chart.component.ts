@@ -20,6 +20,7 @@ import {
 } from '@angular/material';
 import { DatePipe } from '@angular/common';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-device-memory-chart',
@@ -33,6 +34,7 @@ export class DeviceMemoryChartComponent implements OnInit {
   selectedDelta = 5;
   histogramHour = {};
   deviceHistoric: any;
+  subscribers: Subscription[] = [];
   sortByHour = (a, b) => {
     if (a.timestamp < b.timestamp) return -1;
     if (a.timestamp > b.timestamp) return 1;
@@ -66,6 +68,14 @@ export class DeviceMemoryChartComponent implements OnInit {
         );
       }
     });
+  }
+
+  ngOnDestroy() {
+    if (this.subscribers) {
+      this.subscribers.forEach(sub => {
+        sub.unsubscribe();
+      });
+    }
   }
 
   changeHour($event) {
@@ -121,27 +131,28 @@ export class DeviceMemoryChartComponent implements OnInit {
               deltaTime,
               device.id
             );
-      this.sortDeviceMemoryAvgResult(originWidgetInfo, deviceDataMemory, type)
-        .pipe(
-          mergeMap(rawData =>
-            this.deviceService.buildChartMemoryWidget(rawData, type)
+      this.subscribers.push(
+        this.sortDeviceMemoryAvgResult(originWidgetInfo, deviceDataMemory, type)
+          .pipe(
+            mergeMap(rawData =>
+              this.deviceService.buildChartMemoryWidget(rawData, type)
+            )
           )
-        )
-        .subscribe(rawData => {
-          if (rawData && rawData.data && rawData.data.length > 0) {
-            this.deviceHistoric = rawData;
-            console.log('deviceHistoric: ', this.deviceHistoric);
-          } else {
-            this.snackBar.open(
-              'No se encontraron datos para graficar',
-              'Cerrar',
-              {
-                duration: 2000
-              }
-            );
-            this.dialogRef.close();
-          }
-        });
+          .subscribe(rawData => {
+            if (rawData && rawData.data && rawData.data.length > 0) {
+              this.deviceHistoric = rawData;
+            } else {
+              this.snackBar.open(
+                'No se encontraron datos para graficar',
+                'Cerrar',
+                {
+                  duration: 2000
+                }
+              );
+              this.dialogRef.close();
+            }
+          })
+      );
     }
   }
 
@@ -161,25 +172,40 @@ export class DeviceMemoryChartComponent implements OnInit {
       deltaTime,
       device.id
     );
-    this.sortCpuAvgResult(originWidgetInfo).subscribe(rawData => {
-      if (rawData.length < 1) {
-        this.snackBar.open('No se encontraron datos para graficar', 'Cerrar', {
-          duration: 2000
-        });
-        this.dialogRef.close();
-        return;
-      } else {
-        this.deviceService
-          .buildChartMemoryWidget(rawData, 'CPU')
-          .subscribe(result => {
-            this.deviceHistoric = result;
-            this.labels.length = 0;
-            for (let i = 0; i < this.deviceHistoric.labels.length; i++) {
-              this.labels.push(this.deviceHistoric.labels[i]);
+    this.subscribers.push(
+      this.sortCpuAvgResult(originWidgetInfo).subscribe(rawData => {
+        if (rawData.length < 1) {
+          this.snackBar.open(
+            'No se encontraron datos para graficar',
+            'Cerrar',
+            {
+              duration: 2000
             }
-          });
-      }
-    });
+          );
+          this.dialogRef.close();
+          return;
+        } else {
+          this.subscribers.push(
+            this.deviceService
+              .buildChartMemoryWidget(rawData, 'CPU')
+              .subscribe(rawData => {
+                if (rawData && rawData.data && rawData.data.length > 0) {
+                  this.deviceHistoric = rawData;
+                } else {
+                  this.snackBar.open(
+                    'No se encontraron datos para graficar',
+                    'Cerrar',
+                    {
+                      duration: 2000
+                    }
+                  );
+                  this.dialogRef.close();
+                }
+              })
+          );
+        }
+      })
+    );
   }
 
   getDeviceMemory(device, type) {

@@ -3,9 +3,15 @@ import { DeviceService } from '../device.service';
 import * as shape from 'd3-shape';
 import { range } from 'rxjs/observable/range';
 import { scan, first, mergeMap, map, toArray, groupBy } from 'rxjs/operators';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatSnackBar } from '@angular/material';
+import {
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatSnackBar
+} from '@angular/material';
 import { DatePipe } from '@angular/common';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-device-voltage-chart',
@@ -17,6 +23,7 @@ export class DeviceVoltageChartComponent implements OnInit {
   deviceVoltage: any;
   selectedDelta = 5;
   currentRange = 0;
+  subscribers: Subscription[] = [];
   sortByHour = (a, b) => {
     if (a.timestamp < b.timestamp) return -1;
     if (a.timestamp > b.timestamp) return 1;
@@ -40,6 +47,14 @@ export class DeviceVoltageChartComponent implements OnInit {
         this.buildDeviceVoltageHistory(event.value, this.selectedDelta);
       }
     });
+  }
+
+  ngOnDestroy() {
+    if (this.subscribers) {
+      this.subscribers.forEach(sub => {
+        sub.unsubscribe();
+      });
+    }
   }
 
   /**
@@ -77,22 +92,30 @@ export class DeviceVoltageChartComponent implements OnInit {
       deltaTime,
       device.id
     );
-
-    this.sortVoltageAvgResult(originWidgetInfo)
-      .pipe(mergeMap(rawData => {
-        return rawData.length>0 ?this.deviceService.buildVoltageWidget(rawData): Observable.of(undefined);
-      }))
-      .subscribe(rawData => {
-      if (rawData && rawData.data && rawData.data.length > 0) {
-        this.deviceVoltage = rawData;
-      }
-      else {
-        this.snackBar.open('No se encontraron datos para graficar', 'Cerrar', {
-          duration: 2000
-        });
-        this.dialogRef.close();
-      }
-    });
+    this.subscribers.push(
+      this.sortVoltageAvgResult(originWidgetInfo)
+        .pipe(
+          mergeMap(rawData => {
+            return rawData.length > 0
+              ? this.deviceService.buildVoltageWidget(rawData)
+              : Observable.of(undefined);
+          })
+        )
+        .subscribe(rawData => {
+          if (rawData && rawData.data && rawData.data.length > 0) {
+            this.deviceVoltage = rawData;
+          } else {
+            this.snackBar.open(
+              'No se encontraron datos para graficar',
+              'Cerrar',
+              {
+                duration: 2000
+              }
+            );
+            this.dialogRef.close();
+          }
+        })
+    );
   }
 
   sortVoltageAvgResult(obsResult) {
@@ -114,11 +137,13 @@ export class DeviceVoltageChartComponent implements OnInit {
           }),
           toArray(),
           map(unsortedArray => {
-            return unsortedArray.sort(this.sortByHour)
+            return unsortedArray.sort(this.sortByHour);
           }),
           mergeMap(sortedArray => {
-            return Observable.from(sortedArray).pipe(groupBy(memoryValue => (memoryValue as any).timeInterval),
-            mergeMap(group => group.pipe(first())),)
+            return Observable.from(sortedArray).pipe(
+              groupBy(memoryValue => (memoryValue as any).timeInterval),
+              mergeMap(group => group.pipe(first()))
+            );
           }),
           toArray()
         );
