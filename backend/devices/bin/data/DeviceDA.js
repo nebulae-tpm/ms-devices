@@ -132,7 +132,6 @@ class DeviceDA {
     else { 
       return Rx.Observable.of(undefined);
     }
-    
   }
   /**
    * Persist new register in the collection DeviceHistory
