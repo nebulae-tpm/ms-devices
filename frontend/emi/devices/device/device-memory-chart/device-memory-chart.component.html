@@ -13,7 +13,7 @@
 <div fxLayout="column">
   <div style="width: 100%; height: 400px; " *ngIf="deviceHistoric">
     <ngx-charts-line-chart *fuseIfOnDom [scheme]="deviceHistoric.scheme" [results]="deviceHistoric.data" [xAxis]="true" [yAxis]="true"
-      [yScaleMin]="0" [yScaleMax]="100">
+      [yScaleMin]="0" [yScaleMax]="deviceHistoric.maxValue">
     </ngx-charts-line-chart>
   </div>
 </div>

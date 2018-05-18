@@ -280,9 +280,11 @@ export class DeviceService {
 
   buildMemoryWidget(memoryList, type) {
     return {
+      type: type,
       scheme: {
         domain: ['#5c84f1']
       },
+      maxValue: type == 'CPU'? 200 : 100,
       data: [{
         name: type,
         series: memoryList
