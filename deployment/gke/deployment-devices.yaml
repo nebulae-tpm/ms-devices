@@ -50,11 +50,7 @@ spec:
           value: '2000'
         - name: BROKER_TYPE
           value: PUBSUB
-        command:
-          - npm
-        args:
-          - start
-        
+        command: ["npm", "start"]        
         
       volumes:
       - name: google-application-credentials
