@@ -248,49 +248,62 @@ export class DeviceService {
         );
       }),
       map(([currentValueList, highestValueList, lowestValueList]) => {
-        return {
-          scheme: {
-            domain: ['#ffc107', '#5c84f1', '#f44336']
-          },
-          today: '12,540',
-          change: {
-            value: 321,
-            percentage: 2.05
-          },
-          data: [
-            {
-              name: 'Min.',
-              series: lowestValueList
+        if (
+          (!currentValueList || currentValueList.length < 1) &&
+          (!highestValueList || highestValueList.length < 1) &&
+          (!lowestValueList || lowestValueList.length < 1)
+        ) {
+          return undefined;
+        } else {
+          return {
+            scheme: {
+              domain: ['#ffc107', '#5c84f1', '#f44336']
             },
-            {
-              name: 'Actual',
-              series: currentValueList
+            today: '12,540',
+            change: {
+              value: 321,
+              percentage: 2.05
             },
-            {
-              name: 'Max',
-              series: highestValueList
-            }
-          ],
-          dataMin: 538,
-          dataMax: 541
-        };
+            data: [
+              {
+                name: 'Min.',
+                series: lowestValueList
+              },
+              {
+                name: 'Actual',
+                series: currentValueList
+              },
+              {
+                name: 'Max',
+                series: highestValueList
+              }
+            ],
+            dataMin: 538,
+            dataMax: 541
+          };
+        }
       })
     );
   }
 
   buildMemoryWidget(memoryList, type) {
-    return {
-      type: type,
-      scheme: {
-        domain: ['#5c84f1']
-      },
-      maxValue: type == 'CPU'? 200 : 100,
-      data: [{
-        name: type,
-        series: memoryList
-      }
-      ]
-    };
+    if (!memoryList || memoryList.length < 1) {
+      return undefined;
+    } else {
+      return {
+        type: type,
+        scheme: {
+          domain: ['#5c84f1']
+        },
+        maxValue: type == 'CPU' ? 200 : 100,
+        data: [
+          {
+            name: type,
+            series: memoryList
+          }
+        ]
+      };
+    }
   }
 
   buildPieWidget(

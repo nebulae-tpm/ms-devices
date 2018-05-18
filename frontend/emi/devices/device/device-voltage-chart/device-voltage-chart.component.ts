@@ -14,7 +14,7 @@ import { Observable } from 'rxjs/Observable';
 })
 export class DeviceVoltageChartComponent implements OnInit {
   historyRanges = { ONE_HOUR: 0, TWO_HOURS: 1, THREE_HOURS: 2 };
-  deviceVoltage = {};
+  deviceVoltage: any;
   selectedDelta = 5;
   currentRange = 0;
   sortByHour = (a, b) => {
