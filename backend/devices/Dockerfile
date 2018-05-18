@@ -8,3 +8,4 @@ COPY mbinit /
 COPY entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD npm start
+
