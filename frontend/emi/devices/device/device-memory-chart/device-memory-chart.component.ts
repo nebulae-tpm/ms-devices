@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Inject } from '@angular/core';
 import { DeviceService } from '../device.service';
 import * as shape from 'd3-shape';
 import { range } from 'rxjs/observable/range';
-import { scan, first, mergeMap, map, toArray } from 'rxjs/operators';
+import { scan, first, mergeMap, map, toArray, distinct, groupBy, tap } from 'rxjs/operators';
 import {
   MatDialog,
   MatDialogRef,
@@ -25,8 +25,8 @@ export class DeviceMemoryChartComponent implements OnInit {
   histogramHour = {};
   deviceHistoric: any;
   sortByHour = (a, b) => {
-    if (a.timeInterval < b.timeInterval) return -1;
-    if (a.timeInterval > b.timeInterval) return 1;
+    if (a.timestamp < b.timestamp) return -1;
+    if (a.timestamp > b.timestamp) return 1;
     return 0;
   };
 
@@ -199,13 +199,14 @@ export class DeviceMemoryChartComponent implements OnInit {
               return {
                 value: Math.floor(
                   rawData.deviceStatus.ram.currentValue /
-                    deviceDataMemory.totalValue *
-                    100
+                  deviceDataMemory.totalValue *
+                  100
                 ),
                 timeInterval: this.datePipe.transform(
                   new Date(rawData.timestamp),
                   'HH:mm'
-                )
+                ),
+                timestamp: rawData.timestamp
               };
             } else {
               return {
@@ -215,12 +216,20 @@ export class DeviceMemoryChartComponent implements OnInit {
                 timeInterval: this.datePipe.transform(
                   new Date(rawData.timestamp),
                   'HH:mm'
-                )
+                ),
+                timestamp: rawData.timestamp
               };
             }
           }),
           toArray(),
-          map(unsortedArray => unsortedArray.sort(this.sortByHour))
+          map(unsortedArray => {
+            return unsortedArray.sort(this.sortByHour)
+          }),
+          mergeMap(sortedArray => {
+            return Observable.from(sortedArray).pipe(groupBy(memoryValue => (memoryValue as any).timeInterval),
+            mergeMap(group => group.pipe(first())),)
+          }),
+          toArray()
         );
       })
     );
@@ -237,11 +246,19 @@ export class DeviceMemoryChartComponent implements OnInit {
               timeInterval: this.datePipe.transform(
                 new Date(rawData.timestamp),
                 'HH:mm'
-              )
+              ),
+              timestamp: rawData.timestamp
             };
           }),
           toArray(),
-          map(unsortedArray => unsortedArray.sort(this.sortByHour))
+          map(unsortedArray => {
+            return unsortedArray.sort(this.sortByHour)
+          }),
+          mergeMap(sortedArray => {
+            return Observable.from(sortedArray).pipe(groupBy(memoryValue => (memoryValue as any).timeInterval),
+            mergeMap(group => group.pipe(first())),)
+          }),
+          toArray()
         );
       })
     );

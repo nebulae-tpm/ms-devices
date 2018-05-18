@@ -64,7 +64,6 @@ export class DeviceService {
     endTime,
     deviceId
   ): Observable<any> {
-    console.log(`iniTime: ${initTime} endTime: ${endTime} deviceId: ${deviceId}`)
     return this.gateway.apollo
       .query<any>({
         query: getRamAvgInRangeOfTime,

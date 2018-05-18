@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Inject } from '@angular/core';
 import { DeviceService } from '../device.service';
 import * as shape from 'd3-shape';
 import { range } from 'rxjs/observable/range';
-import { scan, first, mergeMap, map, toArray } from 'rxjs/operators';
+import { scan, first, mergeMap, map, toArray, groupBy } from 'rxjs/operators';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatSnackBar } from '@angular/material';
 import { DatePipe } from '@angular/common';
 import { Observable } from 'rxjs/Observable';
@@ -18,8 +18,8 @@ export class DeviceVoltageChartComponent implements OnInit {
   selectedDelta = 5;
   currentRange = 0;
   sortByHour = (a, b) => {
-    if (a.timeInterval < b.timeInterval) return -1;
-    if (a.timeInterval > b.timeInterval) return 1;
+    if (a.timestamp < b.timestamp) return -1;
+    if (a.timestamp > b.timestamp) return 1;
     return 0;
   };
 
@@ -110,11 +110,19 @@ export class DeviceVoltageChartComponent implements OnInit {
               timeInterval: this.datePipe.transform(
                 new Date(rawData.timestamp),
                 'HH:mm'
-              )
+              ),
+              timestamp: rawData.timestamp
             };
           }),
           toArray(),
-          map(unsortedArray => unsortedArray.sort(this.sortByHour))
+          map(unsortedArray => {
+            return unsortedArray.sort(this.sortByHour)
+          }),
+          mergeMap(sortedArray => {
+            return Observable.from(sortedArray).pipe(groupBy(memoryValue => (memoryValue as any).timeInterval),
+            mergeMap(group => group.pipe(first())),)
+          }),
+          toArray()
         );
       })
     );

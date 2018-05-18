@@ -66,7 +66,6 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
         .subscribeToDeviceDeviceStateReportedEvent$([this.device.id])
         .subscribe(result => {
           if (result.data) {
-            console.log('Llega evento de deviceDevice: ', result.data)
             const rawData = JSON.parse(
               JSON.stringify(result.data.DeviceDeviceStateReportedEvent)
             );
@@ -81,7 +80,6 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 ...this.device.deviceStatus,
                 ...JSON.parse(JSON.stringify(rawData.deviceStatus))
               };
-              console.log('Se refresca deviceStatus: ', deviceStatus);
               this.device.deviceStatus = deviceStatus;
             }
           }
