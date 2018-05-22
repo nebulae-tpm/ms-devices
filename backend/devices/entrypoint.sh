@@ -18,6 +18,7 @@ while [ 0 ]; do
 	/mbinit --step 4 --podName "$(hostname)" --url "$MONGODB_URL" --buildVersion "$DOCKER_VERSION" --runLockVer "$LOCKVERSION" \
 		&& echo "ESTA LINEA SE REEMPLAZA POR EL COMANDO npm PARA LA CREACION DE INDEXES"
 
+
 	break
 done
 
