@@ -52,7 +52,7 @@ spec:
           value: PUBSUB
         # RESET LOCK INITIALIZE BACKED
         - name: LOCKVERSION
-          value: "0.1.1"
+          value: "0.1.3"
         #command: ["npm", "start"]        
         
       volumes:
