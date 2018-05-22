@@ -13,7 +13,7 @@ spec:
         app: devices
     spec:      
       containers:
-      - image: nebulaetpm/devices.backend.devices:0.0.25
+      - image: nebulaetpm/devices.backend.devices:0.0.26
         name: devices
         volumeMounts:
         - name: google-application-credentials
@@ -50,6 +50,9 @@ spec:
           value: '2000'
         - name: BROKER_TYPE
           value: PUBSUB
+        # RESET LOCK INITIALIZE BACKED
+          name: LOCKVERSION
+          value: "0.1.1"
         #command: ["npm", "start"]        
         
       volumes:
