@@ -51,7 +51,7 @@ spec:
         - name: BROKER_TYPE
           value: PUBSUB
         # RESET LOCK INITIALIZE BACKED
-          name: LOCKVERSION
+        - name: LOCKVERSION
           value: "0.1.1"
         #command: ["npm", "start"]        
         
