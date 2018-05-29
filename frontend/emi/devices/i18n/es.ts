@@ -32,7 +32,7 @@ export const locale = {
       APP_STATE_TITLE: 'Estado del Aplicativo',
       DEVICE_DETAIL: 'Detalle de Disp',
       GENERAL_INFO: 'Información general',
-      HOST_NAME: 'Nombre de host',
+      HOST_NAME: 'Hostname',
       GROUP: 'Grupo',
       RAM_STATUS: 'Estado de RAM',
       SD_STATUS: 'Estado de SD',

@@ -9,19 +9,14 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { range } from 'rxjs/observable/range';
 import { map, toArray } from 'rxjs/operators';
-import { DummyDataService } from './dummy-data.service';
 import { GatewayService } from '../../../api/gateway.service';
 import { getDevices, getDeviceTableSize, getDeviceDetail } from './gql/Devices';
 import { Subscription } from 'rxjs';
 
 @Injectable()
 export class DevicesService {
-  devices: any[] = [];
-  onDevicesChanged: BehaviorSubject<any> = new BehaviorSubject({});
-
   constructor(
     private http: HttpClient,
-    private dummyDataService: DummyDataService,
     private gateway: GatewayService
   ) { }
 
