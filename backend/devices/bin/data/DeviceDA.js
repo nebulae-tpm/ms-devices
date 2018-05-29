@@ -26,7 +26,7 @@ class DeviceDA {
    */
   static getDeviceDetail$(id) {
     const collection = mongoDB.db.collection('Devices');
-    return Rx.Observable.fromPromise(collection.findOne({ id: id }));
+    return Rx.Observable.defer(() => collection.findOne({ id: id }));
   }
 
   /**
@@ -70,7 +70,7 @@ class DeviceDA {
       orderObject[column] = order == 'asc' ? 1 : -1;
     }
     const collection = mongoDB.db.collection('Devices');
-    return Rx.Observable.fromPromise(
+    return Rx.Observable.defer(() =>
       collection
         .find(filterObject)
         .project({
@@ -91,7 +91,7 @@ class DeviceDA {
    */
   static getDeviceTableSize$() {
     const collection = mongoDB.db.collection('Devices');
-    return Rx.Observable.fromPromise(collection.count());
+    return Rx.Observable.defer(() => collection.count());
   }
 
   /**
@@ -101,35 +101,37 @@ class DeviceDA {
   static persistDevice$(device, eventType) {
     if (device && device.id) {
       const collection = mongoDB.db.collection('Devices');
-      return Rx.Observable.of(device).mergeMap(result => {
-        return Rx.Observable.fromPromise(
-          collection.findOneAndUpdate(
-            {
-              id: device.id
-            },
-            { $set: result },
-            {
-              upsert: true,
-              returnOriginal: false
-            }
+
+      return Rx.Observable.of(device)
+        .mergeMap(dev => {
+          return Rx.Observable.defer(() =>
+            collection.findOneAndUpdate(
+              {
+                "_id": dev.id
+              },
+              { $set: { "_id": dev.id, "id": dev.id, ...dev } },
+              {
+                upsert: true,
+                returnOriginal: false
+              }
+            )
           )
-        )
-          .mergeMap(result => {
-            if (result && result.value) {
-              return Rx.Observable.concat(
-                this.persistDeviceHistory$(result.value),
-                this.sendDeviceResultEvent$(result.value, eventType)
-              );
-            } else {
-              return Rx.Observable.of(undefined);
-            }
-          })
-          .map(resultHistory => {
-            return JSON.stringify(result);
-          });
-      });
+            .mergeMap(result => {
+              if (result && result.value) {
+                return Rx.Observable.concat(
+                  this.persistDeviceHistory$(result.value),
+                  this.sendDeviceResultEvent$(result.value, eventType)
+                );
+              } else {
+                return Rx.Observable.of(undefined);
+              }
+            })
+            .map(resultHistory => {
+              return JSON.stringify(dev);
+            });
+        });
     }
-    else { 
+    else {
       return Rx.Observable.of(undefined);
     }
   }
@@ -142,7 +144,7 @@ class DeviceDA {
     delete device._id;
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.of(device).mergeMap(result => {
-      return Rx.Observable.fromPromise(collection.insertOne(device));
+      return Rx.Observable.defer(() => collection.insertOne(device));
     });
   }
   /**
@@ -154,7 +156,7 @@ class DeviceDA {
    */
   static getRamAvgInRangeOfTime$(initTime, endTime, deviceId) {
     const collection = mongoDB.db.collection('DeviceHistory');
-    return Rx.Observable.fromPromise(
+    return Rx.Observable.defer(() =>
       collection
         .find({
           timestamp: { $gte: initTime, $lt: endTime },
@@ -182,7 +184,7 @@ class DeviceDA {
    */
   static getVolumeAvgInRangeOfTime$(initTime, endTime, type, deviceId) {
     const collection = mongoDB.db.collection('DeviceHistory');
-    return Rx.Observable.fromPromise(
+    return Rx.Observable.defer(() =>
       collection
         .aggregate([
           {
@@ -228,7 +230,7 @@ class DeviceDA {
    */
   static getVoltageInRangeOfTime$(initTime, endTime, deviceId) {
     const collection = mongoDB.db.collection('DeviceHistory');
-    return Rx.Observable.fromPromise(
+    return Rx.Observable.defer(() =>
       collection
         .find({
           timestamp: { $gte: initTime, $lt: endTime },
@@ -255,7 +257,7 @@ class DeviceDA {
    */
   static getCpuAvgInRangeOfTime$(initTime, endTime, deviceId) {
     const collection = mongoDB.db.collection('DeviceHistory');
-    return Rx.Observable.fromPromise(
+    return Rx.Observable.defer(() =>
       collection
         .aggregate([
           {

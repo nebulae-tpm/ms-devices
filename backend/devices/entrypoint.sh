@@ -7,7 +7,7 @@ sleep $(( $RANDOM % 5 ))
 while [ 0 ]; do
 	# exec lock
 	/mbinit --step 1 --podName "$(hostname)" --url "$MONGODB_URL" --buildVersion "$DOCKER_VERSION" --runLockVer "$LOCKVERSION" \
-		&& echo "ESTA LINEA SE REEMPLAZA POR EL COMANDO npm PARA LA INITICIALIZACION"
+		&& npm run sync-state
            	#############################################################################
 
 	# exec wait
@@ -16,7 +16,7 @@ while [ 0 ]; do
 	/mbinit --step 3 --podName "$(hostname)" --url "$MONGODB_URL" --buildVersion "$DOCKER_VERSION" --runLockVer "$LOCKVERSION" || continue
 	# exec indexes
 	/mbinit --step 4 --podName "$(hostname)" --url "$MONGODB_URL" --buildVersion "$DOCKER_VERSION" --runLockVer "$LOCKVERSION" \
-		&& echo "ESTA LINEA SE REEMPLAZA POR EL COMANDO npm PARA LA CREACION DE INDEXES"
+		&& npm run prepare
 
 
 	break
