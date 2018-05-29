@@ -34,7 +34,7 @@ class BrokerFactory {
 module.exports = () => {
     if (!instance) {
         instance = new BrokerFactory();
-        console.log('NEW instance!!');
+        console.log('NEW instance BrokerFactory!!');
     }
     return instance.broker;
 };
