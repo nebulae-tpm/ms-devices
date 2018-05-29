@@ -1,6 +1,5 @@
 FROM node:8.9-alpine
 ARG DOCKERHUB_TAG
-
 ENV DOCKER_VERSION $DOCKERHUB_TAG
 ENV NODE_ENV production
 WORKDIR /nebulae/app
