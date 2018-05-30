@@ -11,10 +11,14 @@ class DeviceEventConsumer {
     }
 
     handleDeviceEventReported$(event) {  
-        return DeviceGeneralInformationFormatter.formatReport$(event)
+        return DeviceGeneralInformationFormatter.formatDeviceStateReport$(event)
             .mergeMap(rawData => { 
                 return DeviceDA.persistDevice$(rawData,event.et);
             });
+    }
+
+    handleDeviceAlarmReported$(event) {  
+        return DeviceDA.persistDeviceAlarm$(event.data,event.et, event.aid);
     }
 
 }

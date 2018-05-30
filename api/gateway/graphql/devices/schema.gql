@@ -133,6 +133,17 @@ enum MemoryUnitInformation {
   GiB
 }
 
+enum AlarmType {
+  "Alarms by RAM"
+  RAM
+  "Alarms by CPU"
+  CPU
+  "Alarms by SD"
+  SD
+  "Alarms by Temperature"
+  TEMP
+}
+
 "Information of voltage state"
 type Voltage {
   "Current device voltage value"
@@ -159,6 +170,15 @@ type CpuInRageOfTime {
   timestamp: BigInt
 }
 
+type DeviceAlarm {
+  value: Int
+  unit: String
+  timestamp: BigInt
+  deviceId: String
+  active: Boolean
+  type: String
+}
+
 type Query {
   "Get device detail filtered by the device id"
   getDeviceDetail(id: ID!): Device
@@ -168,6 +188,8 @@ type Query {
 
   "Get the size of table Device"
   getDeviceTableSize: Int
+
+  getDeviceAlarms(deviceId: String!,alarmType: AlarmType!, initTime: BigInt!, endTime: BigInt): [DeviceAlarm]
 
   getRamAvgInRangeOfTime(
     initTime: BigInt

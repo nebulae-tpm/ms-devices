@@ -1,4 +1,4 @@
-FROM node:8.9-alpine
+FROM node:9.11-alpine
 ARG DOCKERHUB_TAG
 ENV DOCKER_VERSION $DOCKERHUB_TAG
 ENV NODE_ENV production

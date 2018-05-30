@@ -144,3 +144,16 @@ export const getVoltageInRangeOfTime = gql`
     }
   }
 `;
+
+export const getDeviceAlarmThresholds = gql`
+  query {
+  getDeviceAlarmThresholds{
+    ramThreshold
+    cpuThreshold
+    sdThreshold
+    tempThreshold
+  }
+}
+`;
+
+

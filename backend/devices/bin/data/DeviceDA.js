@@ -20,6 +20,7 @@ class DeviceDA {
     });
   }
 
+  //#region DEVICE_QUERIES
   /**
    * gets Device detail by id
    * @param {String} id
@@ -28,7 +29,6 @@ class DeviceDA {
     const collection = mongoDB.db.collection('Devices');
     return Rx.Observable.defer(() => collection.findOne({ id: id }));
   }
-
   /**
    * gets Devices
    *
@@ -84,7 +84,6 @@ class DeviceDA {
         .toArray()
     );
   }
-
   /**
    * Get the size of table Device
    *
@@ -94,59 +93,10 @@ class DeviceDA {
     return Rx.Observable.defer(() => collection.count());
   }
 
-  /**
-   * Create or update the device info on the materialized view
-   * @param {*} device
-   */
-  static persistDevice$(device, eventType) {
-    if (device && device.id) {
-      const collection = mongoDB.db.collection('Devices');
+  //#endregion
 
-      return Rx.Observable.of(device)
-        .mergeMap(dev => {
-          return Rx.Observable.defer(() =>
-            collection.findOneAndUpdate(
-              {
-                "_id": dev.id
-              },
-              { $set: { "_id": dev.id, "id": dev.id, ...dev } },
-              {
-                upsert: true,
-                returnOriginal: false
-              }
-            )
-          )
-            .mergeMap(result => {
-              if (result && result.value) {
-                return Rx.Observable.concat(
-                  this.persistDeviceHistory$(result.value),
-                  this.sendDeviceResultEvent$(result.value, eventType)
-                );
-              } else {
-                return Rx.Observable.of(undefined);
-              }
-            })
-            .map(resultHistory => {
-              return JSON.stringify(dev);
-            });
-        });
-    }
-    else {
-      return Rx.Observable.of(undefined);
-    }
-  }
-  /**
-   * Persist new register in the collection DeviceHistory
-   * @param {*} device
-   */
-  static persistDeviceHistory$(device) {
-    device.timestamp = new Date().getTime();
-    delete device._id;
-    const collection = mongoDB.db.collection('DeviceHistory');
-    return Rx.Observable.of(device).mergeMap(result => {
-      return Rx.Observable.defer(() => collection.insertOne(device));
-    });
-  }
+  //#region DEVICE_HISTORY_QUERIES
+
   /**
    * Returns a list that contains the metrics in time of RAM
    * @param {Number} initTime
@@ -174,6 +124,7 @@ class DeviceDA {
       return item;
     });
   }
+
   /**
    * Returns a list that contains the metrics in time of volume memory
    * @param {Number} initTime
@@ -282,6 +233,131 @@ class DeviceDA {
     });
   }
 
+  //#endregion
+
+  //#region DEVICE_ALARM_QUERIES
+  /**
+   * gets Devices
+   *
+   */
+  static getDeviceAlarms$(deviceId, alarmType, initTimestamp, endTimestamp) {
+    const filterObject = {
+      $and: [
+        { deviceId: deviceId },
+        { type: alarmType },
+        { initTime: { $gt: initTimestamp } },
+        { endTime: { $lt: endTimestamp } }
+      ]
+    };
+
+    const collection = mongoDB.db.collection('DeviceAlarm');
+    return Rx.Observable.defer(() => collection.find(filterObject).toArray());
+  }
+  //#endregion
+
+  //#region DEVICE_MUTATIONS
+  /**
+   * Create or update the device info on the materialized view
+   * @param {*} device
+   */
+  static persistDevice$(device, eventType) {
+    if (device && device.id) {
+      const collection = mongoDB.db.collection('Devices');
+
+      return Rx.Observable.of(device).mergeMap(dev => {
+        return Rx.Observable.defer(() =>
+          collection.findOneAndUpdate(
+            {
+              _id: dev.id
+            },
+            { $set: { _id: dev.id, id: dev.id, ...dev } },
+            {
+              upsert: true,
+              returnOriginal: false
+            }
+          )
+        )
+          .mergeMap(result => {
+            if (result && result.value) {
+              return Rx.Observable.concat(
+                this.persistDeviceHistory$(result.value),
+                this.sendDeviceResultEvent$(result.value, eventType)
+              );
+            } else {
+              return Rx.Observable.of(undefined);
+            }
+          })
+          .map(resultHistory => {
+            return JSON.stringify(dev);
+          });
+      });
+    } else {
+      return Rx.Observable.of(undefined);
+    }
+  }
+
+  //#endregion
+
+  //#region DEVICE_ALARM_MUTATIONS
+
+  /**
+   * Persist new register in the collection DeviceAlarm
+   * @param {*} deviceAlarm
+   * @param {String} eventType
+   */
+  static persistDeviceAlarm$(deviceAlarm, eventType, deviceId) {
+    const collection = mongoDB.db.collection('DeviceAlarm');
+
+    return Rx.Observable.of(deviceAlarm)
+      .map(devAlarm => {
+        const rawData = { deviceId };
+        switch (eventType) {
+          case 'DeviceRamuUsageAlarmActivated':
+          case 'DeviceRamUsageAlarmDeactivated':
+            rawData.active = eventType == 'DeviceRamuUsageAlarmActivated';
+            rawData.type = 'RAM';
+            break;
+          case 'DeviceSdUsageAlarmActivated':
+          case 'DeviceSdUsageAlarmDeactivated':
+            rawData.active = eventType == 'DeviceSdUsageAlarmActivated';
+            rawData.type = 'SD';
+            break;
+          case 'DeviceCpuUsageAlarmActivated':
+          case 'DeviceCpuUsageAlarmDeactivated':
+            rawData.active = eventType == 'DeviceCpuUsageAlarmActivated';
+            rawData.type = 'CPU';
+            break;
+          case 'DeviceTemperatureAlarmActivated':
+          case 'DeviceTemperatureAlarmDeactivated':
+            rawData.active = eventType == 'DeviceTemperatureAlarmActivated';
+            rawData.type = 'Temp';
+            break;
+        }
+        return Object.assign(devAlarm, rawData);
+      })
+      .mergeMap(mergeData => {
+        return Rx.Observable.defer(() => collection.insertOne(mergeData));
+      });
+  }
+
+  //#endregion
+
+  //#region DEVICE_HISTORY_MUTATIONS
+  /**
+   * Persist new register in the collection DeviceHistory
+   * @param {*} device
+   */
+  static persistDeviceHistory$(device) {
+    device.timestamp = new Date().getTime();
+    delete device._id;
+    const collection = mongoDB.db.collection('DeviceHistory');
+    return Rx.Observable.of(device).mergeMap(result => {
+      return Rx.Observable.defer(() => collection.insertOne(device));
+    });
+  }
+  //#endregion
+
+  //#region DEVICE_SUBSCRIPTIONS
   /**
    * Prepare and send the message to apiGateway
    * @param {*} device
@@ -384,6 +460,7 @@ class DeviceDA {
       return Rx.Observable.of(undefined);
     }
   }
+  //#endregion
 }
 
 module.exports = DeviceDA;

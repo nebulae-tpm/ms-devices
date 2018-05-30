@@ -10,7 +10,13 @@ class Devices {
   }
 
   getDevices({ root, args, jwt }, authToken) {
-    return DeviceDA.getDevices$(args.page, args.count, args.filter, args.sortColumn, args.sortOrder);
+    return DeviceDA.getDevices$(
+      args.page,
+      args.count,
+      args.filter,
+      args.sortColumn,
+      args.sortOrder
+    );
   }
 
   getDeviceTableSize({ root, args, jwt }, authToken) {
@@ -40,14 +46,22 @@ class Devices {
       args.deviceId
     );
   }
-    getVoltageInRangeOfTime({ root, args, jwt }, authToken) {
+  getVoltageInRangeOfTime({ root, args, jwt }, authToken) {
     return DeviceDA.getVoltageInRangeOfTime$(
       args.initTime,
       args.endTime,
       args.deviceId
     );
   }
-  ;
+
+  getDeviceAlarms({ root, args, jwt }, authToken) {
+    return DeviceDA.getDeviceAlarms$(
+      args.deviceId,
+      args.alarmType,
+      args.initTimestamp,
+      args.endTimestamp
+    );
+  }
 }
 
 module.exports = Devices;

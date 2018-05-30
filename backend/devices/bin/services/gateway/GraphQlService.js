@@ -27,7 +27,8 @@ class GraphQlService {
       'gateway.graphql.query.getCpuAvgInRangeOfTime': this.devices
         .getCpuAvgInRangeOfTime,
       'gateway.graphql.query.getVoltageInRangeOfTime': this.devices
-        .getVoltageInRangeOfTime
+        .getVoltageInRangeOfTime,
+      'gateway.graphql.query.getDeviceAlarms': this.devices.getDeviceAlarms
     };
   }
 
@@ -67,7 +68,8 @@ class GraphQlService {
           }
         })
         //send response back if neccesary
-        .subscribe(val => {
+        .subscribe(
+          val => {
             // broker.send$('MaterializedViewUpdates','gateway.graphql.Subscription.response',response);
             // console.log('Query response => ', val);
           },

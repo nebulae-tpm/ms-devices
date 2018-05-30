@@ -35,6 +35,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   deviceFlashHistoric: any;
   deviceVoltage: any;
   currentRange = 0;
+  deviceAlarmThresholds: any;
 
   @Input()
   set deviceValue(deviceVal: any) {
@@ -56,6 +57,9 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.deviceService.getDeviceAlarmThresholds().subscribe(result => {
+      this.deviceAlarmThresholds = JSON.parse(JSON.stringify(result));
+    })
   }
   /**
    * Start all graphql subscriptions
@@ -253,7 +257,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   openDeviceMemoryDialog(type): void {
     let dialogRef = this.dialog.open(DeviceMemoryChartComponent, {
       width: '80%',
-      data: { type: type, device: this.device }
+      data: { type: type, device: this.device, alarmThreshold: this.deviceAlarmThresholds }
     });
   }
 

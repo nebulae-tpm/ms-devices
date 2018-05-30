@@ -5,7 +5,7 @@ class DeviceGeneralInformationFormatter {
    * Decompress DeviceGeneralInformation report and format it to the standard format
    * @param {Object} rawData
    */
-  static formatReport$(rawData) {
+  static formatDeviceStateReport$(rawData) {
     return Rx.Observable.of(rawData).mergeMap(unformatted =>
       this.formatIncomingReport$(unformatted)
     );

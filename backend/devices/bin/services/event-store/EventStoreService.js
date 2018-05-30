@@ -109,6 +109,7 @@ class EventStoreService {
      */
     generateFunctionMap() {
         return {
+            //STATE REPORTS
             'DeviceNetworkStateReported': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
             'DeviceModemStateReported': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
             'DeviceVolumesStateReported': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
@@ -119,6 +120,16 @@ class EventStoreService {
             'DeviceMainAppStateReported': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
             'DeviceConnected': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
             'DeviceDisconnected': { fn: deviceEventConsumer.handleDeviceEventReported$, obj: deviceEventConsumer },
+            //ALARM REPORTS
+            'DeviceRamuUsageAlarmActivated': { fn: deviceEventConsumer.handleDeviceAlarmReported$, obj: deviceEventConsumer },
+            'DeviceSdUsageAlarmActivated': { fn: deviceEventConsumer.handleDeviceAlarmReported$, obj: deviceEventConsumer },
+            'DeviceCpuUsageAlarmActivated': { fn: deviceEventConsumer.handleDeviceAlarmReported$, obj: deviceEventConsumer },
+            'DeviceTemperatureAlarmActivated': { fn: deviceEventConsumer.handleDeviceAlarmReported$, obj: deviceEventConsumer },
+            'DeviceSdUsageAlarmDeactivated': { fn: deviceEventConsumer.handleDeviceAlarmReported$, obj: deviceEventConsumer },
+            'DeviceCpuUsageAlarmDeactivated': { fn: deviceEventConsumer.handleDeviceAlarmReported$, obj: deviceEventConsumer },
+            'DeviceTemperatureAlarmDeactivated': { fn: deviceEventConsumer.handleDeviceAlarmReported$, obj: deviceEventConsumer },
+            'DeviceRamUsageAlarmDeactivated': { fn: deviceEventConsumer.handleDeviceAlarmReported$, obj: deviceEventConsumer },
+
         };
     }
 
@@ -127,6 +138,7 @@ class EventStoreService {
      */
     generateAggregateEventsArray() {
         return [
+        //STATE REPORTS
             { aggregateType: 'Device', eventType: 'DeviceNetworkStateReported' },
             { aggregateType: 'Device', eventType: 'DeviceModemStateReported' },
             { aggregateType: 'Device', eventType: 'DeviceVolumesStateReported' },
@@ -136,6 +148,15 @@ class EventStoreService {
             { aggregateType: 'Device', eventType: 'DeviceMainAppStateReported' },
             { aggregateType: 'Device', eventType: 'DeviceConnected' },
             { aggregateType: 'Device', eventType: 'DeviceDisconnected' },
+            //ALARM REPORTS
+            { aggregateType: 'Device', eventType: 'DeviceRamuUsageAlarmActivated' },
+            { aggregateType: 'Device', eventType: 'DeviceSdUsageAlarmActivated' },
+            { aggregateType: 'Device', eventType: 'DeviceCpuUsageAlarmActivated' },
+            { aggregateType: 'Device', eventType: 'DeviceTemperatureAlarmActivated' },
+            { aggregateType: 'Device', eventType: 'DeviceRamUsageAlarmDeactivated' },
+            { aggregateType: 'Device', eventType: 'DeviceSdUsageAlarmDeactivated' },
+            { aggregateType: 'Device', eventType: 'DeviceCpuUsageAlarmDeactivated' },
+            { aggregateType: 'Device', eventType: 'DeviceTemperatureAlarmDeactivated' },
         ];
     }
 

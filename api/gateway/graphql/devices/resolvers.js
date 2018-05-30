@@ -16,6 +16,16 @@ module.exports = {
         )
         .toPromise();
     },
+    getDeviceAlarms(root, args, context) {
+      return context.broker
+        .forwardAndGetReply$(
+          'Device',
+          'gateway.graphql.query.getDeviceAlarms',
+          { root, args, jwt: context.encodedToken },
+          500
+        )
+        .toPromise();
+    },
     getRamAvgInRangeOfTime(root, args, context) {
       return context.broker
         .forwardAndGetReply$(

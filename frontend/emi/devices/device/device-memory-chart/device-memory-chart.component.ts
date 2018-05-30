@@ -52,7 +52,8 @@ export class DeviceMemoryChartComponent implements OnInit {
     this.buildDeviceMemoryHistory(
       this.data.type,
       this.data.device,
-      this.selectedDelta
+      this.selectedDelta,
+      this.data.alarmThreshold
     );
     this.historyRanges = { ONE_HOUR: 0, TWO_HOURS: 1, THREE_HOURS: 2 };
   }
@@ -64,7 +65,8 @@ export class DeviceMemoryChartComponent implements OnInit {
         this.buildDeviceMemoryHistory(
           event.type,
           event.value,
-          this.selectedDelta
+          this.selectedDelta,
+          this.data.alarmThreshold
         );
       }
     });
@@ -93,7 +95,8 @@ export class DeviceMemoryChartComponent implements OnInit {
     this.buildDeviceMemoryHistory(
       this.data.type,
       this.data.device,
-      this.selectedDelta
+      this.selectedDelta,
+      this.data.alarmThreshold
     );
   }
 
@@ -103,9 +106,9 @@ export class DeviceMemoryChartComponent implements OnInit {
    * @param device Device that will show in histogram
    * @param deltaTime Delta time (Interval)
    */
-  buildDeviceMemoryHistory(type, device, deltaTime) {
+  buildDeviceMemoryHistory(type, device, deltaTime, alarmThreshold) {
     if (type == 'CPU') {
-      this.buildDeviceCpuHistory(this.data.device, this.selectedDelta);
+      this.buildDeviceCpuHistory(this.data.device, this.selectedDelta, alarmThreshold);
     } else {
       type = type == 'MEM' ? 'RAM' : type;
       this.histogramHour[type] = deltaTime;
@@ -135,7 +138,7 @@ export class DeviceMemoryChartComponent implements OnInit {
         this.sortDeviceMemoryAvgResult(originWidgetInfo, deviceDataMemory, type)
           .pipe(
             mergeMap(rawData =>
-              this.deviceService.buildChartMemoryWidget(rawData, type)
+              this.deviceService.buildChartMemoryWidget(rawData, type, alarmThreshold[type.toLowerCase()+'Threshold'])
             )
           )
           .subscribe(rawData => {
@@ -161,7 +164,7 @@ export class DeviceMemoryChartComponent implements OnInit {
    * @param device Device that will show in histogram
    * @param deltaTime Delta time (Interval)
    */
-  buildDeviceCpuHistory(device, deltaTime) {
+  buildDeviceCpuHistory(device, deltaTime, alarmThreshold) {
     const intervalValue = deltaTime * 60000;
     let endTime = new Date().getTime();
     const initTime = endTime - intervalValue * 12;
@@ -187,7 +190,7 @@ export class DeviceMemoryChartComponent implements OnInit {
         } else {
           this.subscribers.push(
             this.deviceService
-              .buildChartMemoryWidget(rawData, 'CPU')
+              .buildChartMemoryWidget(rawData, 'CPU', alarmThreshold['cpuThreshold'])
               .subscribe(rawData => {
                 if (rawData && rawData.data && rawData.data.length > 0) {
                   this.deviceHistoric = rawData;

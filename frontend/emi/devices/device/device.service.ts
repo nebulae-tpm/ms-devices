@@ -17,7 +17,8 @@ import {
   getRamAvgInRangeOfTime,
   getVolumeAvgInRangeOfTime,
   getCpuAvgInRangeOfTime,
-  getVoltageInRangeOfTime
+  getVoltageInRangeOfTime,
+  getDeviceAlarmThresholds
 } from '../gql/Device';
 import { map, first, mergeMap, toArray, pairwise } from 'rxjs/operators';
 import 'rxjs/Rx';
@@ -57,6 +58,14 @@ export class DeviceService {
         }
       })
       .pipe(map(rawData => rawData.data.getDeviceDetail));
+  }
+
+  getDeviceAlarmThresholds(): Observable<any> {
+    return this.gateway.apollo
+      .query<any>({
+        query: getDeviceAlarmThresholds
+      })
+      .pipe(map(rawData => rawData.data.getDeviceAlarmThresholds));
   }
 
   getRamAvgInRangeOfTime(initTime, endTime, deviceId): Observable<any> {
@@ -201,7 +210,7 @@ export class DeviceService {
     };
   }
 
-  buildChartMemoryWidget(deviceList, type) {
+  buildChartMemoryWidget(deviceList, type, threshold) {
     return Observable.from(deviceList).pipe(
       map(memoryValue => {
         return {
@@ -211,7 +220,7 @@ export class DeviceService {
       }),
       toArray(),
       map(memoryList => {
-        return this.buildMemoryWidget(memoryList, type);
+        return this.buildMemoryWidget(memoryList, type, threshold);
       })
     );
   }
@@ -286,20 +295,29 @@ export class DeviceService {
     );
   }
 
-  buildMemoryWidget(memoryList, type) {
+  buildMemoryWidget(memoryList, type, threshold) {
+    console.log('threshold', threshold);
+    console.log('MemoryList: ', memoryList);
     if (!memoryList || memoryList.length < 1) {
       return undefined;
     } else {
       return {
         type: type,
         scheme: {
-          domain: ['#5c84f1']
+          domain: ['#5c84f1', '#f44336']
         },
         maxValue: type == 'CPU' ? 200 : 100,
         data: [
           {
             name: type,
             series: memoryList
+          },
+          {
+            name: 'Umbral',
+            series: [
+              { name: memoryList[0].name, value: threshold },
+              { name: memoryList[memoryList.length-1].name, value: threshold },
+            ]
           }
         ]
       };
