@@ -231,3 +231,4 @@ type Subscription {
   DeviceConnectedEvent(ids: [ID]): Device
   DeviceDisconnectedEvent(ids: [ID]): Device
 }
+
