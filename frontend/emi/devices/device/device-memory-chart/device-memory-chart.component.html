@@ -1,49 +1,71 @@
-<div *ngIf="deviceHistoric" class="px-24">
-  <div class="h3 secondary-text">{{'DEVICE.METRICS_OF' | translate}} {{deviceHistoric.type}} (%) {{'DEVICE.IN' | translate}}
-    <mat-form-field>
-      <mat-select class="simplified" (selectionChange)="changeHour($event)" [(ngModel)]="currentRange" aria-label="Change range">
-        <mat-option *ngFor="let range of historyRanges | keys" [value]="range.value">
-          <span class="h3">{{'DEVICE.'+range.key | translate}}</span>
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
-</div>
 
-<div fxLayout="column">
-  <div style="width: 100%; height: 400px; " *ngIf="deviceHistoric">
-    <ngx-charts-line-chart *fuseIfOnDom [scheme]="deviceHistoric.scheme" [results]="deviceHistoric.data" [xAxis]="true" [yAxis]="true"
-      [yScaleMin]="0" [yScaleMax]="deviceHistoric.maxValue">
-    </ngx-charts-line-chart>
-  </div>
-</div>
-
-<div *ngIf="true" class="mat-white-bg mat-elevation-z2" style="margin-top: 10px">
-  <div class="px-24">
-    <div class="h3 secondary-text" style="margin-top: 10px">Alarmas generadas</div>
-  </div>
-  <div fxLayout="row" fxLayoutAlign="start start" fxLayoutWrap>
-
-    <div class="h-100 my-16" fxLayout="row" fxFlex="100" fxFlex.gt-sm="100">
-      <div class="alarm-summary px-24">
-        <table class="info">
-          <tr class="content-form">
-            <td class="read-form-title">Detalle de la alarma</td>
-            <td class="read-form-data">10:00 am</td>
-          </tr>
-
-          <tr class="content-form">
-            <td class="read-form-title">Detalle de la alarma</td>
-            <td class="read-form-data">10:15 am</td>
-          </tr>
-
-          <tr class="content-form">
-            <td class="read-form-title">Detalle de la alarma</td>
-            <td class="read-form-data">10:30 am</td>
-          </tr>
-        </table>
+<div class="memoryDialogContainer">
+    <div *ngIf="deviceHistoric" class="px-24">
+        <div class="h3 secondary-text">{{'DEVICE.METRICS_OF' | translate}} {{deviceHistoric.type}} (%) {{'DEVICE.IN' | translate}}
+          <mat-form-field>
+            <mat-select class="simplified" (selectionChange)="changeHour($event)" [(ngModel)]="currentRange" aria-label="Change range">
+              <mat-option *ngFor="let range of historyRanges | keys" [value]="range.value">
+                <span class="h3">{{'DEVICE.'+range.key | translate}}</span>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-  </div>
+
+      <div fxLayout="column">
+        <div style="width: 100%; height: 400px; " *ngIf="deviceHistoric">
+          <ngx-charts-line-chart *fuseIfOnDom [scheme]="deviceHistoric.scheme" [results]="deviceHistoric.data" [xAxis]="true" [yAxis]="true"
+            [yScaleMin]="0" [yScaleMax]="deviceHistoric.maxValue">
+          </ngx-charts-line-chart>
+        </div>
+      </div>
+
+      <div *ngIf="true" class="mat-white-bg mat-elevation-z2" style="margin-top: 10px">
+        <div class="px-24">
+          <div class="h3 secondary-text" style="margin-top: 10px">{{'DEVICE.ALARM_TITLE' | translate}}</div>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="start start" fxLayoutWrap>
+
+          <div class="my-16" fxLayout="row" fxFlex="100" fxFlex.gt-sm="100">
+            <div class="alarm-summary px-24">
+              <mat-table class="device-table" #table [dataSource]="alarmDataSource" fusePerfectScrollbar>
+
+                <!-- Alarm state Column -->
+                <ng-container cdkColumnDef="alarmState">
+                  <mat-header-cell *cdkHeaderCellDef fxHide fxShow.gt-sm>{{'DEVICE.ALARM_STATE' | translate}}</mat-header-cell>
+                  <mat-cell *cdkCellDef="let alarm" fxHide fxShow.gt-sm>
+                    <span class="quantity-indicator text-truncate" [ngClass]="{'mat-red-500-bg':alarm.active,'mat-green-600-bg':!alarm.active}">
+                    </span>
+                    <span>
+                        {{alarm.value}}{{alarm.unit}}
+                      </span>
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Hour Column -->
+                <ng-container cdkColumnDef="alarmHour">
+                  <mat-header-cell *cdkHeaderCellDef>Hora</mat-header-cell>
+                  <mat-cell *cdkCellDef="let alarm">
+                    <p class="text-truncate">{{alarm.timestamp | date:'HH:mm'}}</p>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *cdkHeaderRowDef="displayedColumns"></mat-header-row>
+
+                <mat-row *cdkRowDef="let device; columns: displayedColumns;" class="product" matRipple>
+                </mat-row>
+
+              </mat-table>
+
+              <mat-paginator [length]="tableSize"
+              [pageIndex]="0"
+               [pageSize]="3"
+              [pageSizeOptions]="[3]"
+              (page)="onChange($event)">
+              </mat-paginator>
+            </div>
+          </div>
+        </div>
+      </div>
 </div>
 

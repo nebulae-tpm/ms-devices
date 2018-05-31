@@ -50,7 +50,10 @@ export const locale = {
       USED: 'Usado',
       FREE: 'Libre',
       METRICS_OF: 'Métricas de',
-      IN: 'en'
+      IN: 'en',
+      ALARM_TITLE: 'Alarmas generadas',
+      ALARM_STATE: 'Estado de alarma',
+      HOUR: 'Hora'
     }
   }
 };

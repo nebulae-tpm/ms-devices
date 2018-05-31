@@ -20,6 +20,8 @@ class GraphQlService {
       'gateway.graphql.query.getDevices': this.devices.getDevices,
       'gateway.graphql.query.getDeviceTableSize': this.devices
         .getDeviceTableSize,
+        'gateway.graphql.query.getAlarmTableSize': this.devices
+        .getAlarmTableSize,
       'gateway.graphql.query.getRamAvgInRangeOfTime': this.devices
         .getRamAvgInRangeOfTime,
       'gateway.graphql.query.getVolumeAvgInRangeOfTime': this.devices

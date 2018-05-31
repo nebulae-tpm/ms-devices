@@ -67,6 +67,7 @@ export class DevicesComponent implements OnInit {
           this.refreshDataTable(this.page, this.count, filterValue, this.sortColumn, this.sortOrder);
         }
       });
+      console.log('paginador de disp: ', this.paginator);
     this.paginatorSubscriber = this.paginator.page.subscribe(pageChanged => {
       this.page = pageChanged.pageIndex;
       this.count = pageChanged.pageSize;

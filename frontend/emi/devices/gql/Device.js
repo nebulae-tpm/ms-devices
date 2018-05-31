@@ -133,8 +133,8 @@ export const getVoltageInRangeOfTime = gql`
       endTime: $endTime
       deviceId: $deviceId
     ) {
-      deviceStatus{
-        voltage{
+      deviceStatus {
+        voltage {
           currentValue
           highestValue
           lowestValue
@@ -147,13 +147,45 @@ export const getVoltageInRangeOfTime = gql`
 
 export const getDeviceAlarmThresholds = gql`
   query {
-  getDeviceAlarmThresholds{
-    ramThreshold
-    cpuThreshold
-    sdThreshold
-    tempThreshold
+    getDeviceAlarmThresholds {
+      ramThreshold
+      cpuThreshold
+      sdThreshold
+      tempThreshold
+    }
   }
-}
+`;
+
+export const getDeviceAlarms = gql`
+  query getDeviceAlarms(
+    $deviceId: String!
+    $alarmType: AlarmType!
+    $initTime: BigInt!
+    $endTime: BigInt,
+    $page: Int!,
+    $count: Int!
+  ) {
+    getDeviceAlarms(
+      deviceId: $deviceId
+      alarmType: $alarmType
+      initTime: $initTime
+      endTime: $endTime
+      page: $page,
+      count: $count
+    ) {
+      value
+      unit
+      timestamp
+      deviceId
+      active
+      type
+    }
+  }
 `;
 
 
+export const getAlarmTableSize = gql`
+  query {
+    getAlarmTableSize
+  }
+`;

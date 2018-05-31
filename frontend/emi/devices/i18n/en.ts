@@ -50,7 +50,10 @@ export const locale = {
       USED: 'Used',
       FREE: 'Free ',
       METRICS_OF: 'Metrics of',
-      IN: 'in'
+      IN: 'in',
+      ALARM_TITLE: 'Alarms generated',
+      ALARM_STATE: 'Alarm state',
+      HOUR: 'Hour'
     }
   }
 };

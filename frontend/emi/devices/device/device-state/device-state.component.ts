@@ -9,6 +9,7 @@ import { DatePipe, LowerCasePipe } from '@angular/common';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DeviceMemoryChartComponent } from '../device-memory-chart/device-memory-chart.component';
 import { DeviceVoltageChartComponent } from '../device-voltage-chart/device-voltage-chart.component';
+import { Overlay } from '@angular/cdk/overlay';
 
 @Component({
   selector: 'app-device-state',
@@ -21,7 +22,8 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
     private router: Router,
     private dialog: MatDialog,
     private route: ActivatedRoute,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private overlay: Overlay
   ) {}
 
   device$: Observable<any>;

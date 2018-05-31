@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Inject } from '@angular/core';
+import { Component, OnInit, Input, Inject, ViewChild } from '@angular/core';
 import { DeviceService } from '../device.service';
 import * as shape from 'd3-shape';
 import { range } from 'rxjs/observable/range';
@@ -16,11 +16,15 @@ import {
   MatDialog,
   MatDialogRef,
   MAT_DIALOG_DATA,
-  MatSnackBar
+  MatSnackBar,
+  MatTableDataSource,
+  MatPaginator,
+  PageEvent
 } from '@angular/material';
 import { DatePipe } from '@angular/common';
 import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs';
+import { Subscription, BehaviorSubject } from 'rxjs';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-device-memory-chart',
@@ -35,6 +39,13 @@ export class DeviceMemoryChartComponent implements OnInit {
   histogramHour = {};
   deviceHistoric: any;
   subscribers: Subscription[] = [];
+  tableSize: number;
+  alarmDataSource = new MatTableDataSource();
+  displayedColumns = ['alarmState', 'alarmHour'];
+  page = 0;
+  count = 3;
+  pageEvent: PageEvent;
+
   sortByHour = (a, b) => {
     if (a.timestamp < b.timestamp) return -1;
     if (a.timestamp > b.timestamp) return 1;
@@ -70,6 +81,17 @@ export class DeviceMemoryChartComponent implements OnInit {
         );
       }
     });
+    this.subscribers.push(
+      this.deviceService.getAlarmTableSize().subscribe(result => {
+        this.tableSize = result;
+      })
+    );
+  }
+
+  onChange($event) {
+    this.page = $event.pageIndex;
+    this.count = $event.pageSize;
+    this.refreshAlarmDataTable($event.pageIndex, $event.pageSize);
   }
 
   ngOnDestroy() {
@@ -108,7 +130,11 @@ export class DeviceMemoryChartComponent implements OnInit {
    */
   buildDeviceMemoryHistory(type, device, deltaTime, alarmThreshold) {
     if (type == 'CPU') {
-      this.buildDeviceCpuHistory(this.data.device, this.selectedDelta, alarmThreshold);
+      this.buildDeviceCpuHistory(
+        this.data.device,
+        this.selectedDelta,
+        alarmThreshold
+      );
     } else {
       type = type == 'MEM' ? 'RAM' : type;
       this.histogramHour[type] = deltaTime;
@@ -133,17 +159,22 @@ export class DeviceMemoryChartComponent implements OnInit {
               type,
               deltaTime,
               device.id
-            );
+          );
       this.subscribers.push(
         this.sortDeviceMemoryAvgResult(originWidgetInfo, deviceDataMemory, type)
           .pipe(
             mergeMap(rawData =>
-              this.deviceService.buildChartMemoryWidget(rawData, type, alarmThreshold[type.toLowerCase()+'Threshold'])
+              this.deviceService.buildChartMemoryWidget(
+                rawData,
+                type,
+                alarmThreshold? alarmThreshold[type.toLowerCase() + 'Threshold']: undefined
+              )
             )
           )
           .subscribe(rawData => {
             if (rawData && rawData.data && rawData.data.length > 0) {
               this.deviceHistoric = rawData;
+              this.refreshAlarmDataTable(this.page, this.count);
             } else {
               this.snackBar.open(
                 'No se encontraron datos para graficar',
@@ -157,6 +188,26 @@ export class DeviceMemoryChartComponent implements OnInit {
           })
       );
     }
+  }
+
+  refreshAlarmDataTable(page, count) {
+    const intervalValue = this.selectedDelta * 60000;
+    const endTime = new Date().getTime();
+    const initTime = endTime - intervalValue * 12;
+    this.deviceService
+      .getDeviceAlarms$(
+        this.data.device.id,
+        (this.data.type = this.data.type == 'MEM' ? 'RAM' : this.data.type),
+        initTime,
+        endTime,
+        this.page,
+        this.count
+      )
+      .pipe(first())
+      .subscribe(result => {
+        console.log(result);
+        this.alarmDataSource = result;
+      });
   }
 
   /**
@@ -190,7 +241,11 @@ export class DeviceMemoryChartComponent implements OnInit {
         } else {
           this.subscribers.push(
             this.deviceService
-              .buildChartMemoryWidget(rawData, 'CPU', alarmThreshold['cpuThreshold'])
+              .buildChartMemoryWidget(
+                rawData,
+                'CPU',
+                alarmThreshold['cpuThreshold']
+              )
               .subscribe(rawData => {
                 if (rawData && rawData.data && rawData.data.length > 0) {
                   this.deviceHistoric = rawData;

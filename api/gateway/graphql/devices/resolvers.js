@@ -85,6 +85,16 @@ module.exports = {
           500
         )
         .toPromise();
+    },
+    getAlarmTableSize(root, args, context) {
+      return context.broker
+        .forwardAndGetReply$(
+          'Device',
+          'gateway.graphql.query.getAlarmTableSize',
+          { root, args, jwt: context.encodedToken },
+          500
+        )
+        .toPromise();
     }
   },
   Subscription: {

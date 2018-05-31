@@ -240,18 +240,29 @@ class DeviceDA {
    * gets Devices
    *
    */
-  static getDeviceAlarms$(deviceId, alarmType, initTimestamp, endTimestamp) {
+  static getDeviceAlarms$(deviceId, alarmType, initTimestamp, endTimestamp, page, count) {
     const filterObject = {
       $and: [
         { deviceId: deviceId },
         { type: alarmType },
-        { initTime: { $gt: initTimestamp } },
-        { endTime: { $lt: endTimestamp } }
+        { timestamp: { $gt: initTimestamp } },
+        { timestamp: { $lt: endTimestamp } }
       ]
     };
 
     const collection = mongoDB.db.collection('DeviceAlarm');
-    return Rx.Observable.defer(() => collection.find(filterObject).toArray());
+    return Rx.Observable.defer(() => collection.find(filterObject)
+      .skip(count * page)
+    .limit(count).toArray());
+  }
+
+   /**
+   * Get the size of table DeviceAlarm
+   *
+   */
+  static getAlarmTableSize$() {
+    const collection = mongoDB.db.collection('DeviceAlarm');
+    return Rx.Observable.defer(() => collection.count());
   }
   //#endregion
 

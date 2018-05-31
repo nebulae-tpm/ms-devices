@@ -189,7 +189,10 @@ type Query {
   "Get the size of table Device"
   getDeviceTableSize: Int
 
-  getDeviceAlarms(deviceId: String!,alarmType: AlarmType!, initTime: BigInt!, endTime: BigInt): [DeviceAlarm]
+  "Get the size of table Alarms"
+  getAlarmTableSize: Int
+
+  getDeviceAlarms(deviceId: String!,alarmType: AlarmType!, initTime: BigInt, endTime: BigInt,page: Int!, count: Int!): [DeviceAlarm]
 
   getRamAvgInRangeOfTime(
     initTime: BigInt
@@ -231,5 +234,3 @@ type Subscription {
   DeviceConnectedEvent(ids: [ID]): Device
   DeviceDisconnectedEvent(ids: [ID]): Device
 }
-
-

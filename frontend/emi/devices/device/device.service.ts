@@ -18,7 +18,9 @@ import {
   getVolumeAvgInRangeOfTime,
   getCpuAvgInRangeOfTime,
   getVoltageInRangeOfTime,
-  getDeviceAlarmThresholds
+  getDeviceAlarmThresholds,
+  getDeviceAlarms,
+  getAlarmTableSize
 } from '../gql/Device';
 import { map, first, mergeMap, toArray, pairwise } from 'rxjs/operators';
 import 'rxjs/Rx';
@@ -49,6 +51,7 @@ export class DeviceService {
     private datePipe: DatePipe
   ) {}
 
+  //#region GRAPHQL_QUERIES
   getDeviceState(deviceId): Observable<any> {
     return this.gateway.apollo
       .query<any>({
@@ -59,6 +62,23 @@ export class DeviceService {
       })
       .pipe(map(rawData => rawData.data.getDeviceDetail));
   }
+  getDeviceAlarms$(deviceId, alarmType, initTime, endTime, page, count): Observable<any> {
+    console.log(`deviceId: ${deviceId} alarmType: ${alarmType} initTime: ${initTime} endTime: ${endTime}
+    page: ${page} count ${count}`)
+    return this.gateway.apollo
+      .query<any>({
+        query: getDeviceAlarms,
+        variables: {
+          deviceId,
+          alarmType,
+          initTime,
+          endTime,
+          page,
+          count
+        }
+      })
+      .pipe(map(rawData => rawData.data.getDeviceAlarms));
+  }
 
   getDeviceAlarmThresholds(): Observable<any> {
     return this.gateway.apollo
@@ -66,6 +86,13 @@ export class DeviceService {
         query: getDeviceAlarmThresholds
       })
       .pipe(map(rawData => rawData.data.getDeviceAlarmThresholds));
+  }
+  getAlarmTableSize(): Observable<number> {
+    return this.gateway.apollo
+    .query<any>({
+      query: getAlarmTableSize
+    })
+    .pipe(map(rawData => rawData.data.getAlarmTableSize));
   }
 
   getRamAvgInRangeOfTime(initTime, endTime, deviceId): Observable<any> {
@@ -154,61 +181,9 @@ export class DeviceService {
       })
       .pipe(map(rawData => rawData.data.getDeviceDetail));
   }
+  //#endregion
 
-  //TODO: se esta trabajando con datos dummy se debe realizar implementacion real
-  getDeviceMemmoryAlarms() {
-    return;
-  }
-
-  buildBarWidget(cpuStatus) {
-    return {
-      chartType: 'bar',
-      datasets: [
-        {
-          label: 'CPU',
-          data: cpuStatus
-        }
-      ],
-      labels: ['1 min', '5 min', '15 min'],
-      colors: [
-        {
-          borderColor: '#42a5f5',
-          backgroundColor: '#42a5f5'
-        }
-      ],
-      options: {
-        spanGaps: false,
-        legend: {
-          display: false
-        },
-        maintainAspectRatio: false,
-        layout: {
-          padding: {
-            top: 24,
-            left: 16,
-            right: 16,
-            bottom: 16
-          }
-        },
-        scales: {
-          xAxes: [
-            {
-              display: false
-            }
-          ],
-          yAxes: [
-            {
-              display: true,
-              ticks: {
-                min: 1,
-                max: 200
-              }
-            }
-          ]
-        }
-      }
-    };
-  }
+  //#region DEVICE HISTORY CHARTS
 
   buildChartMemoryWidget(deviceList, type, threshold) {
     return Observable.from(deviceList).pipe(
@@ -296,32 +271,83 @@ export class DeviceService {
   }
 
   buildMemoryWidget(memoryList, type, threshold) {
-    console.log('threshold', threshold);
-    console.log('MemoryList: ', memoryList);
     if (!memoryList || memoryList.length < 1) {
       return undefined;
     } else {
+      const data= [
+        {
+          name: type,
+          series: memoryList
+        }
+      ]
+      if (threshold) {
+        data.push({
+          name: 'Umbral',
+          series: [
+            { name: memoryList[0].name, value: threshold },
+            { name: memoryList[memoryList.length - 1].name, value: threshold }
+          ]
+        })
+      }
       return {
         type: type,
         scheme: {
           domain: ['#5c84f1', '#f44336']
         },
         maxValue: type == 'CPU' ? 200 : 100,
-        data: [
-          {
-            name: type,
-            series: memoryList
-          },
-          {
-            name: 'Umbral',
-            series: [
-              { name: memoryList[0].name, value: threshold },
-              { name: memoryList[memoryList.length-1].name, value: threshold },
-            ]
-          }
-        ]
+        data: data
       };
     }
+  }
+
+  buildBarWidget(cpuStatus) {
+    return {
+      chartType: 'bar',
+      datasets: [
+        {
+          label: 'CPU',
+          data: cpuStatus
+        }
+      ],
+      labels: ['1 min', '5 min', '15 min'],
+      colors: [
+        {
+          borderColor: '#42a5f5',
+          backgroundColor: '#42a5f5'
+        }
+      ],
+      options: {
+        spanGaps: false,
+        legend: {
+          display: false
+        },
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 24,
+            left: 16,
+            right: 16,
+            bottom: 16
+          }
+        },
+        scales: {
+          xAxes: [
+            {
+              display: false
+            }
+          ],
+          yAxes: [
+            {
+              display: true,
+              ticks: {
+                min: 1,
+                max: 200
+              }
+            }
+          ]
+        }
+      }
+    };
   }
 
   buildPieWidget(
@@ -352,6 +378,8 @@ export class DeviceService {
       unitInformation: unitInformation
     };
   }
+
+  //#endregion
 
   subscribeToDeviceVolumesStateReportedEvent$(deviceId): Observable<any> {
     return this.gateway.apollo.subscribe({
