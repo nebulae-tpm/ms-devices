@@ -62,9 +62,16 @@ export class DeviceService {
       })
       .pipe(map(rawData => rawData.data.getDeviceDetail));
   }
-  getDeviceAlarms$(deviceId, alarmType, initTime, endTime, page, count): Observable<any> {
+  getDeviceAlarms$(
+    deviceId,
+    alarmType,
+    initTime,
+    endTime,
+    page,
+    count
+  ): Observable<any> {
     console.log(`deviceId: ${deviceId} alarmType: ${alarmType} initTime: ${initTime} endTime: ${endTime}
-    page: ${page} count ${count}`)
+    page: ${page} count ${count}`);
     return this.gateway.apollo
       .query<any>({
         query: getDeviceAlarms,
@@ -87,12 +94,21 @@ export class DeviceService {
       })
       .pipe(map(rawData => rawData.data.getDeviceAlarmThresholds));
   }
-  getAlarmTableSize(): Observable<number> {
+  getAlarmTableSize(deviceId, alarmType, selectedDelta): Observable<number> {
+    const endTime = new Date().getTime();
+    const intervalValue = selectedDelta * 60000;
+    const initTime = endTime - intervalValue * 12;
     return this.gateway.apollo
-    .query<any>({
-      query: getAlarmTableSize
-    })
-    .pipe(map(rawData => rawData.data.getAlarmTableSize));
+      .query<any>({
+        query: getAlarmTableSize,
+        variables: {
+          deviceId,
+          alarmType,
+          initTime,
+          endTime
+        }
+      })
+      .pipe(map(rawData => rawData.data.getAlarmTableSize));
   }
 
   getRamAvgInRangeOfTime(initTime, endTime, deviceId): Observable<any> {
@@ -274,12 +290,12 @@ export class DeviceService {
     if (!memoryList || memoryList.length < 1) {
       return undefined;
     } else {
-      const data= [
+      const data = [
         {
           name: type,
           series: memoryList
         }
-      ]
+      ];
       if (threshold) {
         data.push({
           name: 'Umbral',
@@ -287,7 +303,7 @@ export class DeviceService {
             { name: memoryList[0].name, value: threshold },
             { name: memoryList[memoryList.length - 1].name, value: threshold }
           ]
-        })
+        });
       }
       return {
         type: type,

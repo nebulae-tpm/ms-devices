@@ -24,7 +24,11 @@ class Devices {
   }
 
   getAlarmTableSize({ root, args, jwt }, authToken) {
-    return DeviceDA.getAlarmTableSize$();
+    return DeviceDA.getAlarmTableSize$(
+      args.deviceId,
+      args.alarmType,
+      args.initTime,
+      args.endTime,);
   }
 
   getRamAvgInRangeOfTime({ root, args, jwt }, authToken) {

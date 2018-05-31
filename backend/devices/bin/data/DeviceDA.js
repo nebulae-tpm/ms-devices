@@ -260,9 +260,17 @@ class DeviceDA {
    * Get the size of table DeviceAlarm
    *
    */
-  static getAlarmTableSize$() {
+  static getAlarmTableSize$(deviceId, alarmType, initTime, endTime) {
+    const filterObject = {
+      $and: [
+        { deviceId: deviceId },
+        { type: alarmType },
+        { timestamp: { $gt: initTime } },
+        { timestamp: { $lt: endTime } }
+      ]
+    };
     const collection = mongoDB.db.collection('DeviceAlarm');
-    return Rx.Observable.defer(() => collection.count());
+    return Rx.Observable.defer(() => collection.count(filterObject));
   }
   //#endregion
 

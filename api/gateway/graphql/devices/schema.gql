@@ -190,7 +190,7 @@ type Query {
   getDeviceTableSize: Int
 
   "Get the size of table Alarms"
-  getAlarmTableSize: Int
+  getAlarmTableSize(deviceId: String!,alarmType: AlarmType!, initTime: BigInt, endTime: BigInt): Int
 
   getDeviceAlarms(deviceId: String!,alarmType: AlarmType!, initTime: BigInt, endTime: BigInt,page: Int!, count: Int!): [DeviceAlarm]
 

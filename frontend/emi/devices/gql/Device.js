@@ -185,7 +185,12 @@ export const getDeviceAlarms = gql`
 
 
 export const getAlarmTableSize = gql`
-  query {
-    getAlarmTableSize
+  query getAlarmTableSize(
+    $deviceId: String!
+    $alarmType: AlarmType!
+    $initTime: BigInt
+    $endTime: BigInt
+  ){
+    getAlarmTableSize(deviceId: $deviceId, alarmType: $alarmType,initTime: $initTime, endTime: $endTime)
   }
 `;
