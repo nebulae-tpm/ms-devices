@@ -428,7 +428,7 @@ class DeviceDA {
    * @param {string} eventType
    */
   static sendDeviceResultEvent$(device, eventType) {
-    let message;
+    let message = {};
     // DEVICE STATUS EVENTS
     switch (eventType) {
       case 'DeviceVolumesStateReported':
@@ -469,15 +469,15 @@ class DeviceDA {
         break;
       case 'DeviceConnected':
         if (device.deviceStatus) {
-          message.id = device.id;
           message = { deviceStatus: {} };
+          message.id = device.id;          
           message.deviceStatus.online = device.deviceStatus.online;
         }
         break;
       case 'DeviceDisconnected':
         if (device.deviceStatus) {
-          message.id = device.id;
           message = { deviceStatus: {} };
+          message.id = device.id;          
           message.deviceStatus.online = device.deviceStatus.online;
         }
         break;
