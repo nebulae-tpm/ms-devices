@@ -1,0 +1,33 @@
+@import 'src/app/core/scss/fuse';
+
+
+.read-form-title {
+  padding: 0 16px 0 0;
+  font-weight: 500;
+}
+
+.read-form-data {
+  color: rgba(0, 0, 0, 0.54);
+}
+.quantity-indicator {
+  display: inline-block;
+  vertical-align: middle;
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  margin-right: 8px;
+
+  & + span {
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+.memoryDialogContainer {
+  max-height: 800px
+}
+
+@media (max-height: 845px) {
+  .memoryDialogContainer {
+    max-height: 500px
+  }
+}

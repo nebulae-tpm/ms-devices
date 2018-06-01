@@ -11,6 +11,7 @@ export const getDeviceState = gql`
         hostname
         type
         groupName
+        alarmTempActive
         deviceDataList {
           totalValue
           currentValue

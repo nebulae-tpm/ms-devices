@@ -110,6 +110,8 @@
               <tr class="content-form">
                 <td class="read-form-title">{{'DEVICE.TEMPERATURE' | translate}}</td>
                 <td class="read-form-data">{{device.deviceStatus.temperature }} ºC</td>
+                <td class="read-form-data"><mat-icon *ngIf="device.deviceStatus.alarmTempActive" style="color: #f44336">error</mat-icon></td>
+                <td class="read-form-data"><a style="cursor: pointer;" (click)="openTempAlarmsDialog()">{{'DEVICE.SHOW_ALARMS' | translate}}</a></td>
               </tr>
             </table>
           </div>

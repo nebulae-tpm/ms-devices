@@ -397,6 +397,7 @@ export class DeviceService {
 
   //#endregion
 
+  //#region GRAPHQL SUBSCRIPTIONS
   subscribeToDeviceVolumesStateReportedEvent$(deviceId): Observable<any> {
     return this.gateway.apollo.subscribe({
       query: gql`
@@ -546,6 +547,38 @@ export class DeviceService {
     });
   }
 
+  subscribeToDeviceTemperatureAlarmActivatedEvent$(deviceId): Observable<any> {
+    return this.gateway.apollo.subscribe({
+      query: gql`
+        subscription {
+          DeviceTemperatureAlarmActivatedEvent(id: "${deviceId}") {
+            id
+            deviceStatus {
+              alarmTempActive
+            }
+          }
+        }
+      `
+    });
+  }
+
+  subscribeToDeviceTemperatureAlarmDeactivatedEvent$(
+    deviceId
+  ): Observable<any> {
+    return this.gateway.apollo.subscribe({
+      query: gql`
+        subscription {
+          DeviceTemperatureAlarmDeactivatedEvent(id: "${deviceId}") {
+            id
+            deviceStatus {
+              alarmTempActive
+            }
+          }
+        }
+      `
+    });
+  }
+
   subscribeToDeviceMainAppStateReportedEvent$(deviceId): Observable<any> {
     return this.gateway.apollo.subscribe({
       query: gql`
@@ -568,4 +601,5 @@ export class DeviceService {
       `
     });
   }
+  //#endregion
 }

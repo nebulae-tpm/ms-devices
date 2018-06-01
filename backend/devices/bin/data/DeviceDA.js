@@ -240,7 +240,14 @@ class DeviceDA {
    * gets Devices
    *
    */
-  static getDeviceAlarms$(deviceId, alarmType, initTimestamp, endTimestamp, page, count) {
+  static getDeviceAlarms$(
+    deviceId,
+    alarmType,
+    initTimestamp,
+    endTimestamp,
+    page,
+    count
+  ) {
     const filterObject = {
       $and: [
         { deviceId: deviceId },
@@ -251,12 +258,16 @@ class DeviceDA {
     };
 
     const collection = mongoDB.db.collection('DeviceAlarm');
-    return Rx.Observable.defer(() => collection.find(filterObject)
-      .skip(count * page)
-    .limit(count).toArray());
+    return Rx.Observable.defer(() =>
+      collection
+        .find(filterObject)
+        .skip(count * page)
+        .limit(count)
+        .toArray()
+    );
   }
 
-   /**
+  /**
    * Get the size of table DeviceAlarm
    *
    */
@@ -349,7 +360,7 @@ class DeviceDA {
           case 'DeviceTemperatureAlarmActivated':
           case 'DeviceTemperatureAlarmDeactivated':
             rawData.active = eventType == 'DeviceTemperatureAlarmActivated';
-            rawData.type = 'Temp';
+            rawData.type = 'TEMP';
             break;
         }
         return Object.assign(devAlarm, rawData);
@@ -357,6 +368,40 @@ class DeviceDA {
       .mergeMap(mergeData => {
         return Rx.Observable.defer(() => collection.insertOne(mergeData));
       });
+  }
+
+  static updateDeviceTemperatureAlarm$(deviceAlarm, eventType, deviceId) {
+    if (
+      eventType == 'DeviceTemperatureAlarmActivated' ||
+      eventType == 'DeviceTemperatureAlarmDeactivated'
+    ) {
+      console.log(
+        `Se reporta alarma: ${eventType} estado: ${eventType ==
+          'DeviceTemperatureAlarmActivated'}`
+      );
+      const collection = mongoDB.db.collection('Devices');
+      return Rx.Observable.of(deviceAlarm)
+        .map(alarm => { 
+          deviceAlarm.id = deviceId;
+          return deviceAlarm;
+        })  
+        .mergeMap(alarm => {
+          return collection.updateOne(
+            { _id: deviceId },
+            {
+              $set: {
+                'deviceStatus.alarmTempActive':
+                  eventType == 'DeviceTemperatureAlarmActivated'
+              }
+            }
+          );
+        })
+        .mergeMap(peristed => {
+          return this.sendDeviceResultEvent$(deviceAlarm, eventType);
+        });
+    } else {
+      return Rx.Observable.of(undefined);
+    }
   }
 
   //#endregion
@@ -424,15 +469,25 @@ class DeviceDA {
         break;
       case 'DeviceConnected':
         if (device.deviceStatus) {
+          message.id = device.id;
           message = { deviceStatus: {} };
           message.deviceStatus.online = device.deviceStatus.online;
         }
         break;
       case 'DeviceDisconnected':
         if (device.deviceStatus) {
+          message.id = device.id;
           message = { deviceStatus: {} };
           message.deviceStatus.online = device.deviceStatus.online;
         }
+        break;
+      case 'DeviceTemperatureAlarmActivated':
+      case 'DeviceTemperatureAlarmDeactivated':
+        message = { deviceStatus: {} };
+        message.id = device.id;
+        message.deviceStatus.alarmTempActive =
+          eventType == 'DeviceTemperatureAlarmActivated';
+        console.log('Se construye mensaje: ', message);
         break;
       // DEVICE NETWORK EVENTS
       case 'DeviceNetworkStateReported':
@@ -457,6 +512,7 @@ class DeviceDA {
           message.deviceNetwork.simStatus = device.deviceNetwork.simStatus;
         }
         break;
+
       // APP STATUS EVENTS
       case 'DeviceMainAppStateReported':
         if (device.appStatus) {

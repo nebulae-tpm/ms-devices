@@ -66,7 +66,7 @@ class EventStoreService {
                     eventSourcing.eventStore.acknowledgeEvent$(evt, 'ms-devices_mbe_devices'),
                 ))
                 .subscribe(
-                    (evt) => console.log(`EventStoreService: ${eventType} process: ${evt}`),
+                    (evt) => console.log(``),
                     onErrorHandler,
                     onCompleteHandler
                 );

@@ -26,6 +26,8 @@ type DeviceStatus {
   hostname: String
   "information of device memory"
   deviceDataList: [DeviceData]
+  "Alarm Temperature state"
+  alarmTempActive: Boolean
   "Information of device voltage"
   voltage: Voltage
   "Device uptime"
@@ -233,4 +235,6 @@ type Subscription {
   DeviceMainAppStateReportedEvent(id: ID): Device
   DeviceConnectedEvent(ids: [ID]): Device
   DeviceDisconnectedEvent(ids: [ID]): Device
+  DeviceTemperatureAlarmActivatedEvent(id: ID): Device
+  DeviceTemperatureAlarmDeactivatedEvent(id: ID): Device
 }

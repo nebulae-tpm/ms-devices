@@ -10,6 +10,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DeviceMemoryChartComponent } from '../device-memory-chart/device-memory-chart.component';
 import { DeviceVoltageChartComponent } from '../device-voltage-chart/device-voltage-chart.component';
 import { Overlay } from '@angular/cdk/overlay';
+import { DeviceAlarmTempDialog } from '../device-alarm-temp-dialog/device-alarm-temp-dialog.component';
 
 @Component({
   selector: 'app-device-state',
@@ -80,6 +81,78 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 k =>
                   !rawData.deviceStatus[k] &&
                   rawData.deviceStatus[k] !== undefined &&
+                  delete rawData.deviceStatus[k]
+              );
+              const deviceStatus = {
+                ...this.device.deviceStatus,
+                ...JSON.parse(JSON.stringify(rawData.deviceStatus))
+              };
+              this.device.deviceStatus = deviceStatus;
+            }
+          }
+        })
+    );
+
+    this.subscribers.push(
+      this.deviceService
+        .subscribeToDeviceTemperatureAlarmActivatedEvent$([this.device.id])
+        .subscribe(result => {
+          if (result.data) {
+            const rawData = JSON.parse(
+              JSON.stringify(result.data.DeviceTemperatureAlarmActivatedEvent)
+            );
+            if (rawData.deviceStatus) {
+              Object.keys(rawData.deviceStatus).forEach(
+                k =>
+                  rawData.deviceStatus[k] === undefined &&
+                  delete rawData.deviceStatus[k]
+              );
+              const deviceStatus = {
+                ...this.device.deviceStatus,
+                ...JSON.parse(JSON.stringify(rawData.deviceStatus))
+              };
+              this.device.deviceStatus = deviceStatus;
+            }
+          }
+        })
+    );
+
+    this.subscribers.push(
+      this.deviceService
+        .subscribeToDeviceTemperatureAlarmActivatedEvent$([this.device.id])
+        .subscribe(result => {
+          if (result.data) {
+            const rawData = JSON.parse(
+              JSON.stringify(result.data.DeviceTemperatureAlarmActivatedEvent)
+            );
+            if (rawData.deviceStatus) {
+              Object.keys(rawData.deviceStatus).forEach(
+                k =>
+                  rawData.deviceStatus[k] === undefined &&
+                  delete rawData.deviceStatus[k]
+              );
+              const deviceStatus = {
+                ...this.device.deviceStatus,
+                ...JSON.parse(JSON.stringify(rawData.deviceStatus))
+              };
+              this.device.deviceStatus = deviceStatus;
+            }
+          }
+        })
+    );
+
+    this.subscribers.push(
+      this.deviceService
+        .subscribeToDeviceTemperatureAlarmDeactivatedEvent$([this.device.id])
+        .subscribe(result => {
+          if (result.data) {
+            const rawData = JSON.parse(
+              JSON.stringify(result.data.DeviceTemperatureAlarmDeactivatedEvent)
+            );
+            if (rawData.deviceStatus) {
+              Object.keys(rawData.deviceStatus).forEach(
+                k =>
+                  rawData.deviceStatus[k] === undefined &&
                   delete rawData.deviceStatus[k]
               );
               const deviceStatus = {
@@ -253,6 +326,13 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
     let dialogRef = this.dialog.open(AppVersionDialog, {
       width: '400px',
       data: { versions: this.device.appStatus.appVersions }
+    });
+  }
+
+  openTempAlarmsDialog(): void {
+    let dialogRef = this.dialog.open(DeviceAlarmTempDialog, {
+      width: '500px',
+      data: { device: this.device, alarmThreshold: this.deviceAlarmThresholds }
     });
   }
 
