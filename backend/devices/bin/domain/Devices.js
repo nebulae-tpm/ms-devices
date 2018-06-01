@@ -24,7 +24,11 @@ class Devices {
   }
 
   getAlarmTableSize({ root, args, jwt }, authToken) {
-    return DeviceDA.getAlarmTableSize$();
+    return DeviceDA.getAlarmTableSize$(
+      args.deviceId,
+      args.alarmType,
+      args.initTime,
+      args.endTime,);
   }
 
   getRamAvgInRangeOfTime({ root, args, jwt }, authToken) {
@@ -35,11 +39,10 @@ class Devices {
     );
   }
 
-  getVolumeAvgInRangeOfTime({ root, args, jwt }, authToken) {
-    return DeviceDA.getVolumeAvgInRangeOfTime$(
+  getSdAvgInRangeOfTime({ root, args, jwt }, authToken) {
+    return DeviceDA.getSdAvgInRangeOfTime$(
       args.initTime,
       args.endTime,
-      args.volumeType,
       args.deviceId
     );
   }

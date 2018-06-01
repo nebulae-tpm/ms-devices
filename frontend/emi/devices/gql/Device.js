@@ -11,7 +11,8 @@ export const getDeviceState = gql`
         hostname
         type
         groupName
-        deviceDataList {
+        alarmTempActive
+        sdStatus {
           totalValue
           currentValue
           memoryUnitInformation
@@ -86,21 +87,26 @@ export const getRamAvgInRangeOfTime = gql`
   }
 `;
 
-export const getVolumeAvgInRangeOfTime = gql`
-  query getVolumeAvgInRangeOfTime(
+export const getSdAvgInRangeOfTime = gql`
+  query getSdAvgInRangeOfTime(
     $initTime: BigInt
     $endTime: BigInt
     $deviceId: String
-    $type: String
   ) {
-    getVolumeAvgInRangeOfTime(
+    getSdAvgInRangeOfTime(
       initTime: $initTime
       endTime: $endTime
-      volumeType: $type
       deviceId: $deviceId
     ) {
       timestamp
-      value
+      deviceStatus {
+        sdStatus {
+          totalValue
+          currentValue
+          memoryUnitInformation
+          memorytype
+        }
+      }
     }
   }
 `;
@@ -185,7 +191,12 @@ export const getDeviceAlarms = gql`
 
 
 export const getAlarmTableSize = gql`
-  query {
-    getAlarmTableSize
+  query getAlarmTableSize(
+    $deviceId: String!
+    $alarmType: AlarmType!
+    $initTime: BigInt
+    $endTime: BigInt
+  ){
+    getAlarmTableSize(deviceId: $deviceId, alarmType: $alarmType,initTime: $initTime, endTime: $endTime)
   }
 `;

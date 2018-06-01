@@ -13,12 +13,15 @@ class DeviceEventConsumer {
     handleDeviceEventReported$(event) {  
         return DeviceGeneralInformationFormatter.formatDeviceStateReport$(event)
             .mergeMap(rawData => { 
-                return DeviceDA.persistDevice$(rawData,event.et);
+                    return rawData ? DeviceDA.persistDevice$(rawData,event.et): Rx.Observable.of(undefined);             
             });
     }
 
     handleDeviceAlarmReported$(event) {  
-        return DeviceDA.persistDeviceAlarm$(event.data,event.et, event.aid);
+        return Rx.Observable.forkJoin(
+            DeviceDA.updateDeviceTemperatureAlarm$(event.data,event.et, event.aid),
+            DeviceDA.persistDeviceAlarm$(event.data,event.et, event.aid)
+        );
     }
 
 }

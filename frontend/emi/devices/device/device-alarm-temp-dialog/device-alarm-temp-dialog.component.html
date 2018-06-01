@@ -1,0 +1,57 @@
+<div class="memoryDialogContainer">
+  <div *ngIf="alarmDataSource && alarmDataSource.data && alarmDataSource.data.length>0" class="mat-white-bg mat-elevation-z2"
+    style="margin-top: 10px">
+    <div class="px-24">
+      <div class="h3 secondary-text" style="margin-top: 10px">{{'DEVICE.ALARM_TEMP_TITLE' | translate}}
+        <mat-form-field>
+          <mat-select class="simplified" (selectionChange)="changeHour($event)" [(ngModel)]="currentRange" aria-label="Change range">
+            <mat-option *ngFor="let range of historyRanges | keys" [value]="range.value">
+              <span class="h3">{{'DEVICE.'+range.key | translate}}</span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field></div>
+        <div class="h3 secondary-text" style="margin-top: 10px">{{'DEVICE.ALARM_TEMP_THRESHOLD_TITLE' | translate}}:
+          {{data.alarmThreshold.tempThreshold}} ºC
+        </div>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="start start" fxLayoutWrap>
+
+      <div class="my-16" fxLayout="row" fxFlex="100" fxFlex.gt-sm="100">
+        <div class="alarm-summary px-24">
+          <mat-table class="device-table" #table [dataSource]="alarmDataSource" fusePerfectScrollbar>
+
+            <!-- Alarm state Column -->
+            <ng-container cdkColumnDef="alarmState">
+              <mat-header-cell *cdkHeaderCellDef fxHide fxShow.gt-sm>{{'DEVICE.ALARM_STATE' | translate}}</mat-header-cell>
+              <mat-cell *cdkCellDef="let alarm" fxHide fxShow.gt-sm>
+                <span class="quantity-indicator text-truncate" [ngClass]="{'mat-red-500-bg':alarm.active,'mat-green-600-bg':!alarm.active}">
+                </span>
+                <span>
+                  {{alarm.value}} ºC
+                </span>
+              </mat-cell>
+            </ng-container>
+
+            <!-- Hour Column -->
+            <ng-container cdkColumnDef="alarmHour">
+              <mat-header-cell *cdkHeaderCellDef>{{'DEVICE.HOUR' | translate}}</mat-header-cell>
+              <mat-cell *cdkCellDef="let alarm">
+                <p class="text-truncate">{{alarmHour(alarm.timestamp)}}</p>
+              </mat-cell>
+            </ng-container>
+
+            <mat-header-row *cdkHeaderRowDef="displayedColumns"></mat-header-row>
+
+            <mat-row *cdkRowDef="let device; columns: displayedColumns;" class="product" matRipple>
+            </mat-row>
+
+          </mat-table>
+
+          <mat-paginator [length]="tableSize" [pageIndex]="0" [pageSize]="3" [pageSizeOptions]="[3]" (page)="onChange($event)">
+          </mat-paginator>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

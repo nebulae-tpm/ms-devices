@@ -24,8 +24,10 @@ type DeviceStatus {
   connectorSn: String
   "Device name"
   hostname: String
-  "information of device memory"
-  deviceDataList: [DeviceData]
+  "Current SD status"
+  sdStatus: DeviceData
+  "Alarm Temperature state"
+  alarmTempActive: Boolean
   "Information of device voltage"
   voltage: Voltage
   "Device uptime"
@@ -161,10 +163,6 @@ type VoltageAvgInRangeOfTime {
   interval: BigInt
 }
 
-type VolumeInRageOfTime {
-  value: Float
-  timestamp: BigInt
-}
 type CpuInRageOfTime {
   value: Float
   timestamp: BigInt
@@ -190,7 +188,7 @@ type Query {
   getDeviceTableSize: Int
 
   "Get the size of table Alarms"
-  getAlarmTableSize: Int
+  getAlarmTableSize(deviceId: String!,alarmType: AlarmType!, initTime: BigInt, endTime: BigInt): Int
 
   getDeviceAlarms(deviceId: String!,alarmType: AlarmType!, initTime: BigInt, endTime: BigInt,page: Int!, count: Int!): [DeviceAlarm]
 
@@ -200,12 +198,11 @@ type Query {
     deviceId: String
   ): [Device]
 
-  getVolumeAvgInRangeOfTime(
+  getSdAvgInRangeOfTime(
     initTime: BigInt
     endTime: BigInt
-    volumeType: String
     deviceId: String
-  ): [VolumeInRageOfTime]
+  ): [Device]
 
   getCpuAvgInRangeOfTime(
     initTime: BigInt
@@ -233,4 +230,6 @@ type Subscription {
   DeviceMainAppStateReportedEvent(id: ID): Device
   DeviceConnectedEvent(ids: [ID]): Device
   DeviceDisconnectedEvent(ids: [ID]): Device
+  DeviceTemperatureAlarmActivatedEvent(id: ID): Device
+  DeviceTemperatureAlarmDeactivatedEvent(id: ID): Device
 }

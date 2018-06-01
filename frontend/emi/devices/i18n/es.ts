@@ -23,6 +23,7 @@ export const locale = {
       BLACK_LIST: 'Versión de lista restrictiva',
       APP_VERSIONS: 'Versión de aplicacion de transporte',
       SHOW_VERSIONS: 'mostrar',
+      SHOW_ALARMS: 'mostrar alarmas',
       CLOSE: 'Cerrar',
       DISPLAY_SERIAL: 'Serial de display',
       TEMPERATURE: 'Temperatura',
@@ -52,6 +53,8 @@ export const locale = {
       METRICS_OF: 'Métricas de',
       IN: 'en',
       ALARM_TITLE: 'Alarmas generadas',
+      ALARM_TEMP_TITLE: 'Alarmas de temp generadas en',
+      ALARM_TEMP_THRESHOLD_TITLE: 'Umbral de alarmas de temperatura ',
       ALARM_STATE: 'Estado de alarma',
       HOUR: 'Hora'
     }

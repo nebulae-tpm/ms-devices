@@ -35,26 +35,31 @@ class DeviceGeneralInformationFormatter {
    * @param {*} report
    */
   static formatIncomingReportV1$(event) {
-    return Rx.Observable.forkJoin(
-      Rx.Observable.of(event).map(rawData => {
-        return { id: rawData.aid };
-      }),
-      this.extractDeviceNetworkStateReported$(event.data, event.et),
-      this.extractDeviceStatusReported$(event.data, event.et),
-      this.extractDeviceAppStatus$(event.data, event.et, event.timestamp)
-    ).map(([device, deviceNetwork, deviceState, appStatus]) => {
-      let result = {};
-      if (deviceNetwork) {
-        result = Object.assign({}, device, deviceNetwork);
-      }
-      if (deviceState) {
-        result = Object.assign({}, device, deviceState);
-      }
-      if (appStatus) {
-        result = Object.assign({}, device, appStatus);
-      }
-      return JSON.parse(JSON.stringify(result));
-    });
+    if (event && event.data) {
+      return Rx.Observable.forkJoin(
+        Rx.Observable.of(event).map(rawData => {
+          return { id: rawData.aid };
+        }),
+        this.extractDeviceNetworkStateReported$(event.data, event.et),
+        this.extractDeviceStatusReported$(event.data, event.et),
+        this.extractDeviceAppStatus$(event.data, event.et, event.timestamp)
+      ).map(([device, deviceNetwork, deviceState, appStatus]) => {
+        let result = {};
+        if (deviceNetwork) {
+          result = Object.assign({}, device, deviceNetwork);
+        }
+        if (deviceState) {
+          result = Object.assign({}, device, deviceState);
+        }
+        if (appStatus) {
+          result = Object.assign({}, device, appStatus);
+        }
+        return JSON.parse(JSON.stringify(result));
+      });
+    }
+    else { 
+      return Rx.Observable.of(undefined);
+    }
   }
 
   static extractDeviceStatusReported$(eventData, eventType) {
@@ -62,16 +67,18 @@ class DeviceGeneralInformationFormatter {
     if (eventType == 'DeviceVolumesStateReported') {
       return Rx.Observable.from(eventData)
         .map(data => {
-          return {
+          const deviceVolumeState = {
             totalValue: data.total,
             currentValue: data.current,
-            memoryUnitInformation: data.unit,
-            memorytype: data.type
-          };
-        })
-        .toArray()
-        .map(dataList => {
-          deviceStatus['deviceStatus.deviceDataList'] = dataList;
+            memoryUnitInformation: data.unit
+          }
+          if (data.type == "SD") { 
+            deviceStatus['deviceStatus.sdStatus'] = deviceVolumeState;
+          }
+          else if (data.type == "FLASH") {
+            deviceStatus['deviceStatus.flashStatus'] = deviceVolumeState;
+           }
+                    
           return deviceStatus;
         });
     } else if (eventType == 'DeviceDisplayStateReported') {
@@ -82,6 +89,9 @@ class DeviceGeneralInformationFormatter {
     } else if (eventType == 'DeviceSystemStateReported') {
       return Rx.Observable.of(eventData).map(data => {
         deviceStatus['deviceStatus.temperature'] = data.temperature;
+        if (data.cpuStatus && data.cpuStatus.length > 0) { 
+          deviceStatus['deviceStatus.currentCpuStatus'] = data.cpuStatus[0];
+        }
         deviceStatus['deviceStatus.cpuStatus'] = data.cpuStatus;
         deviceStatus['deviceStatus.upTime'] = data.upTime;
         if (data.voltage) {

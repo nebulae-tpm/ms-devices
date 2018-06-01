@@ -81,10 +81,17 @@ export class DeviceMemoryChartComponent implements OnInit {
         );
       }
     });
+
     this.subscribers.push(
-      this.deviceService.getAlarmTableSize().subscribe(result => {
-        this.tableSize = result;
-      })
+      this.deviceService
+        .getAlarmTableSize(
+          this.data.device.id,
+          (this.data.type = this.data.type == 'MEM' ? 'RAM' : this.data.type),
+          this.selectedDelta
+        )
+        .subscribe(result => {
+          this.tableSize = result;
+        })
     );
   }
 
@@ -120,6 +127,17 @@ export class DeviceMemoryChartComponent implements OnInit {
       this.selectedDelta,
       this.data.alarmThreshold
     );
+    this.subscribers.push(
+      this.deviceService
+        .getAlarmTableSize(
+          this.data.device.id,
+          (this.data.type = this.data.type == 'MEM' ? 'RAM' : this.data.type),
+          this.selectedDelta
+        )
+        .subscribe(result => {
+          this.tableSize = result;
+        })
+    );
   }
 
   /**
@@ -153,13 +171,13 @@ export class DeviceMemoryChartComponent implements OnInit {
               endTime,
               device.id
             )
-          : this.deviceService.getVolumeAvgInRangeOfTime(
+          : this.deviceService.getSdAvgInRangeOfTime(
               initTime,
               endTime,
               type,
               deltaTime,
               device.id
-          );
+            );
       this.subscribers.push(
         this.sortDeviceMemoryAvgResult(originWidgetInfo, deviceDataMemory, type)
           .pipe(
@@ -167,7 +185,9 @@ export class DeviceMemoryChartComponent implements OnInit {
               this.deviceService.buildChartMemoryWidget(
                 rawData,
                 type,
-                alarmThreshold? alarmThreshold[type.toLowerCase() + 'Threshold']: undefined
+                alarmThreshold
+                  ? alarmThreshold[type.toLowerCase() + 'Threshold']
+                  : undefined
               )
             )
           )
@@ -205,9 +225,12 @@ export class DeviceMemoryChartComponent implements OnInit {
       )
       .pipe(first())
       .subscribe(result => {
-        console.log(result);
-        this.alarmDataSource = result;
+        this.alarmDataSource.data = result;
       });
+  }
+
+  alarmHour(timestamp) {
+    return this.datePipe.transform(new Date(timestamp), 'HH:mm');
   }
 
   /**
@@ -269,12 +292,8 @@ export class DeviceMemoryChartComponent implements OnInit {
   getDeviceMemory(device, type) {
     if (type == 'MEM') {
       return device.deviceStatus.ram;
-    } else {
-      return (
-        device.deviceStatus.deviceDataList.filter(
-          data => data.memorytype == type
-        )[0] || { totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' }
-      );
+    } else if (type == 'SD') {
+      return device.deviceStatus.sdStatus;
     }
   }
 
@@ -288,8 +307,8 @@ export class DeviceMemoryChartComponent implements OnInit {
               return {
                 value: Math.floor(
                   rawData.deviceStatus.ram.currentValue /
-                    deviceDataMemory.totalValue *
-                    100
+                  deviceDataMemory.totalValue *
+                  100
                 ),
                 timeInterval: this.datePipe.transform(
                   new Date(rawData.timestamp),
@@ -297,10 +316,13 @@ export class DeviceMemoryChartComponent implements OnInit {
                 ),
                 timestamp: rawData.timestamp
               };
-            } else {
+            }
+            else if (type == 'SD') {
               return {
                 value: Math.floor(
-                  rawData.value / deviceDataMemory.totalValue * 100
+                  rawData.deviceStatus.sdStatus.currentValue /
+                  deviceDataMemory.totalValue *
+                  100
                 ),
                 timeInterval: this.datePipe.transform(
                   new Date(rawData.timestamp),

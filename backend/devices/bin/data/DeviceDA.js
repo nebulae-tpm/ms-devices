@@ -63,6 +63,9 @@ class DeviceDA {
         case 'ram':
           column = 'deviceStatus.ram.currentValue';
           break;
+        case 'sd':
+          column = 'deviceStatus.sd.currentValue';
+          break;
         case 'online':
           column = 'deviceStatus.online';
           break;
@@ -126,46 +129,27 @@ class DeviceDA {
   }
 
   /**
-   * Returns a list that contains the metrics in time of volume memory
+   * Returns a list that contains the metrics in time of SD
    * @param {Number} initTime
    * @param {Number} endTime
-   * @param {string} type
    * @param {Number} deltaTime
    * @param {string} deviceId
    */
-  static getVolumeAvgInRangeOfTime$(initTime, endTime, type, deviceId) {
+  static getSdAvgInRangeOfTime$(initTime, endTime, deviceId) {
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.defer(() =>
       collection
-        .aggregate([
-          {
-            $match: {
-              timestamp: { $gte: initTime, $lt: endTime },
-              id: deviceId,
-              'deviceStatus.deviceDataList': { $exists: true }
-            }
-          },
-          {
-            $project: {
-              timestamp: 1,
-              currValue: {
-                $filter: {
-                  input: '$deviceStatus.deviceDataList',
-                  as: 'value',
-                  cond: { $eq: ['$$value.memorytype', type] }
-                }
-              }
-            }
-          },
-          {
-            $project: {
-              timestamp: 1,
-              value: {
-                $arrayElemAt: ['$currValue.currentValue', 0]
-              }
-            }
-          }
-        ])
+        .find({
+          timestamp: { $gte: initTime, $lt: endTime },
+          id: deviceId,
+          'deviceStatus.sdStatus': { $exists: true }
+        })
+        .project({
+          _id: 0,
+          id: 1,
+          timestamp: 1,
+          'deviceStatus.sdStatus': 1
+        })
         .toArray()
     ).map(item => {
       return item;
@@ -240,7 +224,14 @@ class DeviceDA {
    * gets Devices
    *
    */
-  static getDeviceAlarms$(deviceId, alarmType, initTimestamp, endTimestamp, page, count) {
+  static getDeviceAlarms$(
+    deviceId,
+    alarmType,
+    initTimestamp,
+    endTimestamp,
+    page,
+    count
+  ) {
     const filterObject = {
       $and: [
         { deviceId: deviceId },
@@ -251,18 +242,30 @@ class DeviceDA {
     };
 
     const collection = mongoDB.db.collection('DeviceAlarm');
-    return Rx.Observable.defer(() => collection.find(filterObject)
-      .skip(count * page)
-    .limit(count).toArray());
+    return Rx.Observable.defer(() =>
+      collection
+        .find(filterObject)
+        .skip(count * page)
+        .limit(count)
+        .toArray()
+    );
   }
 
-   /**
+  /**
    * Get the size of table DeviceAlarm
    *
    */
-  static getAlarmTableSize$() {
+  static getAlarmTableSize$(deviceId, alarmType, initTime, endTime) {
+    const filterObject = {
+      $and: [
+        { deviceId: deviceId },
+        { type: alarmType },
+        { timestamp: { $gt: initTime } },
+        { timestamp: { $lt: endTime } }
+      ]
+    };
     const collection = mongoDB.db.collection('DeviceAlarm');
-    return Rx.Observable.defer(() => collection.count());
+    return Rx.Observable.defer(() => collection.count(filterObject));
   }
   //#endregion
 
@@ -341,7 +344,7 @@ class DeviceDA {
           case 'DeviceTemperatureAlarmActivated':
           case 'DeviceTemperatureAlarmDeactivated':
             rawData.active = eventType == 'DeviceTemperatureAlarmActivated';
-            rawData.type = 'Temp';
+            rawData.type = 'TEMP';
             break;
         }
         return Object.assign(devAlarm, rawData);
@@ -349,6 +352,36 @@ class DeviceDA {
       .mergeMap(mergeData => {
         return Rx.Observable.defer(() => collection.insertOne(mergeData));
       });
+  }
+
+  static updateDeviceTemperatureAlarm$(deviceAlarm, eventType, deviceId) {
+    if (
+      eventType == 'DeviceTemperatureAlarmActivated' ||
+      eventType == 'DeviceTemperatureAlarmDeactivated'
+    ) {
+      const collection = mongoDB.db.collection('Devices');
+      return Rx.Observable.of(deviceAlarm)
+        .map(alarm => { 
+          deviceAlarm.id = deviceId;
+          return deviceAlarm;
+        })  
+        .mergeMap(alarm => {
+          return collection.updateOne(
+            { _id: deviceId },
+            {
+              $set: {
+                'deviceStatus.alarmTempActive':
+                  eventType == 'DeviceTemperatureAlarmActivated'
+              }
+            }
+          );
+        })
+        .mergeMap(peristed => {
+          return this.sendDeviceResultEvent$(deviceAlarm, eventType);
+        });
+    } else {
+      return Rx.Observable.of(undefined);
+    }
   }
 
   //#endregion
@@ -375,7 +408,7 @@ class DeviceDA {
    * @param {string} eventType
    */
   static sendDeviceResultEvent$(device, eventType) {
-    let message;
+    let message = {};
     // DEVICE STATUS EVENTS
     switch (eventType) {
       case 'DeviceVolumesStateReported':
@@ -417,14 +450,23 @@ class DeviceDA {
       case 'DeviceConnected':
         if (device.deviceStatus) {
           message = { deviceStatus: {} };
+          message.id = device.id;          
           message.deviceStatus.online = device.deviceStatus.online;
         }
         break;
       case 'DeviceDisconnected':
         if (device.deviceStatus) {
           message = { deviceStatus: {} };
+          message.id = device.id;          
           message.deviceStatus.online = device.deviceStatus.online;
         }
+        break;
+      case 'DeviceTemperatureAlarmActivated':
+      case 'DeviceTemperatureAlarmDeactivated':
+        message = { deviceStatus: {} };
+        message.id = device.id;
+        message.deviceStatus.alarmTempActive =
+          eventType == 'DeviceTemperatureAlarmActivated';
         break;
       // DEVICE NETWORK EVENTS
       case 'DeviceNetworkStateReported':
@@ -449,6 +491,7 @@ class DeviceDA {
           message.deviceNetwork.simStatus = device.deviceNetwork.simStatus;
         }
         break;
+
       // APP STATUS EVENTS
       case 'DeviceMainAppStateReported':
         if (device.appStatus) {

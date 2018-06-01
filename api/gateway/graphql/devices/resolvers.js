@@ -36,11 +36,11 @@ module.exports = {
         )
         .toPromise();
     },
-    getVolumeAvgInRangeOfTime(root, args, context) {
+    getSdAvgInRangeOfTime(root, args, context) {
       return context.broker
         .forwardAndGetReply$(
           'Device',
-          'gateway.graphql.query.getVolumeAvgInRangeOfTime',
+          'gateway.graphql.query.getSdAvgInRangeOfTime',
           { root, args, jwt: context.encodedToken },
           500
         )
@@ -101,21 +101,21 @@ module.exports = {
     DeviceVolumesStateReportedEvent: {
       subscribe: withFilter(
         (payload, variables, context, info) => {
-          return pubsub.asyncIterator(
-            'DeviceVolumesStateReportedEvent'
-          );
+          return pubsub.asyncIterator('DeviceVolumesStateReportedEvent');
         },
         (payload, variables, context, info) => {
-          return variables.ids.filter(id => id == payload.DeviceVolumesStateReportedEvent.id)[0] !== undefined;
+          return (
+            variables.ids.filter(
+              id => id == payload.DeviceVolumesStateReportedEvent.id
+            )[0] !== undefined
+          );
         }
       )
     },
     DeviceDisplayStateReportedEvent: {
       subscribe: withFilter(
         (payload, variables, context, info) => {
-          return pubsub.asyncIterator(
-            'DeviceDisplayStateReportedEvent'
-          );
+          return pubsub.asyncIterator('DeviceDisplayStateReportedEvent');
         },
         (payload, variables, context, info) => {
           return payload.DeviceDisplayStateReportedEvent.id === variables.id;
@@ -125,33 +125,35 @@ module.exports = {
     DeviceDeviceStateReportedEvent: {
       subscribe: withFilter(
         (payload, variables, context, info) => {
-          return pubsub.asyncIterator(
-            'DeviceDeviceStateReportedEvent'
-          );
+          return pubsub.asyncIterator('DeviceDeviceStateReportedEvent');
         },
         (payload, variables, context, info) => {
-          return variables.ids.filter(id => id == payload.DeviceDeviceStateReportedEvent.id)[0] !== undefined;
+          return (
+            variables.ids.filter(
+              id => id == payload.DeviceDeviceStateReportedEvent.id
+            )[0] !== undefined
+          );
         }
       )
     },
     DeviceSystemStateReportedEvent: {
       subscribe: withFilter(
         (payload, variables, context, info) => {
-          return pubsub.asyncIterator(
-            'DeviceSystemStateReportedEvent'
-          );
+          return pubsub.asyncIterator('DeviceSystemStateReportedEvent');
         },
         (payload, variables, context, info) => {
-          return variables.ids.filter(id => id == payload.DeviceSystemStateReportedEvent.id)[0] !== undefined;
+          return (
+            variables.ids.filter(
+              id => id == payload.DeviceSystemStateReportedEvent.id
+            )[0] !== undefined
+          );
         }
       )
     },
     DeviceLowestVoltageReportedEvent: {
       subscribe: withFilter(
         (payload, variables, context, info) => {
-          return pubsub.asyncIterator(
-            'DeviceLowestVoltageReportedEvent'
-          );
+          return pubsub.asyncIterator('DeviceLowestVoltageReportedEvent');
         },
         (payload, variables, context, info) => {
           return payload.DeviceLowestVoltageReportedEvent.id === variables.id;
@@ -161,9 +163,7 @@ module.exports = {
     DeviceHighestVoltageReportedEvent: {
       subscribe: withFilter(
         (payload, variables, context, info) => {
-          return pubsub.asyncIterator(
-            'DeviceHighestVoltageReportedEvent'
-          );
+          return pubsub.asyncIterator('DeviceHighestVoltageReportedEvent');
         },
         (payload, variables, context, info) => {
           return payload.DeviceHighestVoltageReportedEvent.id === variables.id;
@@ -173,9 +173,7 @@ module.exports = {
     DeviceNetworkStateReportedEvent: {
       subscribe: withFilter(
         (payload, variables, context, info) => {
-          return pubsub.asyncIterator(
-            'DeviceNetworkStateReportedEvent'
-          );
+          return pubsub.asyncIterator('DeviceNetworkStateReportedEvent');
         },
         (payload, variables, context, info) => {
           return payload.DeviceNetworkStateReportedEvent.id === variables.id;
@@ -185,9 +183,7 @@ module.exports = {
     DeviceModemStateReportedEvent: {
       subscribe: withFilter(
         (payload, variables, context, info) => {
-          return pubsub.asyncIterator(
-            'DeviceModemStateReportedEvent'
-          );
+          return pubsub.asyncIterator('DeviceModemStateReportedEvent');
         },
         (payload, variables, context, info) => {
           return payload.DeviceModemStateReportedEvent.id === variables.id;
@@ -197,9 +193,7 @@ module.exports = {
     DeviceMainAppStateReportedEvent: {
       subscribe: withFilter(
         (payload, variables, context, info) => {
-          return pubsub.asyncIterator(
-            'DeviceMainAppStateReportedEvent'
-          );
+          return pubsub.asyncIterator('DeviceMainAppStateReportedEvent');
         },
         (payload, variables, context, info) => {
           return payload.DeviceMainAppStateReportedEvent.id === variables.id;
@@ -209,29 +203,89 @@ module.exports = {
     DeviceConnectedEvent: {
       subscribe: withFilter(
         (payload, variables, context, info) => {
-          return pubsub.asyncIterator(
-            'DeviceConnectedEvent'
-          );
+          return pubsub.asyncIterator('DeviceConnectedEvent');
         },
         (payload, variables, context, info) => {
-          return variables.ids.filter(id => id == payload.DeviceConnectedEvent.id)[0] !== undefined;
+          return (
+            variables.ids.filter(
+              id => id == payload.DeviceConnectedEvent.id
+            )[0] !== undefined
+          );
         }
       )
     },
     DeviceDisconnectedEvent: {
       subscribe: withFilter(
         (payload, variables, context, info) => {
-          return pubsub.asyncIterator(
-            'DeviceDisconnectedEvent'
-          );
+          return pubsub.asyncIterator('DeviceDisconnectedEvent');
         },
         (payload, variables, context, info) => {
-          return variables.ids.filter(id => id == payload.DeviceDisconnectedEvent.id)[0] !== undefined;
+          return (
+            variables.ids.filter(
+              id => id == payload.DeviceDisconnectedEvent.id
+            )[0] !== undefined
+          );
+        }
+      )
+    },
+    DeviceTemperatureAlarmActivatedEvent: {
+      subscribe: withFilter(
+        (payload, variables, context, info) => {
+          return pubsub.asyncIterator('DeviceTemperatureAlarmActivatedEvent');
+        },
+        (payload, variables, context, info) => {
+          return (
+            payload.DeviceTemperatureAlarmActivatedEvent.id === variables.id
+          );
+        }
+      )
+    },
+    DeviceTemperatureAlarmDeactivatedEvent: {
+      subscribe: withFilter(
+        (payload, variables, context, info) => {
+          return pubsub.asyncIterator('DeviceTemperatureAlarmDeactivatedEvent');
+        },
+        (payload, variables, context, info) => {
+          return (
+            payload.DeviceTemperatureAlarmDeactivatedEvent.id === variables.id
+          );
         }
       )
     }
   }
 };
+
+broker
+  .getMaterializedViewsUpdates$(['DeviceTemperatureAlarmActivatedEvent'])
+  .subscribe(
+    evt => {
+      pubsub.publish('DeviceTemperatureAlarmActivatedEvent', {
+        DeviceTemperatureAlarmActivatedEvent: evt.data
+      });
+    },
+    error =>
+      console.error(
+        'Error listening DeviceTemperatureAlarmActivatedEvent',
+        error
+      ),
+    () => console.log('DeviceTemperatureAlarmActivatedEvent listener STOPPED')
+  );
+
+broker
+  .getMaterializedViewsUpdates$(['DeviceTemperatureAlarmDeactivatedEvent'])
+  .subscribe(
+    evt => {
+      pubsub.publish('DeviceTemperatureAlarmDeactivatedEvent', {
+        DeviceTemperatureAlarmDeactivatedEvent: evt.data
+      });
+    },
+    error =>
+      console.error(
+        'Error listening DeviceTemperatureAlarmDeactivatedEvent',
+        error
+      ),
+    () => console.log('DeviceTemperatureAlarmDeactivatedEvent listener STOPPED')
+  );
 
 broker
   .getMaterializedViewsUpdates$(['DeviceVolumesStateReportedEvent'])
@@ -274,8 +328,7 @@ broker
 broker
   .getMaterializedViewsUpdates$(['DeviceSystemStateReportedEvent'])
   .subscribe(
-  evt => {
-    console.log('Pasa por aqui');
+    evt => {
       pubsub.publish('DeviceSystemStateReportedEvent', {
         DeviceSystemStateReportedEvent: evt.data
       });
@@ -346,41 +399,32 @@ broker
     () => console.log('DeviceMainAppStateReportedEvent listener STOPPED')
   );
 
-broker
-  .getMaterializedViewsUpdates$(['DeviceConnectedEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceConnectedEvent', {
-        DeviceConnectedEvent: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening DeviceConnectedEvent', error),
-    () => console.log('DeviceConnectedEvent listener STOPPED')
+broker.getMaterializedViewsUpdates$(['DeviceConnectedEvent']).subscribe(
+  evt => {
+    pubsub.publish('DeviceConnectedEvent', {
+      DeviceConnectedEvent: evt.data
+    });
+  },
+  error => console.error('Error listening DeviceConnectedEvent', error),
+  () => console.log('DeviceConnectedEvent listener STOPPED')
 );
-  
-broker
-  .getMaterializedViewsUpdates$(['DeviceDisconnected'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceDisconnected', {
-        DeviceDisconnected: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening DeviceDisconnected', error),
-    () => console.log('DeviceDisconnected listener STOPPED')
+
+broker.getMaterializedViewsUpdates$(['DeviceDisconnected']).subscribe(
+  evt => {
+    pubsub.publish('DeviceDisconnected', {
+      DeviceDisconnected: evt.data
+    });
+  },
+  error => console.error('Error listening DeviceDisconnected', error),
+  () => console.log('DeviceDisconnected listener STOPPED')
 );
-  
-broker
-  .getMaterializedViewsUpdates$(['NotifyNewDeviceEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('NotifyNewDeviceEvent', {
-        NotifyNewDeviceEvent: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening NotifyNewDeviceEvent', error),
-    () => console.log('NotifyNewDeviceEvent listener STOPPED')
+
+broker.getMaterializedViewsUpdates$(['NotifyNewDeviceEvent']).subscribe(
+  evt => {
+    pubsub.publish('NotifyNewDeviceEvent', {
+      NotifyNewDeviceEvent: evt.data
+    });
+  },
+  error => console.error('Error listening NotifyNewDeviceEvent', error),
+  () => console.log('NotifyNewDeviceEvent listener STOPPED')
 );

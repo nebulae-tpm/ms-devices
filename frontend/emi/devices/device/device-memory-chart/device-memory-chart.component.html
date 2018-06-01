@@ -20,7 +20,7 @@
         </div>
       </div>
 
-      <div *ngIf="true" class="mat-white-bg mat-elevation-z2" style="margin-top: 10px">
+      <div *ngIf="alarmDataSource && alarmDataSource.data && alarmDataSource.data.length>0" class="mat-white-bg mat-elevation-z2" style="margin-top: 10px">
         <div class="px-24">
           <div class="h3 secondary-text" style="margin-top: 10px">{{'DEVICE.ALARM_TITLE' | translate}}</div>
         </div>
@@ -44,9 +44,9 @@
 
                 <!-- Hour Column -->
                 <ng-container cdkColumnDef="alarmHour">
-                  <mat-header-cell *cdkHeaderCellDef>Hora</mat-header-cell>
+                  <mat-header-cell *cdkHeaderCellDef>{{'DEVICE.HOUR' | translate}}</mat-header-cell>
                   <mat-cell *cdkCellDef="let alarm">
-                    <p class="text-truncate">{{alarm.timestamp | date:'HH:mm'}}</p>
+                    <p class="text-truncate">{{alarmHour(alarm.timestamp)}}</p>
                   </mat-cell>
                 </ng-container>
 

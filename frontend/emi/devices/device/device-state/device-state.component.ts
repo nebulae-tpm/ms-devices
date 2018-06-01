@@ -10,6 +10,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DeviceMemoryChartComponent } from '../device-memory-chart/device-memory-chart.component';
 import { DeviceVoltageChartComponent } from '../device-voltage-chart/device-voltage-chart.component';
 import { Overlay } from '@angular/cdk/overlay';
+import { DeviceAlarmTempDialog } from '../device-alarm-temp-dialog/device-alarm-temp-dialog.component';
 
 @Component({
   selector: 'app-device-state',
@@ -80,6 +81,78 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 k =>
                   !rawData.deviceStatus[k] &&
                   rawData.deviceStatus[k] !== undefined &&
+                  delete rawData.deviceStatus[k]
+              );
+              const deviceStatus = {
+                ...this.device.deviceStatus,
+                ...JSON.parse(JSON.stringify(rawData.deviceStatus))
+              };
+              this.device.deviceStatus = deviceStatus;
+            }
+          }
+        })
+    );
+
+    this.subscribers.push(
+      this.deviceService
+        .subscribeToDeviceTemperatureAlarmActivatedEvent$([this.device.id])
+        .subscribe(result => {
+          if (result.data) {
+            const rawData = JSON.parse(
+              JSON.stringify(result.data.DeviceTemperatureAlarmActivatedEvent)
+            );
+            if (rawData.deviceStatus) {
+              Object.keys(rawData.deviceStatus).forEach(
+                k =>
+                  rawData.deviceStatus[k] === undefined &&
+                  delete rawData.deviceStatus[k]
+              );
+              const deviceStatus = {
+                ...this.device.deviceStatus,
+                ...JSON.parse(JSON.stringify(rawData.deviceStatus))
+              };
+              this.device.deviceStatus = deviceStatus;
+            }
+          }
+        })
+    );
+
+    this.subscribers.push(
+      this.deviceService
+        .subscribeToDeviceTemperatureAlarmActivatedEvent$([this.device.id])
+        .subscribe(result => {
+          if (result.data) {
+            const rawData = JSON.parse(
+              JSON.stringify(result.data.DeviceTemperatureAlarmActivatedEvent)
+            );
+            if (rawData.deviceStatus) {
+              Object.keys(rawData.deviceStatus).forEach(
+                k =>
+                  rawData.deviceStatus[k] === undefined &&
+                  delete rawData.deviceStatus[k]
+              );
+              const deviceStatus = {
+                ...this.device.deviceStatus,
+                ...JSON.parse(JSON.stringify(rawData.deviceStatus))
+              };
+              this.device.deviceStatus = deviceStatus;
+            }
+          }
+        })
+    );
+
+    this.subscribers.push(
+      this.deviceService
+        .subscribeToDeviceTemperatureAlarmDeactivatedEvent$([this.device.id])
+        .subscribe(result => {
+          if (result.data) {
+            const rawData = JSON.parse(
+              JSON.stringify(result.data.DeviceTemperatureAlarmDeactivatedEvent)
+            );
+            if (rawData.deviceStatus) {
+              Object.keys(rawData.deviceStatus).forEach(
+                k =>
+                  rawData.deviceStatus[k] === undefined &&
                   delete rawData.deviceStatus[k]
               );
               const deviceStatus = {
@@ -256,6 +329,13 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
     });
   }
 
+  openTempAlarmsDialog(): void {
+    let dialogRef = this.dialog.open(DeviceAlarmTempDialog, {
+      width: '500px',
+      data: { device: this.device, alarmThreshold: this.deviceAlarmThresholds }
+    });
+  }
+
   openDeviceMemoryDialog(type): void {
     let dialogRef = this.dialog.open(DeviceMemoryChartComponent, {
       width: '80%',
@@ -304,11 +384,12 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
               100
           )
         : 0;
-    } else {
-      const deviceDataMemory = this.getDeviceMemory(device, type);
-      return deviceDataMemory
+    } else if (type == 'SD') {
+      return device.deviceStatus.sdStatus
         ? Math.floor(
-            deviceDataMemory.currentValue / deviceDataMemory.totalValue * 100
+            device.deviceStatus.sdStatus.currentValue /
+              device.deviceStatus.sdStatus.totalValue *
+              100
           )
         : 0;
     }
@@ -317,12 +398,9 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   getDeviceMemory(device, type) {
     if (type == 'MEM') {
       return device.deviceStatus.ram;
-    } else if (device && device.deviceStatus && device.deviceStatus.deviceDataList) {
-      return (
-        device.deviceStatus.deviceDataList.filter(
-          data => data.memorytype == type
-        )[0] || { totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' }
-      );
+    }
+    else if (type == 'SD') {
+      return device.deviceStatus.sdStatus
     }
     else {
       return ({ totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' });

@@ -163,12 +163,10 @@ class EventStoreService {
 
 }
 
-
-
 module.exports = () => {
-    if (!instance) {
-        instance = new EventStoreService();
-        console.log('EventStoreService Singleton created');
-    }
-    return instance;
+  if (!instance) {
+    instance = new EventStoreService();
+    console.log('EventStoreService Singleton created');
+  }
+  return instance;
 };

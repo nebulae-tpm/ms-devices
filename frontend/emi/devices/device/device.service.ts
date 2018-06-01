@@ -15,7 +15,7 @@ import {
   getDeviceState,
   getDeviceNetwork,
   getRamAvgInRangeOfTime,
-  getVolumeAvgInRangeOfTime,
+  getSdAvgInRangeOfTime,
   getCpuAvgInRangeOfTime,
   getVoltageInRangeOfTime,
   getDeviceAlarmThresholds,
@@ -62,9 +62,14 @@ export class DeviceService {
       })
       .pipe(map(rawData => rawData.data.getDeviceDetail));
   }
-  getDeviceAlarms$(deviceId, alarmType, initTime, endTime, page, count): Observable<any> {
-    console.log(`deviceId: ${deviceId} alarmType: ${alarmType} initTime: ${initTime} endTime: ${endTime}
-    page: ${page} count ${count}`)
+  getDeviceAlarms$(
+    deviceId,
+    alarmType,
+    initTime,
+    endTime,
+    page,
+    count
+  ): Observable<any> {    
     return this.gateway.apollo
       .query<any>({
         query: getDeviceAlarms,
@@ -87,12 +92,21 @@ export class DeviceService {
       })
       .pipe(map(rawData => rawData.data.getDeviceAlarmThresholds));
   }
-  getAlarmTableSize(): Observable<number> {
+  getAlarmTableSize(deviceId, alarmType, selectedDelta): Observable<number> {
+    const endTime = new Date().getTime();
+    const intervalValue = selectedDelta * 60000;
+    const initTime = endTime - intervalValue * 12;
     return this.gateway.apollo
-    .query<any>({
-      query: getAlarmTableSize
-    })
-    .pipe(map(rawData => rawData.data.getAlarmTableSize));
+      .query<any>({
+        query: getAlarmTableSize,
+        variables: {
+          deviceId,
+          alarmType,
+          initTime,
+          endTime
+        }
+      })
+      .pipe(map(rawData => rawData.data.getAlarmTableSize));
   }
 
   getRamAvgInRangeOfTime(initTime, endTime, deviceId): Observable<any> {
@@ -112,7 +126,7 @@ export class DeviceService {
       );
   }
 
-  getVolumeAvgInRangeOfTime(
+  getSdAvgInRangeOfTime(
     initTime,
     endTime,
     type,
@@ -121,16 +135,15 @@ export class DeviceService {
   ): Observable<any> {
     return this.gateway.apollo
       .query<any>({
-        query: getVolumeAvgInRangeOfTime,
+        query: getSdAvgInRangeOfTime,
         variables: {
           initTime: initTime,
           endTime: endTime,
-          type: type,
           deltaTime: deltaTime,
           deviceId: deviceId
         }
       })
-      .pipe(map(rawData => rawData.data.getVolumeAvgInRangeOfTime));
+      .pipe(map(rawData => rawData.data.getSdAvgInRangeOfTime));
   }
 
   getCpuAvgInRangeOfTime(
@@ -274,12 +287,12 @@ export class DeviceService {
     if (!memoryList || memoryList.length < 1) {
       return undefined;
     } else {
-      const data= [
+      const data = [
         {
           name: type,
           series: memoryList
         }
-      ]
+      ];
       if (threshold) {
         data.push({
           name: 'Umbral',
@@ -287,7 +300,7 @@ export class DeviceService {
             { name: memoryList[0].name, value: threshold },
             { name: memoryList[memoryList.length - 1].name, value: threshold }
           ]
-        })
+        });
       }
       return {
         type: type,
@@ -381,6 +394,7 @@ export class DeviceService {
 
   //#endregion
 
+  //#region GRAPHQL SUBSCRIPTIONS
   subscribeToDeviceVolumesStateReportedEvent$(deviceId): Observable<any> {
     return this.gateway.apollo.subscribe({
       query: gql`
@@ -530,6 +544,38 @@ export class DeviceService {
     });
   }
 
+  subscribeToDeviceTemperatureAlarmActivatedEvent$(deviceId): Observable<any> {
+    return this.gateway.apollo.subscribe({
+      query: gql`
+        subscription {
+          DeviceTemperatureAlarmActivatedEvent(id: "${deviceId}") {
+            id
+            deviceStatus {
+              alarmTempActive
+            }
+          }
+        }
+      `
+    });
+  }
+
+  subscribeToDeviceTemperatureAlarmDeactivatedEvent$(
+    deviceId
+  ): Observable<any> {
+    return this.gateway.apollo.subscribe({
+      query: gql`
+        subscription {
+          DeviceTemperatureAlarmDeactivatedEvent(id: "${deviceId}") {
+            id
+            deviceStatus {
+              alarmTempActive
+            }
+          }
+        }
+      `
+    });
+  }
+
   subscribeToDeviceMainAppStateReportedEvent$(deviceId): Observable<any> {
     return this.gateway.apollo.subscribe({
       query: gql`
@@ -552,4 +598,5 @@ export class DeviceService {
       `
     });
   }
+  //#endregion
 }
