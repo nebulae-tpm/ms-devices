@@ -13,7 +13,7 @@ class DeviceEventConsumer {
     handleDeviceEventReported$(event) {  
         return DeviceGeneralInformationFormatter.formatDeviceStateReport$(event)
             .mergeMap(rawData => { 
-                return DeviceDA.persistDevice$(rawData,event.et);
+                    return rawData ? DeviceDA.persistDevice$(rawData,event.et): Rx.Observable.of(undefined);             
             });
     }
 
