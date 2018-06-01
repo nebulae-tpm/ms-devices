@@ -64,7 +64,7 @@ class DeviceGeneralInformationFormatter {
 
   static extractDeviceStatusReported$(eventData, eventType) {
     const deviceStatus = {};
-    if (eventType == 'DeviceVolumesStateReported') {
+    if (eventType == 'DeviceVolumesStateReported' && Array.isArray(eventData)) {                  
       return Rx.Observable.from(eventData)
         .map(data => {
           const deviceVolumeState = {
