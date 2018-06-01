@@ -1,6 +1,7 @@
 const Rx = require('rxjs');
 const deviceEventConsumer = require('../../domain/DeviceEventConsumer')();
 const eventSourcing = require('../../tools/EventSourcing')();
+const mbeKey = 'ms-devices_mbe_devices';
 
 /**
  * Singleton instance
@@ -58,12 +59,12 @@ class EventStoreService {
         const subscription =
             //MANDATORY:  AVOIDS ACK REGISTRY DUPLICATIONS
             eventSourcing.eventStore.ensureAcknowledgeRegistry$(aggregateType)
-                .mergeMap(() => eventSourcing.eventStore.getEventListener$(aggregateType))
+                .mergeMap(() => eventSourcing.eventStore.getEventListener$(aggregateType, mbeKey))
                 .filter(evt => evt.et === eventType)
                 .mergeMap(evt => Rx.Observable.concat(
                     handler.fn.call(handler.obj, evt),
                     //MANDATORY:  ACKWOWLEDGE THIS EVENT WAS PROCESSED
-                    eventSourcing.eventStore.acknowledgeEvent$(evt, 'ms-devices_mbe_devices'),
+                    eventSourcing.eventStore.acknowledgeEvent$(evt, mbeKey),
                 ))
                 .subscribe(
                     (evt) => console.log(`EventStoreService: ${eventType} process: ${evt}`),
@@ -95,12 +96,12 @@ class EventStoreService {
         const handler = this.functionMap[eventType];
         //MANDATORY:  AVOIDS ACK REGISTRY DUPLICATIONS
         return eventSourcing.eventStore.ensureAcknowledgeRegistry$(aggregateType)
-            .switchMap(() => eventSourcing.eventStore.retrieveUnacknowledgedEvents$(aggregateType, 'ms-devices_mbe_devices'))
+            .switchMap(() => eventSourcing.eventStore.retrieveUnacknowledgedEvents$(aggregateType, mbeKey))
             .filter(evt => evt.et === eventType)
             .concatMap(evt => Rx.Observable.concat(
                 handler.fn.call(handler.obj, evt),
                 //MANDATORY:  ACKWOWLEDGE THIS EVENT WAS PROCESSED
-                eventSourcing.eventStore.acknowledgeEvent$(evt, 'ms-devices_mbe_devices')
+                eventSourcing.eventStore.acknowledgeEvent$(evt, mbeKey)
             ));
     }
 
@@ -138,7 +139,7 @@ class EventStoreService {
      */
     generateAggregateEventsArray() {
         return [
-        //STATE REPORTS
+            //STATE REPORTS
             { aggregateType: 'Device', eventType: 'DeviceNetworkStateReported' },
             { aggregateType: 'Device', eventType: 'DeviceModemStateReported' },
             { aggregateType: 'Device', eventType: 'DeviceVolumesStateReported' },
