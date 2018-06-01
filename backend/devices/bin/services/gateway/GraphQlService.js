@@ -24,8 +24,8 @@ class GraphQlService {
         .getAlarmTableSize,
       'gateway.graphql.query.getRamAvgInRangeOfTime': this.devices
         .getRamAvgInRangeOfTime,
-      'gateway.graphql.query.getVolumeAvgInRangeOfTime': this.devices
-        .getVolumeAvgInRangeOfTime,
+      'gateway.graphql.query.getSdAvgInRangeOfTime': this.devices
+        .getSdAvgInRangeOfTime,
       'gateway.graphql.query.getCpuAvgInRangeOfTime': this.devices
         .getCpuAvgInRangeOfTime,
       'gateway.graphql.query.getVoltageInRangeOfTime': this.devices

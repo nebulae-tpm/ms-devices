@@ -15,7 +15,7 @@ import {
   getDeviceState,
   getDeviceNetwork,
   getRamAvgInRangeOfTime,
-  getVolumeAvgInRangeOfTime,
+  getSdAvgInRangeOfTime,
   getCpuAvgInRangeOfTime,
   getVoltageInRangeOfTime,
   getDeviceAlarmThresholds,
@@ -69,9 +69,7 @@ export class DeviceService {
     endTime,
     page,
     count
-  ): Observable<any> {
-    console.log(`deviceId: ${deviceId} alarmType: ${alarmType} initTime: ${initTime} endTime: ${endTime}
-    page: ${page} count ${count}`);
+  ): Observable<any> {    
     return this.gateway.apollo
       .query<any>({
         query: getDeviceAlarms,
@@ -128,7 +126,7 @@ export class DeviceService {
       );
   }
 
-  getVolumeAvgInRangeOfTime(
+  getSdAvgInRangeOfTime(
     initTime,
     endTime,
     type,
@@ -137,16 +135,15 @@ export class DeviceService {
   ): Observable<any> {
     return this.gateway.apollo
       .query<any>({
-        query: getVolumeAvgInRangeOfTime,
+        query: getSdAvgInRangeOfTime,
         variables: {
           initTime: initTime,
           endTime: endTime,
-          type: type,
           deltaTime: deltaTime,
           deviceId: deviceId
         }
       })
-      .pipe(map(rawData => rawData.data.getVolumeAvgInRangeOfTime));
+      .pipe(map(rawData => rawData.data.getSdAvgInRangeOfTime));
   }
 
   getCpuAvgInRangeOfTime(

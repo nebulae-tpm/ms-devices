@@ -22,7 +22,7 @@ const start = () => {
             process.exit(1);
         },
         () => {
-            console.log('devices-report-handler prepared');
+            console.log('devices-handler prepared');
             process.exit(0);
         }
     );

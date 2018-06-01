@@ -29,7 +29,7 @@ const start = () => {
             process.exit(1);
         },
         () => {
-            console.log('devices-report-handler state synced');
+            console.log('devices-handler state synced');
             process.exit(0);
         }
     );

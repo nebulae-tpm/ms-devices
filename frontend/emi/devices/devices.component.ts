@@ -100,11 +100,8 @@ export class DevicesComponent implements OnInit {
     if (type == 'MEM') {
       return device.deviceStatus.ram ? Math.floor(device.deviceStatus.ram.currentValue / device.deviceStatus.ram.totalValue * 100) : 0;
     }
-    else if (device && device.deviceStatus && device.deviceStatus.deviceDataList) {
-      const deviceDataMemory = device.deviceStatus.deviceDataList.filter(
-        data => data.memorytype == type
-      )[0];
-      return deviceDataMemory ? Math.floor(deviceDataMemory.currentValue / deviceDataMemory.totalValue * 100) : 0;
+    else if (type == 'SD') {
+      return device.deviceStatus.sdStatus ? Math.floor(device.deviceStatus.sdStatus.currentValue / device.deviceStatus.sdStatus.totalValue * 100) : 0;
     }
     else {
       return 0;

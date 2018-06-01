@@ -384,11 +384,12 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
               100
           )
         : 0;
-    } else {
-      const deviceDataMemory = this.getDeviceMemory(device, type);
-      return deviceDataMemory
+    } else if (type == 'SD') {
+      return device.deviceStatus.sdStatus
         ? Math.floor(
-            deviceDataMemory.currentValue / deviceDataMemory.totalValue * 100
+            device.deviceStatus.sdStatus.currentValue /
+              device.deviceStatus.sdStatus.totalValue *
+              100
           )
         : 0;
     }
@@ -397,12 +398,9 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   getDeviceMemory(device, type) {
     if (type == 'MEM') {
       return device.deviceStatus.ram;
-    } else if (device && device.deviceStatus && device.deviceStatus.deviceDataList) {
-      return (
-        device.deviceStatus.deviceDataList.filter(
-          data => data.memorytype == type
-        )[0] || { totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' }
-      );
+    }
+    else if (type == 'SD') {
+      return device.deviceStatus.sdStatus
     }
     else {
       return ({ totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' });

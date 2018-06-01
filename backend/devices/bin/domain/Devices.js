@@ -39,11 +39,10 @@ class Devices {
     );
   }
 
-  getVolumeAvgInRangeOfTime({ root, args, jwt }, authToken) {
-    return DeviceDA.getVolumeAvgInRangeOfTime$(
+  getSdAvgInRangeOfTime({ root, args, jwt }, authToken) {
+    return DeviceDA.getSdAvgInRangeOfTime$(
       args.initTime,
       args.endTime,
-      args.volumeType,
       args.deviceId
     );
   }

@@ -36,11 +36,11 @@ module.exports = {
         )
         .toPromise();
     },
-    getVolumeAvgInRangeOfTime(root, args, context) {
+    getSdAvgInRangeOfTime(root, args, context) {
       return context.broker
         .forwardAndGetReply$(
           'Device',
-          'gateway.graphql.query.getVolumeAvgInRangeOfTime',
+          'gateway.graphql.query.getSdAvgInRangeOfTime',
           { root, args, jwt: context.encodedToken },
           500
         )
@@ -428,4 +428,3 @@ broker.getMaterializedViewsUpdates$(['NotifyNewDeviceEvent']).subscribe(
   error => console.error('Error listening NotifyNewDeviceEvent', error),
   () => console.log('NotifyNewDeviceEvent listener STOPPED')
 );
-

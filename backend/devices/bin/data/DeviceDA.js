@@ -63,6 +63,9 @@ class DeviceDA {
         case 'ram':
           column = 'deviceStatus.ram.currentValue';
           break;
+        case 'sd':
+          column = 'deviceStatus.sd.currentValue';
+          break;
         case 'online':
           column = 'deviceStatus.online';
           break;
@@ -126,46 +129,27 @@ class DeviceDA {
   }
 
   /**
-   * Returns a list that contains the metrics in time of volume memory
+   * Returns a list that contains the metrics in time of SD
    * @param {Number} initTime
    * @param {Number} endTime
-   * @param {string} type
    * @param {Number} deltaTime
    * @param {string} deviceId
    */
-  static getVolumeAvgInRangeOfTime$(initTime, endTime, type, deviceId) {
+  static getSdAvgInRangeOfTime$(initTime, endTime, deviceId) {
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.defer(() =>
       collection
-        .aggregate([
-          {
-            $match: {
-              timestamp: { $gte: initTime, $lt: endTime },
-              id: deviceId,
-              'deviceStatus.deviceDataList': { $exists: true }
-            }
-          },
-          {
-            $project: {
-              timestamp: 1,
-              currValue: {
-                $filter: {
-                  input: '$deviceStatus.deviceDataList',
-                  as: 'value',
-                  cond: { $eq: ['$$value.memorytype', type] }
-                }
-              }
-            }
-          },
-          {
-            $project: {
-              timestamp: 1,
-              value: {
-                $arrayElemAt: ['$currValue.currentValue', 0]
-              }
-            }
-          }
-        ])
+        .find({
+          timestamp: { $gte: initTime, $lt: endTime },
+          id: deviceId,
+          'deviceStatus.sdStatus': { $exists: true }
+        })
+        .project({
+          _id: 0,
+          id: 1,
+          timestamp: 1,
+          'deviceStatus.sdStatus': 1
+        })
         .toArray()
     ).map(item => {
       return item;
@@ -375,10 +359,6 @@ class DeviceDA {
       eventType == 'DeviceTemperatureAlarmActivated' ||
       eventType == 'DeviceTemperatureAlarmDeactivated'
     ) {
-      console.log(
-        `Se reporta alarma: ${eventType} estado: ${eventType ==
-          'DeviceTemperatureAlarmActivated'}`
-      );
       const collection = mongoDB.db.collection('Devices');
       return Rx.Observable.of(deviceAlarm)
         .map(alarm => { 
@@ -487,7 +467,6 @@ class DeviceDA {
         message.id = device.id;
         message.deviceStatus.alarmTempActive =
           eventType == 'DeviceTemperatureAlarmActivated';
-        console.log('Se construye mensaje: ', message);
         break;
       // DEVICE NETWORK EVENTS
       case 'DeviceNetworkStateReported':

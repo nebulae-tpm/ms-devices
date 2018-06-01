@@ -24,8 +24,8 @@ type DeviceStatus {
   connectorSn: String
   "Device name"
   hostname: String
-  "information of device memory"
-  deviceDataList: [DeviceData]
+  "Current SD status"
+  sdStatus: DeviceData
   "Alarm Temperature state"
   alarmTempActive: Boolean
   "Information of device voltage"
@@ -163,10 +163,6 @@ type VoltageAvgInRangeOfTime {
   interval: BigInt
 }
 
-type VolumeInRageOfTime {
-  value: Float
-  timestamp: BigInt
-}
 type CpuInRageOfTime {
   value: Float
   timestamp: BigInt
@@ -202,12 +198,11 @@ type Query {
     deviceId: String
   ): [Device]
 
-  getVolumeAvgInRangeOfTime(
+  getSdAvgInRangeOfTime(
     initTime: BigInt
     endTime: BigInt
-    volumeType: String
     deviceId: String
-  ): [VolumeInRageOfTime]
+  ): [Device]
 
   getCpuAvgInRangeOfTime(
     initTime: BigInt

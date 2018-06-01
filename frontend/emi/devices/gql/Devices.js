@@ -16,7 +16,7 @@ export const getDevices = gql`
           totalValue
           memoryUnitInformation
         }
-        deviceDataList {
+        sdStatus {
           totalValue
           currentValue
           memorytype

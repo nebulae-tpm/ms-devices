@@ -65,21 +65,20 @@ class DeviceGeneralInformationFormatter {
   static extractDeviceStatusReported$(eventData, eventType) {
     const deviceStatus = {};
     if (eventType == 'DeviceVolumesStateReported') {
-      console.log('*********************************************');
-      console.log(`Llega DeviceVolumesStateReported: ${JSON.stringify(eventData)}`);
-      console.log('---------------------------------------------');
-      return Rx.Observable.of(eventData)
+      return Rx.Observable.from(eventData)
         .map(data => {
-          return {
+          const deviceVolumeState = {
             totalValue: data.total,
             currentValue: data.current,
-            memoryUnitInformation: data.unit,
-            memorytype: data.type
-          };
-        })
-        .toArray()
-        .map(dataList => {
-          deviceStatus['deviceStatus.deviceDataList'] = dataList;
+            memoryUnitInformation: data.unit
+          }
+          if (data.type == "SD") { 
+            deviceStatus['deviceStatus.sdStatus'] = deviceVolumeState;
+          }
+          else if (data.type == "FLASH") {
+            deviceStatus['deviceStatus.flashStatus'] = deviceVolumeState;
+           }
+                    
           return deviceStatus;
         });
     } else if (eventType == 'DeviceDisplayStateReported') {
@@ -90,6 +89,9 @@ class DeviceGeneralInformationFormatter {
     } else if (eventType == 'DeviceSystemStateReported') {
       return Rx.Observable.of(eventData).map(data => {
         deviceStatus['deviceStatus.temperature'] = data.temperature;
+        if (data.cpuStatus && data.cpuStatus.length > 0) { 
+          deviceStatus['deviceStatus.currentCpuStatus'] = data.cpuStatus[0];
+        }
         deviceStatus['deviceStatus.cpuStatus'] = data.cpuStatus;
         deviceStatus['deviceStatus.upTime'] = data.upTime;
         if (data.voltage) {
