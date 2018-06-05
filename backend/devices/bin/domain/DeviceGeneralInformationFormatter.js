@@ -48,10 +48,10 @@ class DeviceGeneralInformationFormatter {
         if (deviceNetwork) {
           result = Object.assign({}, device, deviceNetwork);
         }
-        if (deviceState) {
+        else if (deviceState) {
           result = Object.assign({}, device, deviceState);
         }
-        if (appStatus) {
+        else if (appStatus) {
           result = Object.assign({}, device, appStatus);
         }
         return JSON.parse(JSON.stringify(result));
@@ -64,14 +64,18 @@ class DeviceGeneralInformationFormatter {
 
   static extractDeviceStatusReported$(eventData, eventType) {
     const deviceStatus = {};
+    deviceStatus.timestamp = eventData.timestamp;
     if (eventType == 'DeviceVolumesStateReported' && Array.isArray(eventData)) {                  
+      console.log(`PURE SD JSON: ${eventData}`);
       return Rx.Observable.from(eventData)
         .map(data => {
+          console.log(`MAP SD JSON: ${data}`);
           const deviceVolumeState = {
             totalValue: data.total,
             currentValue: data.current,
             memoryUnitInformation: data.unit
           }
+          deviceStatus.timestamp = data.timestamp;
           if (data.type == "SD") { 
             deviceStatus['deviceStatus.sdStatus'] = deviceVolumeState;
           }
