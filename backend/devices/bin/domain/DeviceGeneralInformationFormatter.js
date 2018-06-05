@@ -66,7 +66,7 @@ class DeviceGeneralInformationFormatter {
     const deviceStatus = {};
     deviceStatus.timestamp = eventData.timestamp;
     if (eventType == 'DeviceVolumesStateReported' && Array.isArray(eventData)) {                  
-      console.log(`PURE SD JSON: ${JSON.stringify(data)}`);
+      console.log(`PURE SD JSON: ${JSON.stringify(eventData)}`);
       return Rx.Observable.from(eventData)
         .map(data => {
           console.log(`MAP SD JSON: ${JSON.stringify(data)}`);
