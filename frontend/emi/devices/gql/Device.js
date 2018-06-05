@@ -4,6 +4,7 @@ export const getDeviceState = gql`
   query getDeviceState($id: ID!) {
     getDeviceDetail(id: $id) {
       id
+      timestamp
       deviceStatus {
         devSn
         displaySn

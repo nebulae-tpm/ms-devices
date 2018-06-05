@@ -64,7 +64,13 @@ class DeviceDA {
           column = 'deviceStatus.ram.currentValue';
           break;
         case 'sd':
-          column = 'deviceStatus.sd.currentValue';
+          column = 'deviceStatus.sdStatus.currentValue';
+          break;
+        case 'cpu':
+          column = 'deviceStatus.currentCpuStatus';
+          break;
+        case 'temperature':
+          column = 'deviceStatus.temperature';
           break;
         case 'online':
           column = 'deviceStatus.online';
@@ -270,6 +276,7 @@ class DeviceDA {
   //#endregion
 
   //#region DEVICE_MUTATIONS
+
   /**
    * Create or update the device info on the materialized view
    * @param {*} device
@@ -361,10 +368,10 @@ class DeviceDA {
     ) {
       const collection = mongoDB.db.collection('Devices');
       return Rx.Observable.of(deviceAlarm)
-        .map(alarm => { 
+        .map(alarm => {
           deviceAlarm.id = deviceId;
           return deviceAlarm;
-        })  
+        })
         .mergeMap(alarm => {
           return collection.updateOne(
             { _id: deviceId },
@@ -392,7 +399,9 @@ class DeviceDA {
    * @param {*} device
    */
   static persistDeviceHistory$(device) {
-    device.timestamp = device.timestamp? device.timestamp : new Date().getTime();
+    device.timestamp = device.timestamp
+      ? device.timestamp
+      : new Date().getTime();
     delete device._id;
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.of(device).mergeMap(result => {
@@ -450,14 +459,14 @@ class DeviceDA {
       case 'DeviceConnected':
         if (device.deviceStatus) {
           message = { deviceStatus: {} };
-          message.id = device.id;          
+          message.id = device.id;
           message.deviceStatus.online = device.deviceStatus.online;
         }
         break;
       case 'DeviceDisconnected':
         if (device.deviceStatus) {
           message = { deviceStatus: {} };
-          message.id = device.id;          
+          message.id = device.id;
           message.deviceStatus.online = device.deviceStatus.online;
         }
         break;

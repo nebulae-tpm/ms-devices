@@ -51,19 +51,14 @@ class MongoDB {
     return Rx.Observable.create(async (observer) => {
 
       observer.next('Creating index for Device.Devices => ({ deviceNetwork.hostname: 1 })  ');
-      await this.db.collection('Devices').createIndex({ "deviceNetwork.hostname": 1 });
+      await this.db.collection('Devices').createIndex({ "deviceStatus.hostname": 1 });
 
-      // observer.next('Creating index for DashboardDevices.deviceTransactions => ({ timestamp: -1, groupName: 1 })');
-      // await this.db.collection('deviceTransactions').createIndex({ timestamp: -1, groupName: 1 });
+      observer.next('Creating index for Device.Devices => ({ deviceStatus.type: 1 })  ');
+      await this.db.collection('Devices').createIndex({ "deviceStatus.type": 1 });
 
-      // observer.next('Creating index for DashboardDevices.deviceTransactions =>  ({ timestamp: -1, success: 1 })');
-      // await this.db.collection('deviceTransactions').createIndex({ timestamp: -1, success: 1 });
+      observer.next('Creating index for Device.Devices => ({ deviceStatus.groupName: 1 })  ');
+      await this.db.collection('Devices').createIndex({ "deviceStatus.groupName": 1 });
 
-      // observer.next('Creating index for DashboardDevices.deviceState =>  ({ groupName: 1 })');
-      // await this.db.collection('deviceState').createIndex({ groupName: 1 });
-
-      // observer.next('Creating index for DashboardDevices.deviceState => ({ deviceId: 1 }, { unique : true })');
-      // await this.db.collection('deviceState').createIndex({ deviceId: 1 }, { unique: true });
 
       observer.next('All indexes created');
       observer.complete();

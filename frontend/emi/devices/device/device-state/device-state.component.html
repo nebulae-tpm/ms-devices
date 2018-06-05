@@ -119,6 +119,15 @@
           <div class="info-line">
             <table class="info">
               <tr class="content-form">
+                <td class="read-form-title">{{'DEVICE.TIME_STAMP' | translate}}</td>
+                <td class="read-form-data">{{device.timestamp | date: 'yyyy-MM-dd HH:mm'}}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="info-line">
+            <table class="info">
+              <tr class="content-form">
                 <td class="read-form-title">{{'DEVICE.UPTIME' | translate}}</td>
                 <td class="read-form-data" style="font-style: italic; color: black">{{device.deviceStatus.upTime }}</td>
               </tr>
@@ -201,7 +210,7 @@
           <div class="info-line">
             <table class="info">
               <tr class="content-form">
-                <td class="read-form-title">{{'DEVICE.TIME_STAMP' | translate}}</td>
+                <td class="read-form-title">{{'DEVICE.VERSION_DATE' | translate}}</td>
                 <td class="read-form-data">{{device.appStatus.timestamp | date: 'yyyy-MM-dd HH:mm'}}</td>
               </tr>
             </table>

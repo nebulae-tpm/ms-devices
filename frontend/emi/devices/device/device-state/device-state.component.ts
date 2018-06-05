@@ -355,7 +355,10 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
    * @param type Type of origin data in device (MEM,SD,FLASH)
    */
   buildDevicePieWidget(device, type) {
-    const deviceDataMemory = this.getDeviceMemory(device, type);
+    let deviceDataMemory = this.getDeviceMemory(device, type);
+    if (!deviceDataMemory) {
+      deviceDataMemory = ({ totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' });
+    }
     const memmoryPercentage = this.getPercentage(device, type);
     const pieColor =
       memmoryPercentage >= 80

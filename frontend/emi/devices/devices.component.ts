@@ -31,7 +31,7 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class DevicesComponent implements OnInit {
   dataSource = new MatTableDataSource();
-  displayedColumns = ['name', 'serial', 'type', 'groupName', 'ram', 'sd', 'online'];
+  displayedColumns = ['name', 'serial', 'groupName', 'temperature', 'cpu', 'ram', 'sd', 'online'];
   tableSize: number;
   keyUpSubscriber: Subscription;
   paginatorSubscriber: Subscription;
@@ -92,6 +92,7 @@ export class DevicesComponent implements OnInit {
 
   refreshDataTable(page, count, filter, sortColumn, sortOrder) {
     this.devicesService.getDevices$(page, count, filter, sortColumn, sortOrder).pipe(first()).subscribe(model => {
+      console.log('LLegan disp: ', model);
       this.dataSource.data = model;
     });
   }

@@ -11,6 +11,8 @@ export const getDevices = gql`
         hostname
         type
         groupName
+        temperature
+        currentCpuStatus
         ram {
           currentValue
           totalValue
