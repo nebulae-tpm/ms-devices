@@ -66,10 +66,8 @@ class DeviceGeneralInformationFormatter {
     const deviceStatus = {};
     deviceStatus.timestamp = eventData.timestamp;
     if (eventType == 'DeviceVolumesStateReported' && Array.isArray(eventData)) {                  
-      console.log(`PURE SD JSON: ${JSON.stringify(eventData)}`);
       return Rx.Observable.from(eventData)
         .map(data => {
-          console.log(`MAP SD JSON: ${JSON.stringify(data)}`);
           const deviceVolumeState = {
             totalValue: data.total,
             currentValue: data.current,
@@ -113,6 +111,7 @@ class DeviceGeneralInformationFormatter {
         return deviceStatus;
       });
     } else if (eventType == 'DeviceDeviceStateReported') {
+      console.log('LLEGA DEVICE_DEVICE MESSAGE: ', JSON.stringify(eventData));
       return Rx.Observable.of(eventData).map(data => {
         deviceStatus['deviceStatus.devSn'] = data.sn;
         deviceStatus['deviceStatus.type'] = data.type;
