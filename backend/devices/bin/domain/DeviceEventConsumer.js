@@ -19,7 +19,7 @@ class DeviceEventConsumer {
 
     handleDeviceAlarmReported$(event) { 
         return Rx.Observable.forkJoin(
-            DeviceDA.updateDeviceTemperatureAlarm$(event.data,event.et, event.aid),
+            DeviceDA.updateDeviceAlarm$(event.data,event.et, event.aid),
             DeviceDA.persistDeviceAlarm$(event.data,event.et, event.aid)
         );
     }

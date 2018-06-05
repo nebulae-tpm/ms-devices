@@ -8,7 +8,12 @@ import {
 import { DataSource } from '@angular/cdk/collections';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { fuseAnimations } from '../../../core/animations';
-import { MatPaginator, MatSort, MatTableDataSource, Sort } from '@angular/material';
+import {
+  MatPaginator,
+  MatSort,
+  MatTableDataSource,
+  Sort
+} from '@angular/material';
 import { Observable } from 'rxjs/Observable';
 import { DevicesService } from './devices.service';
 import { FuseUtils } from '../../../core/fuseUtils';
@@ -31,7 +36,16 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class DevicesComponent implements OnInit {
   dataSource = new MatTableDataSource();
-  displayedColumns = ['name', 'serial', 'groupName', 'temperature', 'cpu', 'ram', 'sd', 'online'];
+  displayedColumns = [
+    'name',
+    'serial',
+    'groupName',
+    'temperature',
+    'cpu',
+    'ram',
+    'sd',
+    'online'
+  ];
   tableSize: number;
   keyUpSubscriber: Subscription;
   paginatorSubscriber: Subscription;
@@ -42,6 +56,8 @@ export class DevicesComponent implements OnInit {
   filterText = '';
   sortColumn = null;
   sortOrder = null;
+  alarms = ['ALARMAS', 'CPU', 'RAM', 'SD', 'TEMP'];
+  currentAlarmFilter = 'ALARMAS';
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild('filter') filter: ElementRef;
@@ -55,56 +71,125 @@ export class DevicesComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.refreshDataTable(this.page, this.count, this.filterText, this.sortColumn, this.sortOrder);
-    this.keyUpSubscriber = Observable.fromEvent(this.filter.nativeElement, 'keyup')
+    const filterObject = {
+      id: 0,
+      searchValue: this.filterText,
+      sortColumn: this.sortColumn,
+      sortOrder: this.sortOrder
+    };
+    this.refreshDataTable(this.page, this.count, filterObject);
+    this.keyUpSubscriber = Observable.fromEvent(
+      this.filter.nativeElement,
+      'keyup'
+    )
       .debounceTime(150)
       .distinctUntilChanged()
       .subscribe(() => {
         if (this.filter.nativeElement) {
           let filterValue = this.filter.nativeElement.value;
           filterValue = filterValue.trim();
-          this.filterText = filterValue;
-          this.refreshDataTable(this.page, this.count, filterValue, this.sortColumn, this.sortOrder);
+          const filterObject = {
+            id: 0,
+            searchValue: this.filterText,
+            sortColumn: this.sortColumn,
+            sortOrder: this.sortOrder,
+            alarmFilter: undefined
+          };
+          if (this.currentAlarmFilter != 'ALARMAS') {
+            filterObject.alarmFilter = this.currentAlarmFilter;
+          }
+          this.refreshDataTable(this.page, this.count, filterObject);
         }
       });
-      console.log('paginador de disp: ', this.paginator);
     this.paginatorSubscriber = this.paginator.page.subscribe(pageChanged => {
       this.page = pageChanged.pageIndex;
       this.count = pageChanged.pageSize;
-      this.refreshDataTable(pageChanged.pageIndex, pageChanged.pageSize, this.filterText, this.sortColumn, this.sortOrder);
+      const filterObject = {
+        id: 0,
+        searchValue: this.filterText,
+        sortColumn: this.sortColumn,
+        sortOrder: this.sortOrder,
+        alarmFilter: undefined
+      };
+      if (this.currentAlarmFilter != 'ALARMAS') {
+        filterObject.alarmFilter = this.currentAlarmFilter;
+      }
+      this.refreshDataTable(
+        pageChanged.pageIndex,
+        pageChanged.pageSize,
+        filterObject
+      );
     });
-    this.tableSizeSubscription = this.devicesService.getDeviceTableSize().subscribe(result => {
-      this.tableSize = result;
-    });
+    this.tableSizeSubscription = this.devicesService
+      .getDeviceTableSize()
+      .subscribe(result => {
+        this.tableSize = result;
+      });
   }
+
+  changeAlarmFilter($event) {
+    const filterObject = {
+      id: 0,
+      searchValue: this.filterText,
+      sortColumn: this.sortColumn,
+      sortOrder: this.sortOrder,
+      alarmFilter: undefined
+    };
+    if (this.currentAlarmFilter != 'ALARMAS') {
+      filterObject.alarmFilter = this.currentAlarmFilter;
+    }
+    this.refreshDataTable(this.page, this.count, filterObject);
+  }
+
   sortData(sort: Sort) {
     if (sort.direction !== '') {
       this.sortOrder = sort.direction;
       this.sortColumn = sort.active;
-    }
-    else {
+    } else {
       this.sortOrder = null;
       this.sortColumn = null;
     }
-    console.log(`column: ${this.sortColumn} order: ${this.sortOrder}`)
-    this.refreshDataTable(this.page, this.count, this.filterText, this.sortColumn, this.sortOrder);
+    const filterObject = {
+      id: 0,
+      searchValue: this.filterText,
+      sortColumn: this.sortColumn,
+      sortOrder: this.sortOrder,
+      alarmFilter: undefined
+    }
+    if (this.currentAlarmFilter != 'ALARMAS') {
+      filterObject.alarmFilter = this.currentAlarmFilter
+    }
+    this.refreshDataTable(this.page, this.count, filterObject);
   }
 
-  refreshDataTable(page, count, filter, sortColumn, sortOrder) {
-    this.devicesService.getDevices$(page, count, filter, sortColumn, sortOrder).pipe(first()).subscribe(model => {
-      console.log('LLegan disp: ', model);
-      this.dataSource.data = model;
-    });
+  refreshDataTable(page, count, filterObject) {
+    this.devicesService
+      .getDevices$(page, count, filterObject)
+      .pipe(first())
+      .subscribe(model => {
+        console.log('LLegan disp: ', model);
+        this.dataSource.data = model;
+      });
   }
 
   getPercentage(device, type) {
     if (type == 'MEM') {
-      return device.deviceStatus.ram ? Math.floor(device.deviceStatus.ram.currentValue / device.deviceStatus.ram.totalValue * 100) : 0;
-    }
-    else if (type == 'SD') {
-      return device.deviceStatus.sdStatus ? Math.floor(device.deviceStatus.sdStatus.currentValue / device.deviceStatus.sdStatus.totalValue * 100) : 0;
-    }
-    else {
+      return device.deviceStatus.ram
+        ? Math.floor(
+            (device.deviceStatus.ram.currentValue /
+              device.deviceStatus.ram.totalValue) *
+              100
+          )
+        : 0;
+    } else if (type == 'SD') {
+      return device.deviceStatus.sdStatus
+        ? Math.floor(
+            (device.deviceStatus.sdStatus.currentValue /
+              device.deviceStatus.sdStatus.totalValue) *
+              100
+          )
+        : 0;
+    } else {
       return 0;
     }
   }

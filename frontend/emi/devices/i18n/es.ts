@@ -6,7 +6,7 @@ export const locale = {
       NAME: 'Nombre',
       DEVICE_TYPE: 'Tipo de disp.',
       ONLINE: 'En linea',
-      SEARCH: 'Buscar',
+      SEARCH: 'Hostname, serial o locación',
       DEVICES: 'Dispositivos',
       STATE: 'Estado',
       GROUP_NAME: 'Locación',
@@ -57,7 +57,9 @@ export const locale = {
       ALARM_TEMP_TITLE: 'Alarmas de temp generadas en',
       ALARM_TEMP_THRESHOLD_TITLE: 'Umbral de alarmas de temperatura ',
       ALARM_STATE: 'Estado de alarma',
-      HOUR: 'Hora'
+      HOUR: 'Hora',
+      SHOW_LOCATION: 'Mostrar ubicación',
+      SITE: 'Emplazamiento'
     }
   }
 };

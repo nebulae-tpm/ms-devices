@@ -20,17 +20,20 @@ export class DevicesService {
     private gateway: GatewayService
   ) { }
 
-  getDevices$(pageValue,countValue, filterText, sortColumn, sortOrder): Observable<any[]> {
+  getDevices$(pageValue, countValue, filterText): Observable<any[]> {
+    let variables = {
+      page: pageValue,
+      count: countValue,
+      filterText
+    }
+    if (filterText) {
+      variables.filterText= JSON.stringify(filterText)
+    }
     return this.gateway.apollo
       .query<any>({
+        fetchPolicy: 'network-only',
         query: getDevices,
-        variables: {
-          page: pageValue,
-          count: countValue,
-          filterText: filterText,
-          sortColumn: sortColumn,
-          sortOrder: sortOrder
-        },
+        variables
       })
       .pipe(map(rawData => rawData.data.getDevices));
   }

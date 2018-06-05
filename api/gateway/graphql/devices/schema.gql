@@ -184,7 +184,7 @@ type Query {
   getDeviceDetail(id: ID!): Device
 
   "Get all devices"
-  getDevices(page: Int!, count: Int!, filter: String, sortColumn: String, sortOrder: String): [Device]
+  getDevices(page: Int!, count: Int!, filter: String): [Device]
 
   "Get the size of table Device"
   getDeviceTableSize: Int

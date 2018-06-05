@@ -6,7 +6,7 @@ export const locale = {
       NAME: 'Name',
       DEVICE_TYPE: 'Device type',
       ONLINE: 'Online',
-      SEARCH: 'Search',
+      SEARCH: 'Hosname, serial or location',
       DEVICES: 'Devices',
       STATE: 'State',
       GROUP_NAME: 'Location',
@@ -57,7 +57,9 @@ export const locale = {
       IN: 'in',
       ALARM_TITLE: 'Alarms generated',
       ALARM_STATE: 'Alarm state',
-      HOUR: 'Hour'
+      HOUR: 'Hour',
+      SHOW_LOCATION: 'Show location',
+      SITE: 'Site'
     }
   }
 };

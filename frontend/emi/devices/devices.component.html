@@ -20,6 +20,16 @@
 
       <!-- SEARCH -->
       <div class="search-input-wrapper mx-12 m-md-0" fxFlex="1 0 auto" fxLayout="row" fxLayoutAlign="start center">
+        <label for="search" style="margin-bottom: 10px" class="mr-20">
+            <span class="mat-title">Filtrar por:</span>
+        </label>
+        <mat-form-field class="mr-20">
+            <mat-select class="simplified" (selectionChange)="changeAlarmFilter($event)" [(ngModel)]="currentAlarmFilter" aria-label="Change alarm">
+              <mat-option *ngFor="let alarm of alarms" [value]="alarm">
+                <span class="h3">{{alarm}}</span>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         <label for="search" class="mr-8">
           <mat-icon class="secondary-text">search</mat-icon>
         </label>

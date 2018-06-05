@@ -13,9 +13,7 @@ class Devices {
     return DeviceDA.getDevices$(
       args.page,
       args.count,
-      args.filter,
-      args.sortColumn,
-      args.sortOrder
+      args.filter
     );
   }
 
