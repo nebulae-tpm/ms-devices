@@ -392,7 +392,7 @@ class DeviceDA {
    * @param {*} device
    */
   static persistDeviceHistory$(device) {
-    device.timestamp = new Date().getTime();
+    device.timestamp = device.timestamp? device.timestamp : new Date().getTime();
     delete device._id;
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.of(device).mergeMap(result => {

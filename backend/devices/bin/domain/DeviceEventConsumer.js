@@ -17,7 +17,8 @@ class DeviceEventConsumer {
             });
     }
 
-    handleDeviceAlarmReported$(event) {  
+    handleDeviceAlarmReported$(event) { 
+        console.log('LLEGA ALARMA: ', JSON.stringify(event));
         return Rx.Observable.forkJoin(
             DeviceDA.updateDeviceTemperatureAlarm$(event.data,event.et, event.aid),
             DeviceDA.persistDeviceAlarm$(event.data,event.et, event.aid)
