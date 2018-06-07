@@ -59,7 +59,8 @@ export const locale = {
       ALARM_STATE: 'Alarm state',
       HOUR: 'Hour',
       SHOW_LOCATION: 'Show location',
-      SITE: 'Site'
+      SITE: 'Site',
+      CLEAR_FILTER: 'Clear'
     }
   }
 };

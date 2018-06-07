@@ -6,10 +6,10 @@ export const locale = {
       NAME: 'Nombre',
       DEVICE_TYPE: 'Tipo de disp.',
       ONLINE: 'En linea',
-      SEARCH: 'Hostname, serial o locación',
+      SEARCH: 'Hostname, serial o emplazamiento',
       DEVICES: 'Dispositivos',
       STATE: 'Estado',
-      GROUP_NAME: 'Locación',
+      GROUP_NAME: 'Emplazamiento',
       ONE_HOUR: 'Una hora',
       TWO_HOURS: 'Dos horas',
       THREE_HOURS: 'Tres horas',
@@ -28,13 +28,13 @@ export const locale = {
       DISPLAY_SERIAL: 'Serial de display',
       TEMPERATURE: 'Temperatura',
       CONNECTOR_SERIAL: 'Serial de conector',
-      DEVICE_SERIAL: 'Serial de dispositivo',
+      DEVICE_SERIAL: 'Serial',
       DEVICE_STATE_TITLE: 'Estado del Dispositivo',
       APP_STATE_TITLE: 'Estado del Aplicativo',
       DEVICE_DETAIL: 'Detalle de Disp',
       GENERAL_INFO: 'Información general',
       HOST_NAME: 'Hostname',
-      GROUP: 'Locación',
+      GROUP: 'Emplazamiento',
       RAM_STATUS: 'Estado de RAM',
       SD_STATUS: 'Estado de SD',
       FLASH_STATUS: 'Estado de FLASH',
@@ -58,8 +58,9 @@ export const locale = {
       ALARM_TEMP_THRESHOLD_TITLE: 'Umbral de alarmas de temperatura ',
       ALARM_STATE: 'Estado de alarma',
       HOUR: 'Hora',
-      SHOW_LOCATION: 'Mostrar ubicación',
-      SITE: 'Emplazamiento'
+      SHOW_LOCATION: 'Mostrar',
+      SITE: 'Ubicación',
+      CLEAR_FILTER: 'Limpiar'
     }
   }
 };

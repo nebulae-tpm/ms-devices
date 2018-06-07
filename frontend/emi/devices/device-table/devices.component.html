@@ -13,29 +13,36 @@
       <!-- APP TITLE -->
       <div class="logo my-12 m-sm-0" fxLayout="row" fxLayoutAlign="start center">
         <mat-icon class="logo-icon mr-16" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'50ms',scale:'0.2'}}">speaker_phone</mat-icon>
-        <span class="logo-text h1" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'100ms',x:'-25px'}}">{{'DEVICE.DEVICES' | translate}}</span>
+        <span class="logo-text h1" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'100ms',x:'-25px'}}">{{deviceTitle}}</span>
       </div>
 
       <!-- / APP TITLE -->
 
       <!-- SEARCH -->
-      <div class="search-input-wrapper mx-12 m-md-0" fxFlex="1 0 auto" fxLayout="row" fxLayoutAlign="start center">
-        <label for="search" style="margin-bottom: 10px" class="mr-20">
+      <div fxLayout="column" fxLayout.gt-sm="row">
+        <div *ngIf="showFilters()" class="search-input-wrapper mx-12 m-md-0" fxFlex="1 0 auto" fxLayout="row" fxLayoutAlign="start center">
+          <label for="search" style="margin-bottom: 10px" class="mr-20">
             <span class="mat-title">Filtrar por:</span>
-        </label>
-        <mat-form-field class="mr-20">
+          </label>
+          <mat-form-field class="mr-20">
             <mat-select class="simplified" (selectionChange)="changeAlarmFilter($event)" [(ngModel)]="currentAlarmFilter" aria-label="Change alarm">
               <mat-option *ngFor="let alarm of alarms" [value]="alarm">
                 <span class="h3">{{alarm}}</span>
               </mat-option>
             </mat-select>
           </mat-form-field>
-        <label for="search" class="mr-8">
-          <mat-icon class="secondary-text">search</mat-icon>
-        </label>
-        <mat-form-field floatPlaceholder="never" fxFlex="1 0 auto">
-          <input id="search" matInput #filter placeholder="{{'DEVICE.SEARCH' | translate}}">
-        </mat-form-field>
+        </div>
+        <div class="search-input-wrapper mx-12 m-md-0" fxFlex="1 0 auto" fxLayout="row" fxLayoutAlign="start center">
+          <label *ngIf="showFilters()" for="search" class="mr-8">
+            <mat-icon class="secondary-text">search</mat-icon>
+          </label>
+          <mat-form-field [ngClass]="{'hide-component': !showFilters(), 'show-component': showFilters()}" floatPlaceholder="never" fxFlex="1 0 auto">
+            <input id="search" matInput #filter [(ngModel)]="filterText" placeholder="{{'DEVICE.SEARCH' | translate}}">
+          </mat-form-field>
+          <button mat-raised-button (click)="clearFilter()" class="add-product-button mat-white-bg my-12 mt-sm-0">
+            <span>{{'DEVICE.CLEAR_FILTER' | translate}}</span>
+          </button>
+        </div>
       </div>
       <!-- / SEARCH -->
 
@@ -58,24 +65,24 @@
 
         <!-- Name Column -->
         <ng-container cdkColumnDef="name">
-          <mat-header-cell mat-sort-header="hostName" *cdkHeaderCellDef>{{'DEVICE.HOST_NAME' | translate}}</mat-header-cell>
-          <mat-cell *cdkCellDef="let device">
+          <mat-header-cell mat-sort-header="hostName" fxHide fxShow.gt-sm *cdkHeaderCellDef>{{'DEVICE.HOST_NAME' | translate}}</mat-header-cell>
+          <mat-cell fxHide fxShow.gt-sm *cdkCellDef="let device">
             <p class="text-truncate">{{device.deviceStatus.hostname}}</p>
           </mat-cell>
         </ng-container>
 
         <!-- Group Name Column -->
         <ng-container cdkColumnDef="groupName">
-          <mat-header-cell mat-sort-header="groupName" *cdkHeaderCellDef>{{'DEVICE.GROUP' | translate}}</mat-header-cell>
-          <mat-cell *cdkCellDef="let device">
+          <mat-header-cell mat-sort-header="groupName" fxHide fxShow.gt-sm *cdkHeaderCellDef>{{'DEVICE.GROUP' | translate}}</mat-header-cell>
+          <mat-cell fxHide fxShow.gt-sm *cdkCellDef="let device">
             <p class="text-truncate">{{device.deviceStatus.groupName}}</p>
           </mat-cell>
         </ng-container>
 
         <!-- Temp Column -->
         <ng-container cdkColumnDef="temperature">
-          <mat-header-cell mat-sort-header="temperature" *cdkHeaderCellDef>{{'DEVICE.TEMPERATURE' | translate}}</mat-header-cell>
-          <mat-cell *cdkCellDef="let device">
+          <mat-header-cell mat-sort-header="temperature" fxHide fxShow.gt-sm *cdkHeaderCellDef>{{'DEVICE.TEMPERATURE' | translate}}</mat-header-cell>
+          <mat-cell fxHide fxShow.gt-sm *cdkCellDef="let device">
             <p class="text-truncate">{{device.deviceStatus.temperature}}</p>
           </mat-cell>
         </ng-container>
@@ -121,8 +128,8 @@
 
         <!-- Online Column -->
         <ng-container cdkColumnDef="online">
-          <mat-header-cell mat-sort-header="online" *cdkHeaderCellDef fxHide fxShow.gt-xs>{{'DEVICE.ONLINE' | translate}}</mat-header-cell>
-          <mat-cell *cdkCellDef="let device" fxHide fxShow.gt-xs>
+          <mat-header-cell mat-sort-header="online" *cdkHeaderCellDef >{{'DEVICE.ONLINE' | translate}}</mat-header-cell>
+          <mat-cell *cdkCellDef="let device">
             <mat-icon *ngIf="device.deviceStatus.online" class="active-icon mat-green-600-bg s-16">check</mat-icon>
             <mat-icon *ngIf="!device.deviceStatus.online" class="active-icon mat-red-500-bg s-16">close</mat-icon>
           </mat-cell>

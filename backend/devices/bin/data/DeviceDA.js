@@ -34,7 +34,6 @@ class DeviceDA {
    *
    */
   static getDevices$(page, count, filter) {
-    const collection = mongoDB.db.collection('Devices');
     return Rx.Observable.of(filter)
       .map(rawData => {
         let jsonObj;
@@ -46,28 +45,98 @@ class DeviceDA {
 
         return jsonObj;
       })
-      .mergeMap(filterTemplate =>
-        Rx.Observable.forkJoin(
-          Rx.Observable.of(filterTemplate).map(filter => this.buildDeviceFilterObject(filter)),
-          Rx.Observable.of(filterTemplate).map(filter => this.buildDeviceOrderObject(filter))
-        )
-      )
-      .mergeMap(([filterObject, orderObject]) =>
-        Rx.Observable.defer(() =>
-          collection
-            .find(filterObject)
-            .project({
-              _id: 0,
-              id: 1,
-              deviceStatus: 1
-            })
-            .sort(orderObject)
-            .skip(count * page)
-            .limit(count)
-            .toArray()
-        )
-      );
-  }  
+      .mergeMap(filterTemplate => this.buildDeviceFilterObject(filterTemplate, page,count));
+  }
+
+  /**
+   * Get devices by a search filter and alarm type
+   */
+  static getDevicesByGeneralFilter(filterTemplate, page, count) {
+    const collection = mongoDB.db.collection('Devices');
+    let orderObject = {};
+    const filterObject = {
+      $or: [
+        {
+          'deviceStatus.hostname': {
+            $regex: `${filterTemplate.searchValue}.*`,
+            $options: 'i'
+          }
+        },
+        {
+          'deviceStatus.type': {
+            $regex: `${filterTemplate.searchValue}.*`,
+            $options: 'i'
+          }
+        },
+        {
+          'deviceStatus.groupName': {
+            $regex: `${filterTemplate.searchValue}.*`,
+            $options: 'i'
+          }
+        },
+        { id: { $regex: `${filterTemplate.searchValue}.*`, $options: 'i' } }
+      ]
+    };
+    if (filterTemplate.alarmFilter) {
+      switch (filterTemplate.alarmFilter) {
+        case 'RAM':
+          filterObject['deviceStatus.alarmRamActive'] = true;
+          break;
+        case 'SD':
+          filterObject['deviceStatus.alarmSdActive'] = true;
+          break;
+        case 'CPU':
+          filterObject['deviceStatus.alarmCpuActive'] = true;
+          break;
+        case 'TEMP':
+          filterObject['deviceStatus.alarmTempActive'] = true;
+          break;
+      }
+    }
+    if (filterTemplate.sortColumn && filterTemplate.sortOrder) {
+      let column;
+      switch (filterTemplate.sortColumn) {
+        case 'serial':
+          column = 'id';
+          break;
+        case 'hostName':
+          column = 'deviceStatus.hostname';
+          break;
+        case 'groupName':
+          column = 'deviceStatus.groupName';
+          break;
+        case 'ram':
+          column = 'deviceStatus.ram.currentValue';
+          break;
+        case 'sd':
+          column = 'deviceStatus.sdStatus.currentValue';
+          break;
+        case 'cpu':
+          column = 'deviceStatus.currentCpuStatus';
+          break;
+        case 'temperature':
+          column = 'deviceStatus.temperature';
+          break;
+        case 'online':
+          column = 'deviceStatus.online';
+          break;
+      }
+      orderObject[column] = filterTemplate.sortOrder == 'asc' ? 1 : -1;
+    }
+    return Rx.Observable.defer(() => {
+      return collection
+        .find(filterObject)
+        .project({
+          _id: 0,
+          id: 1,
+          deviceStatus: 1
+        })
+        .sort(orderObject)
+        .skip(count * page)
+        .limit(count)
+        .toArray()
+    })
+  }
   /**
    * Get the size of table Device
    *
@@ -229,6 +298,92 @@ class DeviceDA {
         .skip(count * page)
         .limit(count)
         .toArray()
+    );
+  }
+
+  /**
+   * get number of alerts grouped by deviceId
+   * @param {number} initTime lowest date in millis to fecth alerts
+   * @param {string} type of alert
+   */
+  static getAlarmsInRangeOfTime(initTime, alarmType, count, page) {
+    const collection = mongoDB.db.collection('DeviceAlarm');
+    return Rx.Observable.defer(() =>
+      collection
+        .aggregate([
+          {
+            $match: {
+              timestamp: { $gte: initTime },
+              type: alarmType,
+              active: true
+            }
+          },
+          {
+            $group: {
+              _id: '$deviceId',
+              count: { $sum: 1 }
+            }
+          },
+          {
+            $project: {
+              deviceId: '$_id',
+              count: 1,
+              _id: 0
+            }
+          },
+          {
+            $sort: { count: -1 }
+          }
+        ])
+        .skip(count * page)
+        .limit(count)
+        .toArray()
+    );
+  }
+
+  /**
+   * Get devices filtered by alarms activated in range of time
+   */
+  static getDevicesByAlarmsInRangeOfTime(filterTemplate) {
+    const collection = mongoDB.db.collection('Devices');
+    return this.getAlarmsInRangeOfTime(
+      filterTemplate.initTime,
+      filterTemplate.type,
+      filterTemplate.count,
+      filterTemplate.page
+    ).mergeMap(
+      result =>
+        Rx.Observable.from(result)
+          .map(result => {
+            return result.deviceId;
+          })
+          .toArray()
+          .mergeMap(deviceIdList => {
+            return Rx.Observable.defer(() => {
+              return collection
+                .find({ _id: { $in: deviceIdList } })
+                .project({
+                  _id: 0,
+                  id: 1,
+                  deviceStatus: 1
+                })
+                .toArray();
+            })
+          })
+          .mergeMap(result => Rx.Observable.from(result))
+          .map(device => {
+            const deviceAlarmObject = result.filter(deviceAlarm => deviceAlarm.deviceId == device.id)[0];
+            if (deviceAlarmObject) {
+              device.count = deviceAlarmObject.count;
+            }
+            return device;
+          })
+          .toArray()
+          .map(unsortedArray => unsortedArray.sort((a, b) => {
+            if (a.count < b.count) return 1;
+            if (a.count > b.count) return -1;
+            return 0;
+          }))
     );
   }
 
@@ -537,95 +692,16 @@ class DeviceDA {
    * Build filter object based on filterTemplate
    * @param {*} filterTemplate
    */
-  static buildDeviceFilterObject(filterTemplate) {
-    let filterObject = {};
-    if (!filterTemplate) {
-      return filterObject;
-    }
+  static buildDeviceFilterObject(filterTemplate, page, count) {
+    //GENERAL FILTER
     if (filterTemplate.id == 0) {
-      filterObject = {
-        $or: [
-          {
-            'deviceStatus.hostname': {
-              $regex: `${filterTemplate.searchValue}.*`,
-              $options: 'i'
-            }
-          },
-          {
-            'deviceStatus.type': {
-              $regex: `${filterTemplate.searchValue}.*`,
-              $options: 'i'
-            }
-          },
-          {
-            'deviceStatus.groupName': {
-              $regex: `${filterTemplate.searchValue}.*`,
-              $options: 'i'
-            }
-          },
-          { id: { $regex: `${filterTemplate.searchValue}.*`, $options: 'i' } }
-        ]
-      };
-      if (filterTemplate.alarmFilter) {
-        switch (filterTemplate.alarmFilter) {
-          case 'RAM':
-            filterObject['deviceStatus.alarmRamActive'] = true;
-            break;
-          case 'SD':
-            filterObject['deviceStatus.alarmSdActive'] = true;
-            break;
-          case 'CPU':
-            filterObject['deviceStatus.alarmCpuActive'] = true;
-            break;
-          case 'TEMP':
-            filterObject['deviceStatus.alarmTempActive'] = true;
-            break;
-        }
-      }
+      return this.getDevicesByGeneralFilter(filterTemplate, page, count);
     }
-    return filterObject;
-  }
-  /**
-   * Build order object based on filterTemplate
-   * @param {*} filterTemplate
-   */
-  static buildDeviceOrderObject(filterTemplate) {
-    let orderObject = {};
-    if (!filterTemplate) { 
-      return orderObject;
+    // DASHBOARD_DEVICE_FILTER
+    else if (filterTemplate.id == 1) {
+      return this.getDevicesByAlarmsInRangeOfTime(filterTemplate);
     }
-    if (filterTemplate.sortColumn && filterTemplate.sortOrder) {
-      let column;
-      switch (filterTemplate.sortColumn) {
-        case 'serial':
-          column = 'id';
-          break;
-        case 'hostName':
-          column = 'deviceStatus.hostname';
-          break;
-        case 'groupName':
-          column = 'deviceStatus.groupName';
-          break;
-        case 'ram':
-          column = 'deviceStatus.ram.currentValue';
-          break;
-        case 'sd':
-          column = 'deviceStatus.sdStatus.currentValue';
-          break;
-        case 'cpu':
-          column = 'deviceStatus.currentCpuStatus';
-          break;
-        case 'temperature':
-          column = 'deviceStatus.temperature';
-          break;
-        case 'online':
-          column = 'deviceStatus.online';
-          break;
-      }
-      orderObject[column] = filterTemplate.sortOrder == 'asc' ? 1 : -1;
-    }
-    return orderObject;
-
+    return Rx.Observable.of(undefined);
   }
 
   //#endregion

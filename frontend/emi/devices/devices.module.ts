@@ -3,11 +3,11 @@ import { SharedModule } from '../../../core/modules/shared.module';
 import { RouterModule } from '@angular/router';
 import { DatePipe } from '@angular/common';
 
-import { DevicesComponent } from './devices.component';
+import { DevicesComponent } from './device-table/devices.component';
 import { DeviceStateComponent, AppVersionDialog } from './device/device-state/device-state.component'
 import { DeviceComponent } from './device/device.component';
 import { DevicePieChartComponent } from './device/device-pie-chart/device-pie-chart.component'
-import { DevicesService } from './devices.service';
+import { DevicesService } from './device-table/devices.service';
 import { DeviceService } from './device/device.service';
 import { DeviceNetworkComponent } from './device/device-network/device-network.component';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
