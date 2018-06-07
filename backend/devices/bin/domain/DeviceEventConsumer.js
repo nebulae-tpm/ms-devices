@@ -24,6 +24,10 @@ class DeviceEventConsumer {
         );
     }
 
+    handleDeviceVoltageAlarmReported$(event) { 
+        return DeviceDA.persistDeviceVoltageAlarm$(event.data,event.et, event.aid);
+    }
+
 }
 
 module.exports = () => {

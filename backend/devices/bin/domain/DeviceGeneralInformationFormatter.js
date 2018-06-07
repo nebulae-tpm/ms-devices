@@ -111,7 +111,6 @@ class DeviceGeneralInformationFormatter {
         return deviceStatus;
       });
     } else if (eventType == 'DeviceDeviceStateReported') {
-      console.log('LLEGA DEVICE_DEVICE MESSAGE: ', JSON.stringify(eventData));
       return Rx.Observable.of(eventData).map(data => {
         deviceStatus['deviceStatus.devSn'] = data.sn;
         deviceStatus['deviceStatus.type'] = data.type;

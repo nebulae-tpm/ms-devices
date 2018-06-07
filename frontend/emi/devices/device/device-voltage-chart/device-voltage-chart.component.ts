@@ -7,7 +7,8 @@ import {
   MatDialog,
   MatDialogRef,
   MAT_DIALOG_DATA,
-  MatSnackBar
+  MatSnackBar,
+  MatTableDataSource
 } from '@angular/material';
 import { DatePipe } from '@angular/common';
 import { Observable } from 'rxjs/Observable';
@@ -23,6 +24,10 @@ export class DeviceVoltageChartComponent implements OnInit {
   deviceVoltage: any;
   selectedDelta = 5;
   currentRange = 0;
+  page = 0;
+  count = 3;
+  alarmDataSource = new MatTableDataSource();
+  displayedColumns = ['alarmState', 'alarmHour'];
   subscribers: Subscription[] = [];
   sortByHour = (a, b) => {
     if (a.timestamp < b.timestamp) return -1;
@@ -38,6 +43,10 @@ export class DeviceVoltageChartComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private datePipe: DatePipe
   ) {
+    if (this.data.range) {
+      this.changeSelectedDelta(this.data.range);
+      this.currentRange = (this.data.range);
+    }
     this.buildDeviceVoltageHistory(this.data.device, this.selectedDelta);
   }
 
@@ -62,7 +71,12 @@ export class DeviceVoltageChartComponent implements OnInit {
    * @param
    */
   onHourSelected($event) {
-    switch ($event.value) {
+    this.changeSelectedDelta($event.value);
+    this.buildDeviceVoltageHistory(this.data.device, this.selectedDelta);
+  }
+
+  changeSelectedDelta(selectedValue) {
+    switch (selectedValue) {
       case 0:
         this.selectedDelta = 5;
         break;
@@ -73,7 +87,35 @@ export class DeviceVoltageChartComponent implements OnInit {
         this.selectedDelta = 15;
         break;
     }
-    this.buildDeviceVoltageHistory(this.data.device, this.selectedDelta);
+  }
+
+  refreshAlarmDataTable(page, count) {
+    const intervalValue = this.selectedDelta * 60000;
+    const endTime = new Date().getTime();
+    const initTime = endTime - intervalValue * 12;
+    this.deviceService
+      .getDeviceAlarms$(
+        this.data.device.id,
+        'VOLT',
+        initTime,
+        endTime,
+        this.page,
+        this.count
+      )
+      .pipe(first())
+      .subscribe(result => {
+        this.alarmDataSource.data = result;
+      });
+  }
+
+  alarmHour(timestamp) {
+    return this.datePipe.transform(new Date(timestamp), 'HH:mm');
+  }
+
+  onChange($event) {
+    this.page = $event.pageIndex;
+    this.count = $event.pageSize;
+    this.refreshAlarmDataTable($event.pageIndex, $event.pageSize);
   }
 
   /**
@@ -104,6 +146,7 @@ export class DeviceVoltageChartComponent implements OnInit {
         .subscribe(rawData => {
           if (rawData && rawData.data && rawData.data.length > 0) {
             this.deviceVoltage = rawData;
+            this.refreshAlarmDataTable(this.page, this.count)
           } else {
             this.snackBar.open(
               'No se encontraron datos para graficar',

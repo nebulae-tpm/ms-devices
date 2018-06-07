@@ -56,6 +56,10 @@ export class DeviceAlarmTempDialog implements OnInit {
     public snackBar: MatSnackBar,
     private datePipe: DatePipe
   ) {
+    if (this.data.range) {
+      this.changeSelectedDelta(this.data.range);
+      this.currentRange = (this.data.range);
+    }
     this.historyRanges = { ONE_HOUR: 0, TWO_HOURS: 1, THREE_HOURS: 2 };
   }
 
@@ -85,7 +89,19 @@ export class DeviceAlarmTempDialog implements OnInit {
   }
 
   changeHour($event) {
-    switch ($event.value) {
+    this.changeSelectedDelta($event.value);
+    this.subscribers.push(
+      this.deviceService
+        .getAlarmTableSize(this.data.device.id, 'TEMP', this.selectedDelta)
+        .subscribe(result => {
+          this.tableSize = result;
+        })
+    );
+    this.refreshAlarmDataTable(this.page, this.count)
+  }
+
+  changeSelectedDelta(selectedValue) {
+    switch (selectedValue) {
       case 0:
         this.selectedDelta = 5;
         break;
@@ -96,14 +112,6 @@ export class DeviceAlarmTempDialog implements OnInit {
         this.selectedDelta = 15;
         break;
     }
-    this.subscribers.push(
-      this.deviceService
-        .getAlarmTableSize(this.data.device.id, 'TEMP', this.selectedDelta)
-        .subscribe(result => {
-          this.tableSize = result;
-        })
-    );
-    this.refreshAlarmDataTable(this.page, this.count)
   }
 
   refreshAlarmDataTable(page, count) {

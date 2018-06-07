@@ -60,6 +60,10 @@ export class DeviceMemoryChartComponent implements OnInit {
     private datePipe: DatePipe,
     public snackBar: MatSnackBar
   ) {
+    if (this.data.range) {
+      this.changeSelectedDelta(this.data.range);
+      this.currentRange = (this.data.range);
+    }
     this.buildDeviceMemoryHistory(
       this.data.type,
       this.data.device,
@@ -110,17 +114,7 @@ export class DeviceMemoryChartComponent implements OnInit {
   }
 
   changeHour($event) {
-    switch ($event.value) {
-      case 0:
-        this.selectedDelta = 5;
-        break;
-      case 1:
-        this.selectedDelta = 10;
-        break;
-      case 2:
-        this.selectedDelta = 15;
-        break;
-    }
+    this.changeSelectedDelta($event.value);
     this.buildDeviceMemoryHistory(
       this.data.type,
       this.data.device,
@@ -138,6 +132,20 @@ export class DeviceMemoryChartComponent implements OnInit {
           this.tableSize = result;
         })
     );
+  }
+
+  changeSelectedDelta(selectedValue) {
+    switch (selectedValue) {
+      case 0:
+        this.selectedDelta = 5;
+        break;
+      case 1:
+        this.selectedDelta = 10;
+        break;
+      case 2:
+        this.selectedDelta = 15;
+        break;
+    }
   }
 
   /**

@@ -146,6 +146,8 @@ enum AlarmType {
   SD
   "Alarms by Temperature"
   TEMP
+  "Alarms by voltage"
+  VOLT
 }
 
 "Information of voltage state"
@@ -171,7 +173,7 @@ type CpuInRageOfTime {
 }
 
 type DeviceAlarm {
-  value: Int
+  value: Float
   unit: String
   timestamp: BigInt
   deviceId: String

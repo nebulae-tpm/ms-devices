@@ -285,7 +285,7 @@ class DeviceDA {
     const filterObject = {
       $and: [
         { deviceId: deviceId },
-        { type: alarmType },
+        { type: alarmType == 'VOLT' ? { $in: ['LOW_VOLTAGE','HIGH_VOLTAGE'] } : alarmType},
         { timestamp: { $gt: initTimestamp } },
         { timestamp: { $lt: endTimestamp } }
       ]
@@ -314,7 +314,7 @@ class DeviceDA {
           {
             $match: {
               timestamp: { $gte: initTime },
-              type: alarmType,
+              type: alarmType == 'VOLT' ?  { $in: ['LOW_VOLTAGE','HIGH_VOLTAGE'] }: alarmType,
               active: true
             }
           },
@@ -485,6 +485,31 @@ class DeviceDA {
             break;
         }
         return Object.assign(devAlarm, rawData);
+      })
+      .mergeMap(mergeData => {
+        return Rx.Observable.defer(() => collection.insertOne(mergeData));
+      });
+  }
+
+  static persistDeviceVoltageAlarm$(deviceAlarm, eventType, deviceId) {
+    const collection = mongoDB.db.collection('DeviceAlarm');
+
+    return Rx.Observable.of(deviceAlarm)
+      .map(devAlarm => {
+        const rawData = { deviceId };
+        switch (eventType) {
+          case 'DeviceHighVoltageAlarmReported':            
+            rawData.type = 'HIGH_VOLTAGE';
+            break;
+          case 'DeviceLowVoltageAlarmReported':
+            rawData.type = 'LOW_VOLTAGE';
+            break;
+        }
+        rawData.active = true;
+        rawData.value = deviceAlarm.voltage;
+        rawData.unit = 'VOLT';
+        rawData.timestamp = deviceAlarm.timestamp;
+        return rawData;
       })
       .mergeMap(mergeData => {
         return Rx.Observable.defer(() => collection.insertOne(mergeData));

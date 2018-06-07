@@ -56,11 +56,13 @@ export const locale = {
       ALARM_TITLE: 'Alarmas generadas',
       ALARM_TEMP_TITLE: 'Alarmas de temp generadas en',
       ALARM_TEMP_THRESHOLD_TITLE: 'Umbral de alarmas de temperatura ',
+      ALARM_TYPE: 'Tipo de alarma',
       ALARM_STATE: 'Estado de alarma',
       HOUR: 'Hora',
       SHOW_LOCATION: 'Mostrar',
       SITE: 'Ubicación',
-      CLEAR_FILTER: 'Limpiar'
+      CLEAR_FILTER: 'Limpiar',
+      VALUE: 'Valor'
     }
   }
 };

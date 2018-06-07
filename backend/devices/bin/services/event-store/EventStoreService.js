@@ -130,6 +130,8 @@ class EventStoreService {
             'DeviceCpuUsageAlarmDeactivated': { fn: deviceEventConsumer.handleDeviceAlarmReported$, obj: deviceEventConsumer },
             'DeviceTemperatureAlarmDeactivated': { fn: deviceEventConsumer.handleDeviceAlarmReported$, obj: deviceEventConsumer },
             'DeviceRamUsageAlarmDeactivated': { fn: deviceEventConsumer.handleDeviceAlarmReported$, obj: deviceEventConsumer },
+            'DeviceLowVoltageAlarmReported': { fn: deviceEventConsumer.handleDeviceVoltageAlarmReported$, obj: deviceEventConsumer },
+            'DeviceHighVoltageAlarmReported': { fn: deviceEventConsumer.handleDeviceVoltageAlarmReported$, obj: deviceEventConsumer },
 
         };
     }
@@ -158,6 +160,8 @@ class EventStoreService {
             { aggregateType: 'Device', eventType: 'DeviceSdUsageAlarmDeactivated' },
             { aggregateType: 'Device', eventType: 'DeviceCpuUsageAlarmDeactivated' },
             { aggregateType: 'Device', eventType: 'DeviceTemperatureAlarmDeactivated' },
+            { aggregateType: 'Device', eventType: 'DeviceHighVoltageAlarmReported' },
+            { aggregateType: 'Device', eventType: 'DeviceLowVoltageAlarmReported' },
         ];
     }
 

@@ -1,9 +1,16 @@
-import { Component, OnInit, OnDestroy, Inject, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Inject,
+  Input,
+  AfterContentInit
+} from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { DeviceService } from '../device.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { first, map, toArray, mergeMap } from 'rxjs/operators';
+import { first, map, toArray, mergeMap, throttleTime } from 'rxjs/operators';
 import 'rxjs/add/observable/from';
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
@@ -11,6 +18,7 @@ import { DeviceMemoryChartComponent } from '../device-memory-chart/device-memory
 import { DeviceVoltageChartComponent } from '../device-voltage-chart/device-voltage-chart.component';
 import { Overlay } from '@angular/cdk/overlay';
 import { DeviceAlarmTempDialog } from '../device-alarm-temp-dialog/device-alarm-temp-dialog.component';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-device-state',
@@ -39,6 +47,8 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   deviceVoltage: any;
   currentRange = 0;
   deviceAlarmThresholds: any;
+  filterTemplate: any;
+  deviceChanged = new Subject<any>();
 
   @Input()
   set deviceValue(deviceVal: any) {
@@ -53,6 +63,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
         this.device.deviceStatus.cpuStatus
       );
       this.startSubscribers();
+      this.deviceChanged.next();
     }
   }
   get deviceValue(): any {
@@ -62,8 +73,35 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.deviceService.getDeviceAlarmThresholds().subscribe(result => {
       this.deviceAlarmThresholds = JSON.parse(JSON.stringify(result));
-    })
+    });
+    this.subscribers.push(
+      this.route.queryParams.subscribe(params => {
+        try {
+          this.filterTemplate = JSON.parse(params['filterTemplate']);
+        } catch (error) {
+          console.log('Invalid JSON FILTER: ', error);
+        }
+        this.deviceChanged.asObservable().subscribe(() => {
+          setTimeout(() => {
+            if (this.filterTemplate) {
+              if (this.filterTemplate.type == 'TEMP') {
+                this.openTempAlarmsDialog();
+              } else if (this.filterTemplate.type == 'VOLT') {
+                this.openDeviceVoltageDialog();
+              } else {
+                let type =
+                  this.filterTemplate.type == 'RAM'
+                    ? 'MEM'
+                    : this.filterTemplate.type;
+                this.openDeviceMemoryDialog(type);
+              }
+            }
+          }, 500);
+        });
+      })
+    );
   }
+
   /**
    * Start all graphql subscriptions
    */
@@ -330,23 +368,47 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   }
 
   openTempAlarmsDialog(): void {
+    let data = {
+      device: this.device,
+      alarmThreshold: this.deviceAlarmThresholds,
+      range: undefined
+    };
+    if (this.filterTemplate) {
+      data.range = this.filterTemplate.range;
+    }
     let dialogRef = this.dialog.open(DeviceAlarmTempDialog, {
       width: '500px',
-      data: { device: this.device, alarmThreshold: this.deviceAlarmThresholds }
+      data
     });
   }
 
   openDeviceMemoryDialog(type): void {
+    console.log('openFilter: ', this.filterTemplate);
+    console.log('type: ', type);
+    let data = {
+      type: type,
+      device: this.device,
+      alarmThreshold: this.deviceAlarmThresholds,
+      range: undefined
+    };
+    if (this.filterTemplate) {
+      data.range = this.filterTemplate.range;
+    }
+    console.log('data: ', data);
     let dialogRef = this.dialog.open(DeviceMemoryChartComponent, {
       width: '80%',
-      data: { type: type, device: this.device, alarmThreshold: this.deviceAlarmThresholds }
+      data
     });
   }
 
   openDeviceVoltageDialog(): void {
+    let data = { device: this.device, range: undefined };
+    if (this.filterTemplate) {
+      data.range = this.filterTemplate.range;
+    }
     let dialogRef = this.dialog.open(DeviceVoltageChartComponent, {
       width: '80%',
-      data: { device: this.device }
+      data
     });
   }
   /**
@@ -357,7 +419,11 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   buildDevicePieWidget(device, type) {
     let deviceDataMemory = this.getDeviceMemory(device, type);
     if (!deviceDataMemory) {
-      deviceDataMemory = ({ totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' });
+      deviceDataMemory = {
+        totalValue: 1,
+        currentValue: 0,
+        memoryUnitInformation: 'NA'
+      };
     }
     const memmoryPercentage = this.getPercentage(device, type);
     const pieColor =
@@ -382,16 +448,16 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
     if (type == 'MEM') {
       return device.deviceStatus.ram
         ? Math.floor(
-            device.deviceStatus.ram.currentValue /
-              device.deviceStatus.ram.totalValue *
+            (device.deviceStatus.ram.currentValue /
+              device.deviceStatus.ram.totalValue) *
               100
           )
         : 0;
     } else if (type == 'SD') {
       return device.deviceStatus.sdStatus
         ? Math.floor(
-            device.deviceStatus.sdStatus.currentValue /
-              device.deviceStatus.sdStatus.totalValue *
+            (device.deviceStatus.sdStatus.currentValue /
+              device.deviceStatus.sdStatus.totalValue) *
               100
           )
         : 0;
@@ -401,12 +467,10 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
   getDeviceMemory(device, type) {
     if (type == 'MEM') {
       return device.deviceStatus.ram;
-    }
-    else if (type == 'SD') {
-      return device.deviceStatus.sdStatus
-    }
-    else {
-      return ({ totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' });
+    } else if (type == 'SD') {
+      return device.deviceStatus.sdStatus;
+    } else {
+      return { totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' };
     }
   }
 

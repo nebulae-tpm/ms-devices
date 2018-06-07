@@ -175,7 +175,6 @@ export class DevicesComponent implements OnInit {
       .getDevices$(page, count, filterObject)
       .pipe(first())
       .subscribe(model => {
-        console.log('LLegan disp: ', model);
         this.dataSource.data = model;
       });
   }
