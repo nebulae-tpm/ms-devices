@@ -231,7 +231,14 @@ export class DeviceMemoryChartComponent implements OnInit {
         this.page,
         this.count
       )
-      .pipe(first())
+      .pipe(
+      mergeMap(result => Observable.from(result)),
+      map(deviceAlarm => {
+        (deviceAlarm as any).value = Math.floor((deviceAlarm as any).value);
+        return deviceAlarm;
+      }),
+        toArray(),
+        first())
       .subscribe(result => {
         this.alarmDataSource.data = result;
       });
