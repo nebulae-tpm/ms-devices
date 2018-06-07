@@ -45,7 +45,9 @@ class DeviceDA {
 
         return jsonObj;
       })
-      .mergeMap(filterTemplate => this.buildDeviceFilterObject(filterTemplate, page,count));
+      .mergeMap(filterTemplate =>
+        this.buildDeviceFilterObject(filterTemplate, page, count)
+      );
   }
 
   /**
@@ -134,8 +136,8 @@ class DeviceDA {
         .sort(orderObject)
         .skip(count * page)
         .limit(count)
-        .toArray()
-    })
+        .toArray();
+    });
   }
   /**
    * Get the size of table Device
@@ -285,7 +287,12 @@ class DeviceDA {
     const filterObject = {
       $and: [
         { deviceId: deviceId },
-        { type: alarmType == 'VOLT' ? { $in: ['LOW_VOLTAGE','HIGH_VOLTAGE'] } : alarmType},
+        {
+          type:
+            alarmType == 'VOLT'
+              ? { $in: ['LOW_VOLTAGE', 'HIGH_VOLTAGE'] }
+              : alarmType
+        },
         { timestamp: { $gt: initTimestamp } },
         { timestamp: { $lt: endTimestamp } }
       ]
@@ -314,7 +321,10 @@ class DeviceDA {
           {
             $match: {
               timestamp: { $gte: initTime },
-              type: alarmType == 'VOLT' ?  { $in: ['LOW_VOLTAGE','HIGH_VOLTAGE'] }: alarmType,
+              type:
+                alarmType == 'VOLT'
+                  ? { $in: ['LOW_VOLTAGE', 'HIGH_VOLTAGE'] }
+                  : alarmType,
               active: true
             }
           },
@@ -351,39 +361,42 @@ class DeviceDA {
       filterTemplate.type,
       filterTemplate.count,
       filterTemplate.page
-    ).mergeMap(
-      result =>
-        Rx.Observable.from(result)
-          .map(result => {
-            return result.deviceId;
-          })
-          .toArray()
-          .mergeMap(deviceIdList => {
-            return Rx.Observable.defer(() => {
-              return collection
-                .find({ _id: { $in: deviceIdList } })
-                .project({
-                  _id: 0,
-                  id: 1,
-                  deviceStatus: 1
-                })
-                .toArray();
-            })
-          })
-          .mergeMap(result => Rx.Observable.from(result))
-          .map(device => {
-            const deviceAlarmObject = result.filter(deviceAlarm => deviceAlarm.deviceId == device.id)[0];
-            if (deviceAlarmObject) {
-              device.count = deviceAlarmObject.count;
-            }
-            return device;
-          })
-          .toArray()
-          .map(unsortedArray => unsortedArray.sort((a, b) => {
+    ).mergeMap(result =>
+      Rx.Observable.from(result)
+        .map(result => {
+          return result.deviceId;
+        })
+        .toArray()
+        .mergeMap(deviceIdList => {
+          return Rx.Observable.defer(() => {
+            return collection
+              .find({ _id: { $in: deviceIdList } })
+              .project({
+                _id: 0,
+                id: 1,
+                deviceStatus: 1
+              })
+              .toArray();
+          });
+        })
+        .mergeMap(result => Rx.Observable.from(result))
+        .map(device => {
+          const deviceAlarmObject = result.filter(
+            deviceAlarm => deviceAlarm.deviceId == device.id
+          )[0];
+          if (deviceAlarmObject) {
+            device.count = deviceAlarmObject.count;
+          }
+          return device;
+        })
+        .toArray()
+        .map(unsortedArray =>
+          unsortedArray.sort((a, b) => {
             if (a.count < b.count) return 1;
             if (a.count > b.count) return -1;
             return 0;
-          }))
+          })
+        )
     );
   }
 
@@ -491,6 +504,17 @@ class DeviceDA {
       });
   }
 
+  /**
+   * Remove all documents before the obsolete Threshold
+   * @param {double} obsoleteThreshold
+   */
+  static removeObsoleteAlarmHistory$(obsoleteThreshold) {
+    const collection = mongoDB.db.collection('DeviceAlarm');
+    return Rx.Observable.defer(() =>
+      collection.remove({ timestamp: { $lt: obsoleteThreshold } })
+    ).map(r => r.result);
+  }
+
   static persistDeviceVoltageAlarm$(deviceAlarm, eventType, deviceId) {
     const collection = mongoDB.db.collection('DeviceAlarm');
 
@@ -498,7 +522,7 @@ class DeviceDA {
       .map(devAlarm => {
         const rawData = { deviceId };
         switch (eventType) {
-          case 'DeviceHighVoltageAlarmReported':            
+          case 'DeviceHighVoltageAlarmReported':
             rawData.type = 'HIGH_VOLTAGE';
             break;
           case 'DeviceLowVoltageAlarmReported':
@@ -594,6 +618,18 @@ class DeviceDA {
       return Rx.Observable.defer(() => collection.insertOne(device));
     });
   }
+
+  /**
+   * Remove all documents before the obsolete Threshold
+   * @param {double} obsoleteThreshold
+   */
+  static removeObsoleteDeviceHistory$(obsoleteThreshold) {
+    const collection = mongoDB.db.collection('DeviceHistory');
+    return Rx.Observable.defer(() =>
+      collection.remove({ timestamp: { $lt: obsoleteThreshold } })
+    ).map(r => r.result);
+  }
+
   //#endregion
 
   //#region DEVICE_SUBSCRIPTIONS
