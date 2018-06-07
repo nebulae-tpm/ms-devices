@@ -259,6 +259,7 @@ export class DeviceMemoryChartComponent implements OnInit {
     );
     this.subscribers.push(
       this.sortCpuAvgResult(originWidgetInfo).subscribe(rawData => {
+        this.refreshAlarmDataTable(this.page, this.count);
         if (rawData.length < 1) {
           this.snackBar.open(
             'No se encontraron datos para graficar',
