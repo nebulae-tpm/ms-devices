@@ -10,7 +10,8 @@ import {
   toArray,
   distinct,
   groupBy,
-  tap
+  tap,
+  last
 } from 'rxjs/operators';
 import {
   MatDialog,
@@ -355,7 +356,7 @@ export class DeviceMemoryChartComponent implements OnInit {
           mergeMap(sortedArray => {
             return Observable.from(sortedArray).pipe(
               groupBy(memoryValue => (memoryValue as any).timeInterval),
-              mergeMap(group => group.pipe(first()))
+              mergeMap(group => group.pipe(last()))
             );
           }),
           toArray()
