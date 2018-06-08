@@ -768,6 +768,9 @@ class DeviceDA {
    * @param {*} filterTemplate
    */
   static buildDeviceFilterObject(filterTemplate, page, count) {
+    if (!filterTemplate) { 
+      filterTemplate = {};
+    }
     //GENERAL FILTER
     if (filterTemplate.id == 0) {
       return this.getDevicesByGeneralFilter(filterTemplate, page, count);
