@@ -783,4 +783,3 @@ class DeviceDA {
 }
 
 module.exports = DeviceDA;
-
