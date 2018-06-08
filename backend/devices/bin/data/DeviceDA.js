@@ -620,6 +620,7 @@ class DeviceDA {
       return Rx.Observable.defer(() =>
         collection.updateOne(
           {
+            id: device.id,
             dateTime: device.dateTime
           },
           {
