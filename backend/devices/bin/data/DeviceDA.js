@@ -3,6 +3,7 @@
 const Rx = require('rxjs');
 let mongoDB = require('./MongoDB')();
 const broker = require('../tools/broker/BrokerFactory')();
+const dateFormat = require('dateformat');
 
 const MATERIALIZED_VIEW_TOPIC = 'materialized-view-updates';
 
@@ -612,10 +613,23 @@ class DeviceDA {
     device.timestamp = device.timestamp
       ? device.timestamp
       : new Date().getTime();
+    device.dateTime = dateFormat(device.timestamp, 'yyyy-mm-dd HH:MM');
     delete device._id;
     const collection = mongoDB.db.collection('DeviceHistory');
     return Rx.Observable.of(device).mergeMap(result => {
-      return Rx.Observable.defer(() => collection.insertOne(device));
+      return Rx.Observable.defer(() =>
+        collection.updateOne(
+          {
+            dateTime: device.dateTime
+          },
+          {
+            $set: device
+          },
+          {
+            upsert: true
+          }
+        )
+      );
     });
   }
 
