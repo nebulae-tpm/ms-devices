@@ -4,6 +4,21 @@ const Rx = require('rxjs');
 const broker = require('../../broker/BrokerFactory')();
 
 let pubsub = new PubSub();
+
+function getReponseFromBackEnd$(response) {
+  return Rx.Observable.of(response).map(resp => {
+    if (resp.result.code != 200) {
+      const err = new Error();
+      err.name = 'Error';
+      err.message = resp.result.error;
+      // this[Symbol()] = resp.result.error;
+      Error.captureStackTrace(err, 'Error');
+      throw err;
+    }
+    return resp.data;
+  });
+}
+
 module.exports = {
   Query: {
     getDeviceDetail(root, args, context) {
@@ -14,6 +29,7 @@ module.exports = {
           { root, args, jwt: context.encodedToken },
           500
         )
+        .mergeMap(response => getReponseFromBackEnd$(response))
         .toPromise();
     },
     getDeviceAlarms(root, args, context) {
@@ -24,6 +40,7 @@ module.exports = {
           { root, args, jwt: context.encodedToken },
           500
         )
+        .mergeMap(response => getReponseFromBackEnd$(response))
         .toPromise();
     },
     getRamAvgInRangeOfTime(root, args, context) {
@@ -34,6 +51,7 @@ module.exports = {
           { root, args, jwt: context.encodedToken },
           500
         )
+        .mergeMap(response => getReponseFromBackEnd$(response))
         .toPromise();
     },
     getSdAvgInRangeOfTime(root, args, context) {
@@ -44,6 +62,7 @@ module.exports = {
           { root, args, jwt: context.encodedToken },
           500
         )
+        .mergeMap(response => getReponseFromBackEnd$(response))
         .toPromise();
     },
     getCpuAvgInRangeOfTime(root, args, context) {
@@ -54,6 +73,7 @@ module.exports = {
           { root, args, jwt: context.encodedToken },
           500
         )
+        .mergeMap(response => getReponseFromBackEnd$(response))
         .toPromise();
     },
     getVoltageInRangeOfTime(root, args, context) {
@@ -64,6 +84,7 @@ module.exports = {
           { root, args, jwt: context.encodedToken },
           500
         )
+        .mergeMap(response => getReponseFromBackEnd$(response))
         .toPromise();
     },
     getDevices(root, args, context) {
@@ -74,6 +95,7 @@ module.exports = {
           { root, args, jwt: context.encodedToken },
           500
         )
+        .mergeMap(response => getReponseFromBackEnd$(response))
         .toPromise();
     },
     getDeviceTableSize(root, args, context) {
@@ -84,6 +106,7 @@ module.exports = {
           { root, args, jwt: context.encodedToken },
           500
         )
+        .mergeMap(response => getReponseFromBackEnd$(response))
         .toPromise();
     },
     getAlarmTableSize(root, args, context) {
@@ -94,6 +117,7 @@ module.exports = {
           { root, args, jwt: context.encodedToken },
           500
         )
+        .mergeMap(response => getReponseFromBackEnd$(response))
         .toPromise();
     }
   },

@@ -140,7 +140,7 @@ jobs:
             mkdir ~/nebulae/backend
             cp ~/nebulae/go/mbinit ~/nebulae/repo/backend/devices/
             export DOCKERHUB_IMAGE=devices.backend.devices
-            export DOCKERHUB_TAG=0.0.50
+            export DOCKERHUB_TAG=0.0.51
             gitChanged backend/devices || docker build --build-arg DOCKERHUB_TAG=$DOCKERHUB_TAG -t $DOCKERHUB_NAMESPACE/$DOCKERHUB_IMAGE:$DOCKERHUB_TAG -t $DOCKERHUB_NAMESPACE/$DOCKERHUB_IMAGE:latest ~/nebulae/repo/backend/devices/
             gitChanged backend/devices || docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
             gitChanged backend/devices || docker push $DOCKERHUB_NAMESPACE/$DOCKERHUB_IMAGE:$DOCKERHUB_TAG

@@ -1,6 +1,6 @@
 'use strict';
 
-const Devices = require('../../domain/Devices');
+const devices = require('../../domain/Devices')();
 const broker = require('../../tools/broker/BrokerFactory')();
 const Rx = require('rxjs');
 const jsonwebtoken = require('jsonwebtoken');
@@ -10,82 +10,189 @@ let instance;
 
 class GraphQlService {
   constructor() {
-    this.devices = new Devices();
     this.functionMap = this.generateFunctionMap();
+    this.subscriptions = [];
   }
 
   generateFunctionMap() {
     return {
-      'gateway.graphql.query.getDeviceDetail': this.devices.getDeviceDetail,
-      'gateway.graphql.query.getDevices': this.devices.getDevices,
-      'gateway.graphql.query.getDeviceTableSize': this.devices
-        .getDeviceTableSize,
-        'gateway.graphql.query.getAlarmTableSize': this.devices
-        .getAlarmTableSize,
-      'gateway.graphql.query.getRamAvgInRangeOfTime': this.devices
-        .getRamAvgInRangeOfTime,
-      'gateway.graphql.query.getSdAvgInRangeOfTime': this.devices
-        .getSdAvgInRangeOfTime,
-      'gateway.graphql.query.getCpuAvgInRangeOfTime': this.devices
-        .getCpuAvgInRangeOfTime,
-      'gateway.graphql.query.getVoltageInRangeOfTime': this.devices
-        .getVoltageInRangeOfTime,
-      'gateway.graphql.query.getDeviceAlarms': this.devices.getDeviceAlarms
+      'gateway.graphql.query.getDeviceDetail': {
+        fn: devices.getDeviceDetail,
+        obj: devices
+      },
+      'gateway.graphql.query.getDevices': {
+        fn: devices.getDevices,
+        obj: devices
+      },
+      'gateway.graphql.query.getDeviceTableSize': {
+        fn: devices.getDeviceTableSize,
+        obj: devices
+      },
+      'gateway.graphql.query.getAlarmTableSize': {
+        fn: devices.getAlarmTableSize,
+        obj: devices
+      },
+      'gateway.graphql.query.getRamAvgInRangeOfTime': {
+        fn: devices.getRamAvgInRangeOfTime,
+        obj: devices
+      },
+      'gateway.graphql.query.getSdAvgInRangeOfTime': {
+        fn: devices.getSdAvgInRangeOfTime,
+        obj: devices
+      },
+      'gateway.graphql.query.getCpuAvgInRangeOfTime': {
+        fn: devices.getCpuAvgInRangeOfTime,
+        obj: devices
+      },
+      'gateway.graphql.query.getVoltageInRangeOfTime': {
+        fn: devices.getVoltageInRangeOfTime,
+        obj: devices
+      },
+      'gateway.graphql.query.getDeviceAlarms': {
+        fn: devices.getDeviceAlarms,
+        obj: devices
+      }
     };
   }
 
   start$() {
-    return Rx.Observable.create(observer => {
-      this.subscription = broker
-        .getMessageListener$(['Device'], Object.keys(this.functionMap))
-        //decode and verify the jwt token
-        .map(message => {
-          return {
-            authToken: jsonwebtoken.verify(message.data.jwt, jwtPublicKey),
-            message
-          };
-        })
-        //ROUTE MESSAGE TO RESOLVER
-        .mergeMap(({ authToken, message }) =>
-          this.functionMap[message.type](message.data, authToken).map(
-            response => {
-              return {
-                response,
-                correlationId: message.id,
-                replyTo: message.attributes.replyTo
-              };
-            }
-          )
-        )
-        .mergeMap(({ response, correlationId, replyTo }) => {
-          if (replyTo) {
-            return broker.send$(
-              replyTo,
-              'gateway.graphql.Query.response',
-              response,
-              { correlationId }
-            );
-          } else {
-            return Rx.Observable.of(undefined);
-          }
-        })
-        //send response back if neccesary
-        .subscribe(
-          val => {
-            // broker.send$('MaterializedViewUpdates','gateway.graphql.Subscription.response',response);
-            // console.log('Query response => ', val);
-          },
-          error => console.error('Error listening to messages', error),
-          () => {
-            console.log(`Message listener stopped`);
-          }
-        );
-      observer.next('GraphQlService is listening to Device topic');
-      observer.complete();
-    });
+    const onErrorHandler = error => {
+      console.error('Error handling  GraphQl incoming event', error);
+      process.exit(1);
+    };
+
+    //default onComplete handler
+    const onCompleteHandler = () => {
+      () => console.log('GraphQlService incoming event subscription completed');
+    };
+    console.log('GraphQl Service starting ...');
+
+    return Rx.Observable.from([
+      {
+        aggregateType: 'Device',
+        messageType: 'gateway.graphql.query.getDeviceDetail',
+        onErrorHandler,
+        onCompleteHandler
+      },
+      {
+        aggregateType: 'Device',
+        messageType: 'gateway.graphql.query.getDevices',
+        onErrorHandler,
+        onCompleteHandler
+      },
+      {
+        aggregateType: 'Device',
+        messageType: 'gateway.graphql.query.getDeviceTableSize',
+        onErrorHandler,
+        onCompleteHandler
+      },
+      {
+        aggregateType: 'Device',
+        messageType: 'gateway.graphql.query.getAlarmTableSize',
+        onErrorHandler,
+        onCompleteHandler
+      },
+      {
+        aggregateType: 'Device',
+        messageType: 'gateway.graphql.query.getRamAvgInRangeOfTime',
+        onErrorHandler,
+        onCompleteHandler
+      },
+      {
+        aggregateType: 'Device',
+        messageType: 'gateway.graphql.query.getSdAvgInRangeOfTime',
+        onErrorHandler,
+        onCompleteHandler
+      },
+      {
+        aggregateType: 'Device',
+        messageType: 'gateway.graphql.query.getCpuAvgInRangeOfTime',
+        onErrorHandler,
+        onCompleteHandler
+      },
+      {
+        aggregateType: 'Device',
+        messageType: 'gateway.graphql.query.getVoltageInRangeOfTime',
+        onErrorHandler,
+        onCompleteHandler
+      },
+      {
+        aggregateType: 'Device',
+        messageType: 'gateway.graphql.query.getDeviceAlarms',
+        onErrorHandler,
+        onCompleteHandler
+      }
+    ]).map(params => this.subscribeEventHandler(params));
   }
 
-  stop() {}
+  subscribeEventHandler({
+    aggregateType,
+    messageType,
+    onErrorHandler,
+    onCompleteHandler
+  }) {
+    const handler = this.functionMap[messageType];
+    const subscription = broker
+      .getMessageListener$([aggregateType], [messageType])
+      //decode and verify the jwt token
+      .map(message => {
+        return {
+          authToken: jsonwebtoken.verify(message.data.jwt, jwtPublicKey),
+          message
+        };
+      })
+      //ROUTE MESSAGE TO RESOLVER
+      .mergeMap(({ authToken, message }) =>
+        handler.fn
+          .call(handler.obj, message.data, authToken)
+          // .do(r => console.log("############################", r))
+          .map(response => {
+            return {
+              response,
+              correlationId: message.id,
+              replyTo: message.attributes.replyTo
+            };
+          })
+      )
+      //send response back if neccesary
+      .mergeMap(({ response, correlationId, replyTo }) => {
+        if (replyTo) {
+          return broker.send$(
+            replyTo,
+            'gateway.graphql.Query.response',
+            response,
+            { correlationId }
+          );
+        } else {
+          return Rx.Observable.of(undefined);
+        }
+      })
+      .subscribe(
+        msg => {
+          console.log(`GraphQlService process: ${msg}`);
+        },
+        onErrorHandler,
+        onCompleteHandler
+      );
+    this.subscriptions.push({
+      aggregateType,
+      messageType,
+      handlerName: handler.fn.name,
+      subscription
+    });
+    return {
+      aggregateType,
+      messageType,
+      handlerName: `${handler.obj.name}.${handler.fn.name}`
+    };
+  }
+
+  stop$() {
+    return Rx.Observable.from(this.subscriptions).map(subscription => {
+      subscription.subscription.unsubscribe();
+      return `Unsubscribed: aggregateType=${aggregateType}, eventType=${eventType}, handlerName=${handlerName}`;
+    });
+  }
 }
 
 module.exports = () => {
