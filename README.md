@@ -22,6 +22,7 @@ This process is handle by three subprocess:
   * [BackEnd](#backend)
     *  [Devices](#backend_devices)
         *  [Environment variables](#backend_devices_env_vars)
+        *  [CronJobs](#backend_handler_cronjobs)
         *  [Event Sourcing](#backend_devices_eventsourcing)    
   * [Prepare development environment](#prepare_dev_env)
   * [License](#license)
@@ -192,3 +193,66 @@ listen to incoming reports from [ms-device-report](https://github.com/nebulae-tp
 |                                          | string | Ops: PUBSUB, MQTT                                                                            |       |           |
 +------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
 ```
+
+#### Notes: 
+  * ENV VARS for development are [here](backend/devices/.env)
+  * ENV VARS for production are [here](deployment/gke/deployment-devices.yaml)
+
+### CronJobs <a name="backend_handler_cronjobs"></a>
+Time-based jobs that are configured and triggered by the [CronJob MicroService](https://github.com/nebulae-tpm/ms-cronjob)
+
+#### Clear device history
+Find and remove the expired info stored on device history tables (Alarm history and Device state history)
+
+specs:  
+  * Event type: CleanDevicesHistoryJobTriggered
+  * Payload properties: 
+     * obsoleteThreshold (int): threshold in hours to identify the expired regiters.
+
+### Event Sourcing <a name="backend_devices_eventsourcing"></a>
+Event sourcing events this Micro-BackEnd is subscribed to or is publishing
+
+#### Subscribed events:
+  * Device state
+    * DeviceNetworkStateReported
+    * DeviceModemStateReported
+    * DeviceVolumesStateReported
+    * DeviceSystemStateRepoted
+    * DeviceDisplayStateReported
+    * DeviceSystemStateReported
+    * DeviceDeviceStateReported
+    * DeviceMainAppStateReported
+    * DeviceConnected
+    * DeviceDisconnected
+  * Device Alarms
+    * DeviceRamuUsageAlarmActivated
+    * DeviceSdUsageAlarmActivated
+    * DeviceCpuUsageAlarmActivated
+    * DeviceTemperatureAlarmActivated
+    * DeviceSdUsageAlarmDeactivated
+    * DeviceCpuUsageAlarmDeactivated
+    * DeviceTemperatureAlarmDeactivated
+    * DeviceRamUsageAlarmDeactivated
+    * DeviceLowVoltageAlarmReported
+    * DeviceHighVoltageAlarmReported
+    * CleanDevicesHistoryJobTriggered
+
+# Prepare development environment <a name="prepare_dev_env"></a>
+
+![Development environment](docs/images/ms-devices-env-dev.png "Dev_environment")
+
+# License <a name="license"></a>
+
+Copyright 2018 Nebula Engineering SAS
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
