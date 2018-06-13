@@ -194,20 +194,24 @@ type Query {
   "Get the size of table Alarms"
   getAlarmTableSize(deviceId: String!,alarmType: AlarmType!, initTime: BigInt, endTime: BigInt): Int
 
+  "Get a list of device alarms limited by page and count and filtered by device id, alarmType, initTime and endTime"
   getDeviceAlarms(deviceId: String!,alarmType: AlarmType!, initTime: BigInt, endTime: BigInt,page: Int!, count: Int!): [DeviceAlarm]
-
+  
+  "Get the device RAM history"
   getRamAvgInRangeOfTime(
     initTime: BigInt
     endTime: BigInt
     deviceId: String
   ): [Device]
 
+  "Get the device SD history"
   getSdAvgInRangeOfTime(
     initTime: BigInt
     endTime: BigInt
     deviceId: String
   ): [Device]
 
+  "Get the device CPU history"
   getCpuAvgInRangeOfTime(
     initTime: BigInt
     endTime: BigInt
@@ -215,6 +219,7 @@ type Query {
     deviceId: String
   ): [CpuInRageOfTime]
 
+  "Get the device VOLTAGE history"
   getVoltageInRangeOfTime(
     initTime: BigInt
     endTime: BigInt
@@ -223,17 +228,30 @@ type Query {
 }
 
 type Subscription {
+  "Listen the changes when ms-device-report send DeviceVolumesStateReported"
   DeviceVolumesStateReportedEvent(ids: [ID]): Device
+  "Listen the changes when ms-device-report send DeviceDisplayStateReported"
   DeviceDisplayStateReportedEvent(id: ID): Device
+  "Listen the changes when ms-device-report send DeviceSystemStateReported"
   DeviceSystemStateReportedEvent(ids: [ID]): Device
+  "Listen the changes when ms-device-report send DeviceDeviceStateReported"
   DeviceDeviceStateReportedEvent(ids: [ID]): Device
+  "Listen the changes when ms-device-report send DeviceLowestVoltageReported"
   DeviceLowestVoltageReportedEvent(id: ID): Device
+  "Listen the changes when ms-device-report send DeviceHighestVoltageReported"
   DeviceHighestVoltageReportedEvent(id: ID): Device
+  "Listen the changes when ms-device-report send DeviceNetworkStateReported"
   DeviceNetworkStateReportedEvent(id: ID): Device
+  "Listen the changes when ms-device-report send DeviceModemStateReported"
   DeviceModemStateReportedEvent(id: ID): Device
+  "Listen the changes when ms-device-report send DeviceMainAppStateReported"
   DeviceMainAppStateReportedEvent(id: ID): Device
+  "Listen the changes when ms-device-report send DeviceConnected"
   DeviceConnectedEvent(ids: [ID]): Device
+  "Listen the changes when ms-device-report send DeviceDisconnected"
   DeviceDisconnectedEvent(ids: [ID]): Device
+  "Listen the changes when ms-device-report send DeviceTemperatureAlarmActivated"
   DeviceTemperatureAlarmActivatedEvent(id: ID): Device
+  "Listen the changes when ms-device-report send DeviceTemperatureAlarmDeactivated"
   DeviceTemperatureAlarmDeactivatedEvent(id: ID): Device
 }
