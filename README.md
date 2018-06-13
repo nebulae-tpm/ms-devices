@@ -11,7 +11,7 @@ This process is handle by three subprocess:
 
  _This MicroService is built on top of NebulaE MicroService Framework.  Please see the [FrameWork project](https://github.com/NebulaEngineering/nebulae) to understand the full concept_**.
 
- ![Intro](docs/images/ms-devices-report_intro.png "Intro")
+ ![Intro](docs/images/ms-devices_intro.png "Intro")
 
  # Table of Contents
   * [Project Structure](#structure)
