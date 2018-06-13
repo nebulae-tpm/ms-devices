@@ -3,7 +3,7 @@
 # Devices MicroService
 The general purpose of this service is to listen, store and show the general information of devices reported by the microservice [ms-device-report](https://github.com/nebulae-tpm/ms-devices-report).
 This process is handle by three subprocess:
- * device backend: listen to incoming reports from [ms-device-report](https://github.com/nebulae-tpm/ms-devices-report) throught the [PubSub](https://cloud.google.com/pubsub/docs/apis) PubSub Topic, then format and store the data in the materialized view then then publish this data to device api.  
+ * device backend: listen to incoming reports from [ms-device-report](https://github.com/nebulae-tpm/ms-devices-report) throught the [PubSub](https://cloud.google.com/pubsub/docs/apis) Topic, then format and store the data in the materialized view then then publish this data to device api.  
  * device api: this service is a bridge between the backend and the frontend, this api use the [Apollo Graphql api](https://www.apollographql.com/docs/apollo-server/), here is hosted the Queries and the subscribtions consumed by the frontend.
 
  * device frontend: show the stored info of devices using a client-side aplication based on 
@@ -20,9 +20,9 @@ This process is handle by three subprocess:
   * [API](#api)
     * [GraphQL throught Gateway API](#api_gateway_graphql)
   * [BackEnd](#backend)
-    *  [Devices](#backend_recepcionist)
-        *  [Environment variables](#backend_recepcionist_env_vars)
-        *  [Event Sourcing](#backend_recepcionist_eventsourcing)    
+    *  [Devices](#backend_devices)
+        *  [Environment variables](#backend_devices_env_vars)
+        *  [Event Sourcing](#backend_devices_eventsourcing)    
   * [Prepare development environment](#prepare_dev_env)
   * [License](#license)
 
@@ -127,3 +127,68 @@ Listen the changes when ms-device-report send DeviceTemperatureAlarmActivated
 
 #### DeviceTemperatureAlarmDeactivatedEvent
 Listen the changes when ms-device-report send DeviceTemperatureAlarmDeactivated
+
+# BackEnd <a name="backend"></a>
+Backends are defined processes within a docker container.  
+Each process is responsible to build, run and maintain itself.  
+
+Each BackEnd has the following running commands:
+  * npm start: executes main program
+  * npm run prepare: execute maintenance routines such DB indexes creation
+  * npm run sync-state:  syncs backend state by reading all missing Events from the event-store
+  * npm test: runs unit tests
+
+## Devices <a name="backend_devices"></a>
+listen to incoming reports from [ms-device-report](https://github.com/nebulae-tpm/ms-devices-report) throught the [PubSub](https://cloud.google.com/pubsub/docs/apis) Topic, then format and store the data like the current device state, device hystory and device alarms then publish this data to device api using [PubSub](https://cloud.google.com/pubsub/docs/apis) and [Apollo subscriptions](https://www.apollographql.com/docs/graphql-subscriptions/). 
+
+### Environment variables <a name="backend_devices_env_vars"></a>
+
+```
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+|                 VARIABLE                 | TYPE   |                                          DESCRIPTION                                         |  DEF. | MANDATORY |
+|                                          |        |                                                                                              | VALUE |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| production                               | bool   | Production enviroment flag                                                                   | false |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| EVENT_STORE_BROKER_TYPE                  | enum   | Event store broker type to use.                                                              |       |     X     |
+|                                          | string | Ops: PUBSUB, MQTT                                                                            |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| EVENT_STORE_BROKER_EVENTS_TOPIC          | enum   | Event store topic's name.                                                                    |       |     X     |
+|                                          | string |                                                                                              |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| EVENT_STORE_STORE_TYPE                   | enum   | Event store storage type to use.                                                             |       |     X     |
+|                                          | string | Ops: MONGO                                                                                   |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| EVENT_STORE_STORE_URL                    | string | Event store storage URL or connection string.                                                |       |     X     |
+|                                          |        | Eg.: mongodb://127.0.0.1:27017/test                                                          |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| EVENT_STORE_STORE_AGGREGATES_DB_NAME     | string | Event store storage database name for Aggregates                                             |       |     X     |
+|                                          |        | Eg.: Aggregates                                                                              |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| EVENT_STORE_STORE_EVENTSTORE_DB_NAME     | string | Event store storage database name prefix for Event Sourcing Events                           |       |     X     |
+|                                          |        | Eg.: EventStore                                                                              |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| GOOGLE_APPLICATION_CREDENTIALS           | string | Production only.                                                                             |       |     X     |
+|                                          |        | Google service account key path to access google cloud resources.                            |       |           |
+|                                          |        |                                                                                              |       |           |
+|                                          |        | Eg.: /etc/GOOGLE_APPLICATION_CREDENTIALS/gcloud-service-key.json                             |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| LOCKVERSION                              | string | Production only.                                                                             |       |     X     |
+|                                          |        | word or phrase used to evaluate if the sync task should be run before starting this backend. |       |           |
+|                                          |        | This value must be changed to force state sync task.                                         |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| MONGODB_URL                              | string | Materialized views MONGO DB URL                                                              |       |     X     |
+|                                          |        | Eg.: mongodb://127.0.0.1:27017/test                                                          |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| MONGODB_DB_NAME                          | string | Materialized views MONGO DB name                                                             |       |     X     |
+|                                          |        | Eg.: DevicesReport                                                                           |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| JWT_PUBLIC_KEY                           | string | RSA Public key to verify JWT Tokens.                                                         |       |     X     |
+|                                          |        | Format: -----BEGIN PUBLIC KEY-----\nPUBLIC_KEY\n-----END PUBLIC KEY-----                     |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| REPLY_TIMEOUT                            | number | TimeOut in milliseconds in case of sending data through the broker and waiting the response. |  2000 |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+| BROKER_TYPE                              | enum   | Broker type to use for inter-process communication.                                          |       |     X     |
+|                                          | string | Ops: PUBSUB, MQTT                                                                            |       |           |
++------------------------------------------+--------+----------------------------------------------------------------------------------------------+-------+-----------+
+```
