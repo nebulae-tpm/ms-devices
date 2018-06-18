@@ -494,3 +494,4 @@ export class AppVersionDialog {
     this.dialogRef.close();
   }
 }
+
