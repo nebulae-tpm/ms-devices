@@ -128,6 +128,8 @@ module.exports = {
           return pubsub.asyncIterator('DeviceVolumesStateReportedEvent');
         },
         (payload, variables, context, info) => {
+          console.log('variables: ', variables.ids);
+          console.log('payload: ',payload)
           return (
             variables.ids.filter(
               id => id == payload.DeviceVolumesStateReportedEvent.id

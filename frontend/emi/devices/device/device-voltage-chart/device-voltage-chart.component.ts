@@ -1,10 +1,7 @@
-import { Component, OnInit, Input, Inject } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { DeviceService } from '../device.service';
-import * as shape from 'd3-shape';
-import { range } from 'rxjs/observable/range';
-import { scan, first, mergeMap, map, toArray, groupBy } from 'rxjs/operators';
+import { first, mergeMap, map, toArray, groupBy } from 'rxjs/operators';
 import {
-  MatDialog,
   MatDialogRef,
   MAT_DIALOG_DATA,
   MatSnackBar,
@@ -12,7 +9,7 @@ import {
 } from '@angular/material';
 import { DatePipe } from '@angular/common';
 import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-device-voltage-chart',

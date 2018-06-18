@@ -4,15 +4,12 @@ import {
   OnDestroy,
   Inject,
   Input,
-  AfterContentInit
 } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { DeviceService } from '../device.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { first, map, toArray, mergeMap, throttleTime } from 'rxjs/operators';
-import 'rxjs/add/observable/from';
-import { DatePipe, LowerCasePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DeviceMemoryChartComponent } from '../device-memory-chart/device-memory-chart.component';
 import { DeviceVoltageChartComponent } from '../device-voltage-chart/device-voltage-chart.component';

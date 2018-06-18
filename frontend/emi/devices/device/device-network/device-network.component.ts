@@ -1,9 +1,7 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { DeviceService } from '../device.service';
-import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { mergeMap, first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-device-network',

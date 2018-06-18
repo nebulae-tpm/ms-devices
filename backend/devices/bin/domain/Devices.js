@@ -2,6 +2,7 @@
 
 const Rx = require('rxjs');
 const DeviceDA = require('../data/DeviceDA');
+const CustomError = require('../tools/customError')
 
 let instance;
 

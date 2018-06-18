@@ -658,11 +658,11 @@ class DeviceDA {
     // DEVICE STATUS EVENTS
     switch (eventType) {
       case 'DeviceVolumesStateReported':
-        if (device.deviceStatus.deviceDataList) {
+        if (device.deviceStatus.sdStatus) {
           message = { deviceStatus: {} };
           message.id = device.id;
-          message.deviceStatus.deviceDataList =
-            device.deviceStatus.deviceDataList;
+          message.deviceStatus.sdStatus =
+            device.deviceStatus.sdStatus;
         }
         break;
       case 'DeviceDisplayStateReported':

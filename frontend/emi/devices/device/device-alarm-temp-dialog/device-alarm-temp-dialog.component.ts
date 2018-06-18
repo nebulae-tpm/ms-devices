@@ -1,30 +1,18 @@
-import { Component, OnInit, Input, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit, Inject} from '@angular/core';
 import { DeviceService } from '../device.service';
-import * as shape from 'd3-shape';
-import { range } from 'rxjs/observable/range';
+
 import {
-  scan,
-  first,
-  mergeMap,
-  map,
-  toArray,
-  distinct,
-  groupBy,
-  tap
+  first
 } from 'rxjs/operators';
 import {
-  MatDialog,
   MatDialogRef,
   MAT_DIALOG_DATA,
   MatSnackBar,
   MatTableDataSource,
-  MatPaginator,
   PageEvent
 } from '@angular/material';
 import { DatePipe } from '@angular/common';
-import { Observable } from 'rxjs/Observable';
-import { Subscription, BehaviorSubject } from 'rxjs';
-import * as _ from 'lodash';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-device-alarm-temp-dialog',

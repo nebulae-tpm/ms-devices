@@ -69,7 +69,7 @@ export class DeviceService {
     endTime,
     page,
     count
-  ): Observable<any> {    
+  ): Observable<any> {
     return this.gateway.apollo
       .query<any>({
         query: getDeviceAlarms,
@@ -402,7 +402,7 @@ export class DeviceService {
           DeviceVolumesStateReportedEvent(ids: "${deviceId}") {
             id
             deviceStatus {
-              deviceDataList {
+              sdStatus {
                 totalValue
                 currentValue
                 memoryUnitInformation
