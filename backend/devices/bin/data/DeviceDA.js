@@ -610,11 +610,9 @@ class DeviceDA {
    * @param {*} device
    */
   static persistDeviceHistory$(device) {
-    console.log('llega dispositivo: ', device);
     device.timestamp = device.timestamp
-      ? new Date(Number(device.timestamp))
-      : new Date();
-    console.log('Se crea timestamp: ',device.timestamp);
+      ? device.timestamp
+      : new Date().getTime();
     device.dateTime = dateFormat(device.timestamp, 'yyyy-mm-dd HH:MM');
     delete device._id;
     const collection = mongoDB.db.collection('DeviceHistory');

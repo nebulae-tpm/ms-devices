@@ -454,5 +454,3 @@ broker.getMaterializedViewsUpdates$(['NotifyNewDeviceEvent']).subscribe(
   error => console.error('Error listening NotifyNewDeviceEvent', error),
   () => console.log('NotifyNewDeviceEvent listener STOPPED')
 );
-
-
