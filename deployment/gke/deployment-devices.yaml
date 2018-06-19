@@ -13,7 +13,7 @@ spec:
         app: devices
     spec:      
       containers:
-      - image: nebulaetpm/devices.backend.devices:0.0.56
+      - image: nebulaetpm/devices.backend.devices:0.0.57
         name: devices
         volumeMounts:
         - name: google-application-credentials
