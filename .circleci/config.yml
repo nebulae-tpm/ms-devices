@@ -43,16 +43,17 @@ jobs:
           name: Download SHELL Repository
           command: |
             source ~/nebulae/repo/.circleci/scripts/gitChanged.sh
+            cd ~/nebulae/repo/
             mkdir -p ~/nebulae/frontend/shell 
             gitChanged frontend || ( git clone --depth=1 https://github.com/nebulae-tpm/emi ~/nebulae/frontend/shell )      
       - run:
           name: commit & push package-lock.json changes
           command: |
             source ~/nebulae/repo/.circleci/scripts/gitChanged.sh
-            gitChanged frontend || cp /home/circleci/nebulae/frontend/emi/package-lock.json ~/nebulae/frontend/shell/frontend/emi/package-lock.json
-            gitChanged frontend || cd ~/nebulae/frontend/shell
-            gitChanged frontend || git status -s
-            gitChanged frontend || gitPackageLockChanged && gitCommitPush_package-lock "$GITHUB_USER_EMAIL" "$GITHUB_USER_NAME" "$GITHUB_PERSONAL_ACCESS_TOKEN" "nebulae-tpm/emi" "master"             
+            cd ~/nebulae/repo/
+            gitChanged frontend || cp /home/circleci/nebulae/frontend/emi/package-lock.json ~/nebulae/frontend/shell/frontend/emi/package-lock.json            
+            gitChanged frontend || ( cd ~/nebulae/frontend/shell && git status -s && cd ~/nebulae/repo/ )
+            gitChanged frontend || ( cd ~/nebulae/frontend/shell && gitPackageLockChanged && gitCommitPush_package-lock "$GITHUB_USER_EMAIL" "$GITHUB_USER_NAME" "$GITHUB_PERSONAL_ACCESS_TOKEN" "nebulae-tpm/emi" "master" )
       - setup_remote_docker
       - run:
           name: Build docker image and push it to hub
