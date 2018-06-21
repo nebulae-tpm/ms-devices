@@ -22,11 +22,12 @@ gitChanged(){
 #   github repo branch eg: master
 gitPublishPackageLockChanges(){    
     echo "gitPublishPackageLockChanges"
+    echo "abd" | grep "a"
     pwd  
     echo "git status"
     git status   
     echo "git status | grep package-lock.json" 
-    git status | grep package-lock.json
+    git status | grep package-lock.json    
     echo "git status | grep package-lock.json | wc -l"
     git status | grep package-lock.json | wc -l
     echo "a=$( git status | grep package-lock.json | wc -l )"
