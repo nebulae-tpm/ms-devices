@@ -16,10 +16,10 @@ gitChanged(){
 gitPackageLockChanged(){    
     echo "gitPackageLockChanged"
     pwd    
-
     a=$( git status -s | grep package-lock.json | wc -l )
     echo "FFFFFFFFF====="
-    if [[ $a -ne 0 ]];
+    echo a
+    if [ $a -ne 0 ];
         then
             echo "package-lock.json modified"
             return 0
