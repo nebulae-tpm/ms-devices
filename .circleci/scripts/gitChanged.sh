@@ -21,6 +21,11 @@ gitPackageLockChanged(){
     ls -a ../../
     echo "======"
     git status -s
+    echo "======"
+    git status -s | grep package-lock.json
+    echo "======"
+    git status -s | grep package-lock.json | wc -l
+    echo "======"
     changed=$( git status -s | grep package-lock.json | wc -l )
     if [ $? -ne 0 ];
         then
