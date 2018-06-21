@@ -27,11 +27,11 @@ gitPackageLockChanged(){
     git status -s | grep package-lock.json | wc -l
     echo "======"
     changed=$( git status -s | grep package-lock.json | wc -l )
-    if [ $? -ne 0 ];
-        then
-        echo "Failed to get to know if package-lock had changed"
-        return 1
-    fi
+    # if [ $? -ne 0 ];
+    #     then
+    #     echo "Failed to get to know if package-lock had changed"
+    #     return 1
+    # fi
     if [ $changed -ne 0 ];
         then
             echo "package-lock.json modified"
