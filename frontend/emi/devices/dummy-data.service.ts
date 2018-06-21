@@ -16,7 +16,7 @@ export class DummyDataService {
           values.push({
             id: result,
             name: this.makePlate(),
-            deviceType: 'OMVZ7',
+            deviceType: 'OMVZ7', 
             ramStatus: {
               totalValue: 1026448,
               currentValue: Math.floor(Math.random() * 1026448),
