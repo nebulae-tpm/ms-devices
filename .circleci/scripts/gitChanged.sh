@@ -23,14 +23,14 @@ gitChanged(){
 gitPublishPackageLockChanges(){    
     echo "gitPublishPackageLockChanges"
     pwd  
-    echo "git status -s"
-    git status -s    
-    echo "git status -s | grep package-lock.json" 
-    git status -s | grep package-lock.json
-    echo "git status -s | grep package-lock.json | wc -l"
-    git status -s | grep package-lock.json | wc -l
-    echo "a=$( git status -s | grep package-lock.json | wc -l )"
-    a=$( git status -s | grep package-lock.json | wc -l )
+    echo "git status"
+    git status   
+    echo "git status | grep package-lock.json" 
+    git status | grep package-lock.json
+    echo "git status | grep package-lock.json | wc -l"
+    git status | grep package-lock.json | wc -l
+    echo "a=$( git status | grep package-lock.json | wc -l )"
+    a=$( git status | grep package-lock.json | wc -l )
     echo "FFFFFFFFF====="
     echo $a
     if [ $a -ne 0 ];
