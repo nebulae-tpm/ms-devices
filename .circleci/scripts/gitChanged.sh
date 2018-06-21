@@ -26,7 +26,7 @@ gitPublishPackageLockChanges(){
     echo "git status -s"
     git status -s    
     echo "git status -s | grep package-lock.json" 
-    git status -s | grep package-lock.json 
+    git status -s | grep package-lock.json
     echo "git status -s | grep package-lock.json | wc -l"
     git status -s | grep package-lock.json | wc -l
     echo "a=$( git status -s | grep package-lock.json | wc -l )"
