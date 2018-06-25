@@ -15,7 +15,7 @@ This process is handle by three subprocess:
 
  # Table of Contents
   * [Project Structure](#structure)
-  * [FrontEnd](#frontend) - not yet available  
+  * [FrontEnd](#frontend) 
     *  [Environment variables](#frontend_env_vars) - not yet available  
   * [API](#api)
     * [GraphQL throught Gateway API](#api_gateway_graphql)
@@ -49,6 +49,15 @@ This process is handle by three subprocess:
 │   └── images  
 ├── README.md                           => This doc
 ```
+
+# API <a name="frontend"></a>
+
+In this section you can find the information (Alarms, current status, histograms) reported by the devices that are currently registered in the platform. This section is divided into two views:
+
+the list of devices (see image) where all the devices that are registered on the platform are displayed, in this table you can see general data such as the serial number, RAM status, CPU, SD and if it is active. Also, for ease of use to this list you can apply search filters by means of alarms (CPU, RAM, SD and Temperature) and a search box that looks for matches with the hostname, serial or location.
+
+![Intro](docs/images/device_table.png "Intro")
+
 
 # API <a name="api"></a>
 Exposed interfaces to send Commands and Queries by the CQRS principles.  

@@ -176,7 +176,7 @@
     </div>
   </div>
 
-  <div *ngIf="device.appStatus.appTablesVersion" fxLayout="column " fxFlex="100" fxFlex.gt-sm="50" fxFlex.gt-md="48">
+  <div *ngIf="device.appStatus" fxLayout="column " fxFlex="100" fxFlex.gt-sm="50" fxFlex.gt-md="48">
     <div class="device-box info-box read-form" fxLayout="column">
 
       <header class="mat-accent-bg">
@@ -185,7 +185,7 @@
       <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between" class="m-12">
         <div style="display: flex; flex-direction: column; flex-wrap: wrap">
 
-          <div class="info-line">
+          <div *ngIf="device.appStatus.appTablesVersion" class="info-line">
             <table class="info">
               <tr class="content-form">
                 <td class="read-form-title">{{'DEVICE.FARE_POLICY' | translate}}</td>
@@ -194,7 +194,7 @@
             </table>
           </div>
 
-          <div class="info-line">
+          <div *ngIf="device.appStatus.appTablesVersion" class="info-line">
             <table class="info">
               <tr class="content-form">
                 <td class="read-form-title">{{'DEVICE.BLACK_LIST' | translate}}</td>
@@ -207,7 +207,7 @@
 
 
         </div>
-        <div style="display: flex; flex-direction: column; flex-wrap: wrap">
+        <div *ngIf="device.appStatus.appVersions" style="display: flex; flex-direction: column; flex-wrap: wrap">
           <div class="info-line">
             <table class="info">
               <tr class="content-form">
