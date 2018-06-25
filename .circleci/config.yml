@@ -39,14 +39,27 @@ jobs:
             gitChanged frontend || nebulae register microfrontend --microservice-id=devices --frontend-id=emi --setup-file=/home/circleci/nebulae/repo/etc/mfe-setup.json --store-type=GCP_DATASTORE --gcp-service-account-token=/tmp/gcloud-service-key.json            
             gitChanged frontend || nebulae compose-ui production --shell-type=FUSE2_ANGULAR --shell-repo=https://github.com/nebulae-tpm/emi.git --frontend-id=emi --output-dir=/home/circleci/nebulae/frontend/emi/ --store-type=GCP_DATASTORE --gcp-service-account-token=/tmp/gcloud-service-key.json
             gitChanged frontend || ls /home/circleci/nebulae/frontend/emi/           
+      - run:
+          name: Download SHELL Repository
+          command: |
+            source ~/nebulae/repo/.circleci/scripts/gitChanged.sh
+            cd ~/nebulae/repo/
+            mkdir -p ~/nebulae/frontend/shell 
+            gitChanged frontend || ( git clone --depth=1 https://github.com/nebulae-tpm/emi ~/nebulae/frontend/shell )      
+      - run:
+          name: commit & push package-lock.json changes
+          command: |
+            source ~/nebulae/repo/.circleci/scripts/gitChanged.sh
+            cd ~/nebulae/repo/
+            gitChanged frontend || cp /home/circleci/nebulae/frontend/emi/package-lock.json ~/nebulae/frontend/shell/frontend/emi/package-lock.json            
+            gitChanged frontend || ( cd ~/nebulae/frontend/shell && git status -s && cd ~/nebulae/repo/ )
+            gitChanged frontend || ( cd ~/nebulae/frontend/shell/frontend/emi && gitPublishPackageLockChanges "$GITHUB_USER_EMAIL" "$GITHUB_USER_NAME" "$GITHUB_PERSONAL_ACCESS_TOKEN" "nebulae-tpm/emi" "master" )
       - setup_remote_docker
       - run:
           name: Build docker image and push it to hub
           command: |
             source ~/nebulae/repo/.circleci/scripts/gitChanged.sh
-            cd ~/nebulae/repo/
-            mkdir -p ~/nebulae/frontend/shell
-            gitChanged frontend || ( git clone --depth=1 https://github.com/nebulae-tpm/emi ~/nebulae/frontend/shell )      
+            cd ~/nebulae/repo/           
             gitChanged frontend || ls ~/nebulae/frontend/emi/dist/ 
             gitChanged frontend || export DOCKERHUB_IMAGE=emi
             gitChanged frontend || export FRONTEND_SHELL_PATH=~/nebulae/frontend/emi

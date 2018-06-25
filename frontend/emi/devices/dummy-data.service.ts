@@ -4,8 +4,7 @@ import { range } from 'rxjs/observable/range';
 @Injectable()
 export class DummyDataService {
   dummyData= [];
-  constructor() {
-
+  constructor() {                        
   }
   //TODO: Datos dummy se debe elminar cuando se pueda obtener los datos reales
   generateDummyData(count) {
@@ -13,7 +12,7 @@ export class DummyDataService {
     return new Promise((resolve, reject) => {
       range(1, count).subscribe(
         result => {
-          values.push({
+          values.push({ 
             id: result,
             name: this.makePlate(),
             deviceType: 'OMVZ7',

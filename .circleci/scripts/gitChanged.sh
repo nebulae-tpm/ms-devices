@@ -11,3 +11,43 @@ gitChanged(){
         return 0
     fi
 }
+
+
+# Commit and push the package-lock.json
+# Arguments:
+#   github user email
+#   github user name
+#   github user token
+#   github repo path eg: nebulae-tpm/emi
+#   github repo branch eg: master
+gitPublishPackageLockChanges(){    
+    echo "gitPublishPackageLockChanges"
+    echo "abd" | grep "a"
+    pwd  
+    echo "git status"
+    git status   
+    echo "git status | grep package-lock.json" 
+    git status | grep package-lock.json    
+    echo "git status | grep package-lock.json | wc -l"
+    git status | grep package-lock.json | wc -l
+    echo "a=$( git status | grep package-lock.json | wc -l )"
+    a=$( git status | grep package-lock.json | wc -l )
+    echo "FFFFFFFFF====="
+    echo $a
+    if [ $a -ne 0 ];
+        then
+            echo "package-lock.json modified: commiting and pushing changes"
+            git config credential.helper 'cache --timeout=120'
+            git config user.email $1
+            git config user.name $2   
+
+            # Push quietly to prevent showing the token in log
+            git add frontend/emi/package-lock.json
+            git commit -m 'CircleCI has updated locked npm versions [ci skip]' frontend/emi/package-lock.json 
+            git push -q https://$3@github.com/$4.git $5
+            return 0
+        else       
+            echo "package-lock.json was NOT modified"
+            return 0
+    fi
+}
