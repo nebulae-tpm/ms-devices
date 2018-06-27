@@ -50,7 +50,7 @@ This process is handle by three subprocess:
 ├── README.md                           => This doc
 ```
 
-# API <a name="frontend"></a>
+# Frontend <a name="frontend"></a>
 
 In this section you can find the information (Alarms, current status, histograms) reported by the devices that are currently registered in the platform. This section is divided into two views:
 
