@@ -122,6 +122,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 ...this.device.deviceStatus,
                 ...JSON.parse(JSON.stringify(rawData.deviceStatus))
               };
+              this.device.timestamp = rawData.timestamp;
               this.device.deviceStatus = deviceStatus;
             }
           }
@@ -146,6 +147,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 ...this.device.deviceStatus,
                 ...JSON.parse(JSON.stringify(rawData.deviceStatus))
               };
+              this.device.timestamp = rawData.timestamp;
               this.device.deviceStatus = deviceStatus;
             }
           }
@@ -170,6 +172,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 ...this.device.deviceStatus,
                 ...JSON.parse(JSON.stringify(rawData.deviceStatus))
               };
+              this.device.timestamp = rawData.timestamp;
               this.device.deviceStatus = deviceStatus;
             }
           }
@@ -194,6 +197,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 ...this.device.deviceStatus,
                 ...JSON.parse(JSON.stringify(rawData.deviceStatus))
               };
+              this.device.timestamp = rawData.timestamp;
               this.device.deviceStatus = deviceStatus;
             }
           }
@@ -218,6 +222,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 ...this.device.deviceStatus,
                 ...JSON.parse(JSON.stringify(rawData.deviceStatus))
               };
+              this.device.timestamp = rawData.timestamp;
               this.device.deviceStatus = deviceStatus;
             }
           }
@@ -242,6 +247,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 ...this.device.deviceStatus,
                 ...JSON.parse(JSON.stringify(rawData.deviceStatus))
               };
+              this.device.timestamp = rawData.timestamp;
               this.device.deviceStatus = deviceStatus;
             }
           }
@@ -267,6 +273,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 ...this.device.deviceStatus,
                 ...JSON.parse(JSON.stringify(rawData.deviceStatus))
               };
+              this.device.timestamp = rawData.timestamp;
               this.device.deviceStatus = deviceStatus;
               this.deviceService.newEvent({
                 type: 'SD',
@@ -296,6 +303,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 ...this.device.appStatus,
                 ...JSON.parse(JSON.stringify(rawData.appStatus))
               };
+              this.device.timestamp = rawData.timestamp;
               this.device.appStatus = appStatus;
             }
           }
@@ -321,6 +329,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
                 ...this.device.deviceStatus,
                 ...JSON.parse(JSON.stringify(rawData.deviceStatus))
               };
+              this.device.timestamp = rawData.timestamp;
               this.device.deviceStatus = deviceStatus;
 
               this.deviceService.newEvent({
