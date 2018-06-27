@@ -54,9 +54,13 @@ This process is handle by three subprocess:
 
 In this section you can find the information (Alarms, current status, histograms) reported by the devices that are currently registered in the platform. This section is divided into two views:
 
-the list of devices (see image) where all the devices that are registered on the platform are displayed, in this table you can see general data such as the serial number, RAM status, CPU, SD and if it is active. Also, for ease of use to this list you can apply search filters by means of alarms (CPU, RAM, SD and Temperature) and a search box that looks for matches with the hostname, serial or location.
+- the list of devices (see image bellow) where all the devices that are registered on the platform are displayed, in this table you can see general data such as the serial number, RAM status, CPU, SD and if it is active. Also, for ease of use to this list you can apply search filters by means of alarms (CPU, RAM, SD and Temperature) and a search box that looks for matches with the hostname, serial or location.
 
 ![Intro](docs/images/device_table.png "Intro")
+
+- Can be accessed by selecting an item in the list of devices (see image above), in this section you can view the current status of the devices
+
+![Intro](docs/images/device_detail.png "Intro")
 
 
 # API <a name="api"></a>
