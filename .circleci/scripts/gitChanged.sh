@@ -26,19 +26,13 @@ gitPublishPackageLockChanges(){
     pwd  
     echo "git status"
     git status   
-    echo "git status | grep package-lock.json"
-    git status 2> /tmp/err.log
-    git status > /tmp/std.log
-    echo "std err:"
-    cat /tmp/err.log
-    echo "outs err:"
-    cat /tmp/std.log
-
-    git status | grep "package-lock.json"    
-    echo "git status | grep package-lock.json | wc -l"
-    git status | grep "package-lock.json" | wc -l
-    echo "a=$( git status | grep package-lock.json | wc -l )"
-    a=$( git status | grep "package-lock.json" | wc -l )
+    echo "git status > /tmp/out.log 2>&1"
+    git status > /tmp/out.log 2>&1
+    cat /tmp/out.log | grep "package-lock.json"    
+    echo "cat /tmp/out.log | grep package-lock.json | wc -l"
+    cat /tmp/out.log | grep "package-lock.json" | wc -l
+    echo "a=$( cat /tmp/out.log | grep package-lock.json | wc -l )"
+    a=$( cat /tmp/out.log | grep "package-lock.json" | wc -l )
     echo "FFFFFFFFF====="
     echo $a
     if [ $a -ne 0 ];
