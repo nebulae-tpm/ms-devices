@@ -26,7 +26,14 @@ gitPublishPackageLockChanges(){
     pwd  
     echo "git status"
     git status   
-    echo "git status | grep package-lock.json" 
+    echo "git status | grep package-lock.json"
+    git status 2> /tmp/err.log
+    git status > /tmp/std.log
+    echo "std err:"
+    cat /tmp/err.log
+    echo "outs err:"
+    cat /tmp/std.log
+
     git status | grep "package-lock.json"    
     echo "git status | grep package-lock.json | wc -l"
     git status | grep "package-lock.json" | wc -l
