@@ -27,11 +27,11 @@ gitPublishPackageLockChanges(){
     echo "git status"
     git status   
     echo "git status | grep package-lock.json" 
-    git status | grep package-lock.json    
+    git status | grep "package-lock.json"    
     echo "git status | grep package-lock.json | wc -l"
-    git status | grep package-lock.json | wc -l
+    git status | grep "package-lock.json" | wc -l
     echo "a=$( git status | grep package-lock.json | wc -l )"
-    a=$( git status | grep package-lock.json | wc -l )
+    a=$( git status | grep "package-lock.json" | wc -l )
     echo "FFFFFFFFF====="
     echo $a
     if [ $a -ne 0 ];
