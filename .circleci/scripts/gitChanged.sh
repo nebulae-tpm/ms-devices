@@ -30,8 +30,8 @@ gitPublishPackageLockChanges(){
     git status > /tmp/out.log 2>&1
     echo "cat /tmp/out.log"
     cat /tmp/out.log
-    echo "/tmp/out.log | grep ..."
-    cat /tmp/out.log | grep "lock"    
+    echo "grep package-lock /tmp/out.log "
+    grep "package-lock" /tmp/out.log     
     echo "cat /tmp/out.log | grep package-lock.json | wc -l"
     cat /tmp/out.log | grep "package-lock.json" | wc -l
     echo "a=$( cat /tmp/out.log | grep package-lock.json | wc -l )"
