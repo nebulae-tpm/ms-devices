@@ -38,7 +38,7 @@ export const locale = {
       GENERAL_INFO: 'General info',
       RAM_STATUS: 'RAM Status',
       SD_STATUS: 'SD Status',
-      HOST_NAME: 'Hostname',
+      HOST_NAME: 'Host Name',
       FLASH_STATUS: 'FLASH Status',
       VOLTAGE_STATUS: 'Voltage status',
       LOWEST_VALUE: 'Lowest value',
