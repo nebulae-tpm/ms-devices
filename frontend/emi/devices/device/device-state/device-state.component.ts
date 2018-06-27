@@ -479,6 +479,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
       return { totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' };
     }
   }
+  
 
   ngOnDestroy() {
     if (this.subscribers) {
