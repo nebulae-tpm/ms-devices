@@ -92,6 +92,7 @@ export class DeviceService {
       })
       .pipe(map(rawData => rawData.data.getDeviceAlarmThresholds));
   }
+
   getAlarmTableSize(deviceId, alarmType, selectedDelta): Observable<number> {
     const endTime = new Date().getTime();
     const intervalValue = selectedDelta * 60000;
