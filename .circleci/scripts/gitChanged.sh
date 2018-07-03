@@ -23,9 +23,9 @@ gitChanged(){
 gitPublishPackageLockChanges(){    
     echo "gitPublishPackageLockChanges"    
     echo 'cat ( (/tmp/out.log | grep package-lock.json) || 0 ) | wc -l'
-    cat ( (/tmp/out.log | grep "package-lock.json") || 0 ) | wc -l
-    echo 'a=$( cat ( (/tmp/out.log | grep package-lock.json) || 0) | wc -l )'
-    a=$( cat ((/tmp/out.log | grep "package-lock.json") || 0) | wc -l )
+    cat ((/tmp/out.log | grep "package-lock.json") || 0 ) | wc -l
+    echo 'a=$(cat ((/tmp/out.log | grep package-lock.json) || 0) | wc -l )'
+    a=$(cat ((/tmp/out.log | grep "package-lock.json") || 0) | wc -l )
     echo "FFFFFFFFF====="
     echo $a
     if [ $a -ne 0 ];
