@@ -5,7 +5,8 @@ import { range } from 'rxjs/observable/range';
 export class DummyDataService {
   dummyData= [];
   constructor() {   
-                                                
+    
+    
   }
   //TODO: Datos dummy se debe elminar cuando se pueda obtener los datos reales
   generateDummyData(count) {

@@ -22,11 +22,11 @@ gitChanged(){
 #   github repo branch eg: master
 gitPublishPackageLockChanges(){    
     echo "gitPublishPackageLockChanges"    
-    echo '$( git status -s | grep "package-lock.json" || echo '0' | wc -l )'
+    echo 'a=$( git status -s | grep package-lock.json | wc -l  || echo 0 )'
     a=$( git status -s | grep "package-lock.json" | wc -l  || echo 0 )
     echo "FFFFFFFFF====="
     echo $a
-    if [ $a -ne 0 ];
+    if [ $a -ne 0 ]
         then
             echo "package-lock.json modified: commiting and pushing changes"
             git config credential.helper 'cache --timeout=120'
