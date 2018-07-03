@@ -21,21 +21,11 @@ gitChanged(){
 #   github repo path eg: nebulae-tpm/emi
 #   github repo branch eg: master
 gitPublishPackageLockChanges(){    
-    echo "gitPublishPackageLockChanges"
-    echo "abd" | grep "a"
-    pwd  
-    echo "git status"
-    git status   
-    echo "git status > /tmp/out.log 2>&1"
-    git status > /tmp/out.log 2>&1
-    echo "cat /tmp/out.log"
-    cat /tmp/out.log
-    echo "grep package-lock /tmp/out.log "
-    grep "package-lock" /tmp/out.log     
-    echo "cat /tmp/out.log | grep package-lock.json | wc -l"
-    cat /tmp/out.log | grep "package-lock.json" | wc -l
-    echo "a=$( cat /tmp/out.log | grep package-lock.json | wc -l )"
-    a=$( cat /tmp/out.log | grep "package-lock.json" | wc -l )
+    echo "gitPublishPackageLockChanges"    
+    echo 'cat ( (/tmp/out.log | grep package-lock.json) || 0 ) | wc -l'
+    cat ( (/tmp/out.log | grep "package-lock.json") || 0 ) | wc -l
+    echo 'a=$( cat ( (/tmp/out.log | grep package-lock.json) || 0) | wc -l )'
+    a=$( cat ((/tmp/out.log | grep "package-lock.json") || 0) | wc -l )
     echo "FFFFFFFFF====="
     echo $a
     if [ $a -ne 0 ];
