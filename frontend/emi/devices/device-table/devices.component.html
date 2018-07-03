@@ -95,7 +95,7 @@
             <span class="quantity-indicator text-truncate" [ngClass]="{'mat-red-500-bg':device.deviceStatus.currentCpuStatus >= 80, 'mat-amber-500-bg':device.deviceStatus.currentCpuStatus >50 && device.deviceStatus.currentCpuStatus <= 79,'mat-green-600-bg':device.deviceStatus.currentCpuStatus <= 50}">
             </span>
             <span>
-              {{device.deviceStatus.currentCpuStatus | number:'3.1-2'}}
+              {{device.deviceStatus.currentCpuStatus | number}}
             </span>
           </mat-cell>
         </ng-container>
