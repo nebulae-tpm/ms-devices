@@ -22,6 +22,7 @@ gitChanged(){
 #   github repo branch eg: master
 gitPublishPackageLockChanges(){    
     echo "gitPublishPackageLockChanges"    
+    git status -s
     echo 'a=$( git status -s | grep package-lock.json | wc -l  || echo 0 )'
     a=$( git status -s | grep "package-lock.json" | wc -l  || echo 0 )
     echo "FFFFFFFFF====="
@@ -34,9 +35,12 @@ gitPublishPackageLockChanges(){
             git config user.name $2   
 
             # Push quietly to prevent showing the token in log
-            git add frontend/emi/package-lock.json
+            git add frontend/emi/package-lock.json            
+            echo 'file added to git'
             git commit -m 'CircleCI has updated locked npm versions [ci skip]' frontend/emi/package-lock.json 
+            echo 'file commited to git'
             git push -q https://$3@github.com/$4.git $5
+            echo 'file pushed to git'
             return 0
         else       
             echo "package-lock.json was NOT modified"
