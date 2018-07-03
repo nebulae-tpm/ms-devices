@@ -22,8 +22,8 @@ gitChanged(){
 #   github repo branch eg: master
 gitPublishPackageLockChanges(){    
     echo "gitPublishPackageLockChanges"    
-    echo '$( git status -s | grep "package-lock.json" || 0 | wc -l )'
-    a=$( git status -s | grep "package-lock.json" || 0 | wc -l )
+    echo '$( git status -s | grep "package-lock.json" || echo '0' | wc -l )'
+    a=$( git status -s | grep "package-lock.json" | wc -l  || echo 0 )
     echo "FFFFFFFFF====="
     echo $a
     if [ $a -ne 0 ];
