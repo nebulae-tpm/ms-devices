@@ -25,7 +25,6 @@ gitPublishPackageLockChanges(){
     git status -s
     echo 'a=$( git status -s | grep package-lock.json | wc -l  || echo 0 )'
     a=$( git status -s | grep "package-lock.json" | wc -l  || echo 0 )
-    echo "FFFFFFFFF====="
     echo $a
     if [ $a -ne 0 ]
         then
