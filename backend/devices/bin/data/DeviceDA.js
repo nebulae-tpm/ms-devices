@@ -761,7 +761,6 @@ class DeviceDA {
         break;
     }
     if (message) {
-      console.log('Se envia mensaje: ' + JSON.stringify(message));
       return broker.send$(
         MATERIALIZED_VIEW_TOPIC,
         `${eventType}Event`,

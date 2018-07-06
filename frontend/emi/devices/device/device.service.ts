@@ -402,6 +402,7 @@ export class DeviceService {
         subscription {
           DeviceVolumesStateReportedEvent(ids: "${deviceId}") {
             id
+            timestamp
             deviceStatus {
               sdStatus {
                 totalValue
@@ -422,6 +423,7 @@ export class DeviceService {
         subscription {
           DeviceConnectedEvent(ids: "${deviceId}") {
             id
+            timestamp
             deviceStatus {
               online
             }
@@ -437,6 +439,7 @@ export class DeviceService {
         subscription {
           subscribeToDeviceDisconnectedEvent(ids: "${deviceId}") {
             id
+            timestamp
             deviceStatus {
               online
             }
@@ -452,6 +455,7 @@ export class DeviceService {
         subscription {
           DeviceDisplayStateReportedEvent(id: "${deviceId}") {
             id
+            timestamp
             deviceStatus {
               displaySn
             }
@@ -467,6 +471,7 @@ export class DeviceService {
         subscription {
           DeviceSystemStateReportedEvent(ids: "${deviceId}") {
             id
+            timestamp
             deviceStatus {
               temperature
               cpuStatus
@@ -494,6 +499,7 @@ export class DeviceService {
         subscription {
           DeviceDeviceStateReportedEvent(ids: "${deviceId}") {
             id
+            timestamp
             deviceStatus {
               devSn
               hostname
@@ -512,6 +518,7 @@ export class DeviceService {
         subscription {
           DeviceNetworkStateReportedEvent(id: "${deviceId}") {
             id
+            timestamp
             deviceNetwork {
               gateway
               mac
@@ -533,6 +540,7 @@ export class DeviceService {
         subscription {
           DeviceModemStateReportedEvent(id: "${deviceId}") {
             id
+            timestamp
             deviceNetwork {
               band
               mode
@@ -551,6 +559,7 @@ export class DeviceService {
         subscription {
           DeviceTemperatureAlarmActivatedEvent(id: "${deviceId}") {
             id
+            timestamp
             deviceStatus {
               alarmTempActive
             }
@@ -568,6 +577,7 @@ export class DeviceService {
         subscription {
           DeviceTemperatureAlarmDeactivatedEvent(id: "${deviceId}") {
             id
+            timestamp
             deviceStatus {
               alarmTempActive
             }
@@ -583,6 +593,7 @@ export class DeviceService {
         subscription {
           DeviceMainAppStateReportedEvent(id: "${deviceId}") {
             id
+            timestamp
             appStatus {
               timestamp
               appTablesVersion {
