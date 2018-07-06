@@ -661,6 +661,7 @@ class DeviceDA {
         if (device.deviceStatus.sdStatus) {
           message = { deviceStatus: {} };
           message.id = device.id;
+          message.timestamp = device.timestamp;
           message.deviceStatus.sdStatus =
             device.deviceStatus.sdStatus;
         }
@@ -669,6 +670,7 @@ class DeviceDA {
         if (device.deviceStatus) {
           message = { deviceStatus: {} };
           message.id = device.id;
+          message.timestamp = device.timestamp;
           message.deviceStatus.displaySn = device.deviceStatus.displaySn;
         }
         break;
@@ -676,6 +678,7 @@ class DeviceDA {
         if (device.deviceStatus) {
           message = { deviceStatus: {} };
           message.id = device.id;
+          message.timestamp = device.timestamp;
           message.deviceStatus.temperature = device.deviceStatus.temperature;
           message.deviceStatus.cpuStatus = device.deviceStatus.cpuStatus;
           message.deviceStatus.upTime = device.deviceStatus.upTime;
@@ -687,6 +690,7 @@ class DeviceDA {
         if (device.deviceStatus) {
           message = { deviceStatus: {} };
           message.id = device.id;
+          message.timestamp = device.timestamp;
           message.deviceStatus.devSn = device.deviceStatus.devSn;
           message.deviceStatus.type = device.deviceStatus.type;
           message.deviceStatus.groupName = device.deviceStatus.groupName;
@@ -697,6 +701,7 @@ class DeviceDA {
         if (device.deviceStatus) {
           message = { deviceStatus: {} };
           message.id = device.id;
+          message.timestamp = device.timestamp;
           message.deviceStatus.online = device.deviceStatus.online;
         }
         break;
@@ -704,6 +709,7 @@ class DeviceDA {
         if (device.deviceStatus) {
           message = { deviceStatus: {} };
           message.id = device.id;
+          message.timestamp = device.timestamp;
           message.deviceStatus.online = device.deviceStatus.online;
         }
         break;
@@ -711,6 +717,7 @@ class DeviceDA {
       case 'DeviceTemperatureAlarmDeactivated':
         message = { deviceStatus: {} };
         message.id = device.id;
+        message.timestamp = device.timestamp;
         message.deviceStatus.alarmTempActive =
           eventType == 'DeviceTemperatureAlarmActivated';
         break;
@@ -719,6 +726,7 @@ class DeviceDA {
         if (device.deviceNetwork) {
           message = { deviceNetwork: {} };
           message.id = device.id;
+          message.timestamp = device.timestamp;
           message.deviceNetwork.gateway = device.deviceNetwork.gateway;
           message.deviceNetwork.mac = device.deviceNetwork.mac;
           message.deviceNetwork.dns = device.deviceNetwork.dns;
@@ -730,6 +738,7 @@ class DeviceDA {
         if (device.deviceNetwork) {
           message = { deviceNetwork: {} };
           message.id = device.id;
+          message.timestamp = device.timestamp;
           message.deviceNetwork.band = device.deviceNetwork.band;
           message.deviceNetwork.cellid = device.deviceNetwork.cellid;
           message.deviceNetwork.mode = device.deviceNetwork.mode;
@@ -743,6 +752,7 @@ class DeviceDA {
         if (device.appStatus) {
           message = { appStatus: {} };
           message.id = device.id;
+          message.timestamp = device.timestamp;
           message.appStatus.timestamp = device.appStatus.timestamp;
           message.appStatus.appTablesVersion =
             device.appStatus.appTablesVersion;
