@@ -111,6 +111,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
             const rawData = JSON.parse(
               JSON.stringify(result.data.DeviceDeviceStateReportedEvent)
             );
+            console.log('Llega deviceDevice: ' + JSON.stringify(rawData));
             if (rawData.deviceStatus) {
               Object.keys(rawData.deviceStatus).forEach(
                 k =>
@@ -137,6 +138,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
             const rawData = JSON.parse(
               JSON.stringify(result.data.DeviceTemperatureAlarmActivatedEvent)
             );
+            console.log('Llega DeviceTempAlarm: ' + JSON.stringify(rawData));
             if (rawData.deviceStatus) {
               Object.keys(rawData.deviceStatus).forEach(
                 k =>
@@ -212,6 +214,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
             const rawData = JSON.parse(
               JSON.stringify(result.data.DeviceConnectedEvent)
             );
+            console.log('Llega DeviceConnected: ' + JSON.stringify(rawData));
             if (rawData.deviceStatus) {
               Object.keys(rawData.deviceStatus).forEach(
                 k =>
@@ -262,6 +265,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
             const rawData = JSON.parse(
               JSON.stringify(result.data.DeviceVolumesStateReportedEvent)
             );
+            console.log('Llega Volumes: ' + JSON.stringify(rawData));
             if (rawData.deviceStatus) {
               Object.keys(rawData.deviceStatus).forEach(
                 k =>
@@ -292,6 +296,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
             const rawData = JSON.parse(
               JSON.stringify(result.data.DeviceMainAppStateReportedEvent)
             );
+            console.log('Llega MainApp: ' + JSON.stringify(rawData));
             if (rawData.appStatus) {
               Object.keys(rawData.appStatus).forEach(
                 k =>
@@ -318,6 +323,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
             const rawData = JSON.parse(
               JSON.stringify(result.data.DeviceSystemStateReportedEvent)
             );
+            console.log('Llega System: ' + JSON.stringify(rawData));
             if (rawData.deviceStatus) {
               Object.keys(rawData.deviceStatus).forEach(
                 k =>
@@ -479,7 +485,7 @@ export class DeviceStateComponent implements OnInit, OnDestroy {
       return { totalValue: 1, currentValue: 0, memoryUnitInformation: 'NA' };
     }
   }
-  
+
 
   ngOnDestroy() {
     if (this.subscribers) {
