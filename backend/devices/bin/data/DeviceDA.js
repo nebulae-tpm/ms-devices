@@ -662,6 +662,7 @@ class DeviceDA {
           message = { deviceStatus: {} };
           message.id = device.id;
           message.timestamp = device.timestamp;
+          console.log('Se toma timestamp: ', message.timestamp);
           message.deviceStatus.sdStatus =
             device.deviceStatus.sdStatus;
         }
@@ -679,6 +680,7 @@ class DeviceDA {
           message = { deviceStatus: {} };
           message.id = device.id;
           message.timestamp = device.timestamp;
+          console.log('Se toma timestamp: ', message.timestamp);
           message.deviceStatus.temperature = device.deviceStatus.temperature;
           message.deviceStatus.cpuStatus = device.deviceStatus.cpuStatus;
           message.deviceStatus.upTime = device.deviceStatus.upTime;
