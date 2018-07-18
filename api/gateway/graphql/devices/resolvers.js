@@ -282,176 +282,100 @@ module.exports = {
   }
 };
 
-broker
-  .getMaterializedViewsUpdates$(['DeviceTemperatureAlarmActivatedEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceTemperatureAlarmActivatedEvent', {
-        DeviceTemperatureAlarmActivatedEvent: evt.data
-      });
-    },
-    error =>
-      console.error(
-        'Error listening DeviceTemperatureAlarmActivatedEvent',
-        error
-      ),
-    () => console.log('DeviceTemperatureAlarmActivatedEvent listener STOPPED')
-  );
+//// SUBSCRIPTIONS SOURCES ////
 
-broker
-  .getMaterializedViewsUpdates$(['DeviceTemperatureAlarmDeactivatedEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceTemperatureAlarmDeactivatedEvent', {
-        DeviceTemperatureAlarmDeactivatedEvent: evt.data
-      });
-    },
-    error =>
-      console.error(
-        'Error listening DeviceTemperatureAlarmDeactivatedEvent',
-        error
-      ),
-    () => console.log('DeviceTemperatureAlarmDeactivatedEvent listener STOPPED')
-  );
-
-broker
-  .getMaterializedViewsUpdates$(['DeviceVolumesStateReportedEvent'])
-  .subscribe(
-    evt => {
-      console.log('Se escucha evento: ', evt);
-      pubsub.publish('DeviceVolumesStateReportedEvent', {
-        DeviceVolumesStateReportedEvent: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening DeviceVolumesStateReportedEvent', error),
-    () => console.log('DeviceVolumesStateReportedEvent listener STOPPED')
-  );
-
-broker
-  .getMaterializedViewsUpdates$(['DeviceDisplayStateReportedEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceDisplayStateReportedEvent', {
-        DeviceDisplayStateReportedEvent: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening DeviceDisplayStateReportedEvent', error),
-    () => console.log('DeviceDisplayStateReportedEvent listener STOPPED')
-  );
-broker
-  .getMaterializedViewsUpdates$(['DeviceDeviceStateReportedEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceDeviceStateReportedEvent', {
-        DeviceDeviceStateReportedEvent: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening DeviceDeviceStateReportedEvent', error),
-    () => console.log('DeviceDeviceStateReportedEvent listener STOPPED')
-  );
-broker
-  .getMaterializedViewsUpdates$(['DeviceSystemStateReportedEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceSystemStateReportedEvent', {
-        DeviceSystemStateReportedEvent: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening DeviceSystemStateReportedEvent', error),
-    () => console.log('DeviceSystemStateReportedEvent listener STOPPED')
-  );
-broker
-  .getMaterializedViewsUpdates$(['DeviceLowestVoltageReportedEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceLowestVoltageReportedEvent', {
-        DeviceLowestVoltageReportedEvent: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening DeviceLowestVoltageReportedEvent', error),
-    () => console.log('DeviceLowestVoltageReportedEvent listener STOPPED')
-  );
-
-broker
-  .getMaterializedViewsUpdates$(['DeviceHighestVoltageReportedEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceHighestVoltageReportedEvent', {
-        DeviceHighestVoltageReportedEvent: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening DeviceHighestVoltageReportedEvent', error),
-    () => console.log('DeviceHighestVoltageReportedEvent listener STOPPED')
-  );
-broker
-  .getMaterializedViewsUpdates$(['DeviceNetworkStateReportedEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceNetworkStateReportedEvent', {
-        DeviceNetworkStateReportedEvent: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening DeviceNetworkStateReportedEvent', error),
-    () => console.log('DeviceNetworkStateReportedEvent listener STOPPED')
-  );
-broker
-  .getMaterializedViewsUpdates$(['DeviceModemStateReportedEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceModemStateReportedEvent', {
-        DeviceModemStateReportedEvent: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening DeviceModemStateReportedEvent', error),
-    () => console.log('DeviceModemStateReportedEvent listener STOPPED')
-  );
-broker
-  .getMaterializedViewsUpdates$(['DeviceMainAppStateReportedEvent'])
-  .subscribe(
-    evt => {
-      pubsub.publish('DeviceMainAppStateReportedEvent', {
-        DeviceMainAppStateReportedEvent: evt.data
-      });
-    },
-    error =>
-      console.error('Error listening DeviceMainAppStateReportedEvent', error),
-    () => console.log('DeviceMainAppStateReportedEvent listener STOPPED')
-  );
-
-broker.getMaterializedViewsUpdates$(['DeviceConnectedEvent']).subscribe(
-  evt => {
-    pubsub.publish('DeviceConnectedEvent', {
-      DeviceConnectedEvent: evt.data
-    });
+const eventDescriptors = [
+  {
+      backendEventName: 'DeviceTemperatureAlarmActivatedEvent',
+      gqlSubscriptionName: 'DeviceTemperatureAlarmActivatedEvent',
   },
-  error => console.error('Error listening DeviceConnectedEvent', error),
-  () => console.log('DeviceConnectedEvent listener STOPPED')
-);
-
-broker.getMaterializedViewsUpdates$(['DeviceDisconnected']).subscribe(
-  evt => {
-    pubsub.publish('DeviceDisconnected', {
-      DeviceDisconnected: evt.data
-    });
+  {
+    backendEventName: 'DeviceTemperatureAlarmDeactivatedEvent',
+    gqlSubscriptionName: 'DeviceTemperatureAlarmDeactivatedEvent',
   },
-  error => console.error('Error listening DeviceDisconnected', error),
-  () => console.log('DeviceDisconnected listener STOPPED')
-);
-
-broker.getMaterializedViewsUpdates$(['NotifyNewDeviceEvent']).subscribe(
-  evt => {
-    pubsub.publish('NotifyNewDeviceEvent', {
-      NotifyNewDeviceEvent: evt.data
-    });
+  {
+    backendEventName: 'DeviceVolumesStateReportedEvent',
+    gqlSubscriptionName: 'DeviceVolumesStateReportedEvent',
+  }, 
+  {
+    backendEventName: 'DeviceDisplayStateReportedEvent',
+    gqlSubscriptionName: 'DeviceDisplayStateReportedEvent',
+  }, 
+  {
+    backendEventName: 'DeviceDeviceStateReportedEvent',
+    gqlSubscriptionName: 'DeviceDeviceStateReportedEvent',
+  }, 
+  {
+    backendEventName: 'DeviceSystemStateReportedEvent',
+    gqlSubscriptionName: 'DeviceSystemStateReportedEvent',
   },
-  error => console.error('Error listening NotifyNewDeviceEvent', error),
-  () => console.log('NotifyNewDeviceEvent listener STOPPED')
-);
+  {
+    backendEventName: 'DeviceLowestVoltageReportedEvent',
+    gqlSubscriptionName: 'DeviceLowestVoltageReportedEvent',
+  }, 
+  {
+    backendEventName: 'DeviceLowestVoltageReportedEvent',
+    gqlSubscriptionName: 'DeviceLowestVoltageReportedEvent',
+  }, 
+  {
+    backendEventName: 'DeviceHighestVoltageReportedEvent',
+    gqlSubscriptionName: 'DeviceHighestVoltageReportedEvent',
+  },
+  {
+    backendEventName: 'DeviceNetworkStateReportedEvent',
+    gqlSubscriptionName: 'DeviceNetworkStateReportedEvent',
+  },
+  {
+    backendEventName: 'DeviceModemStateReportedEvent',
+    gqlSubscriptionName: 'DeviceModemStateReportedEvent',
+  },
+  {
+    backendEventName: 'DeviceMainAppStateReportedEvent',
+    gqlSubscriptionName: 'DeviceMainAppStateReportedEvent',
+  },
+  {
+    backendEventName: 'DeviceConnectedEvent',
+    gqlSubscriptionName: 'DeviceConnectedEvent',
+  },
+  {
+    backendEventName: 'DeviceDisconnected',
+    gqlSubscriptionName: 'DeviceDisconnected',
+  },
+  {
+    backendEventName: 'NotifyNewDeviceEvent',
+    gqlSubscriptionName: 'NotifyNewDeviceEvent',
+  },
+];
+
+/**
+ * Connects every backend event to the right GQL subscription
+ */
+eventDescriptors.forEach(descriptor => {
+  broker
+      .getMaterializedViewsUpdates$([descriptor.backendEventName])
+      .subscribe(
+          evt => {
+              if (descriptor.onEvent) {
+                  descriptor.onEvent(evt, descriptor);
+              }
+              const payload = {};
+              payload[descriptor.gqlSubscriptionName] = descriptor.dataExtractor ? descriptor.dataExtractor(evt) : evt.data
+              pubsub.publish(descriptor.gqlSubscriptionName, payload);
+          },
+
+          error => {
+              if (descriptor.onError) {
+                  descriptor.onError(error, descriptor);
+              }
+              console.error(
+                  `Error listening ${descriptor.gqlSubscriptionName}`,
+                  error
+              );
+          },
+
+          () =>
+              console.log(
+                  `${descriptor.gqlSubscriptionName} listener STOPED`
+              )
+      );
+});
