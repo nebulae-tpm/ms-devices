@@ -25,7 +25,8 @@
         "navURL": "/devices",
         "path": "devices",
         "loadChildren": "./main/content/devices/devices.module#DevicesModule",
-        "priority": 100000
+        "priority": 100000,
+        "roles" : ["operator"]
       }
     ],
     "preBuildCommands": [],
