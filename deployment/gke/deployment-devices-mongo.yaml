@@ -28,6 +28,8 @@ spec:
   selector:
     matchLabels:
       app: devices-mongo
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
