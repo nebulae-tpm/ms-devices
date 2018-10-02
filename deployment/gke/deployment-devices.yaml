@@ -57,8 +57,6 @@ spec:
         resources:
           requests:
             cpu: "50m"
-          limits:
-            cpu: "100m"
         
       volumes:
       - name: google-application-credentials
