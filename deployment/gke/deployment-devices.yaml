@@ -54,6 +54,9 @@ spec:
         - name: LOCKVERSION
           value: "0.0.0"
         #command: ["npm", "start"]        
+        resources:
+          requests:
+            cpu: "50m"
         
       volumes:
       - name: google-application-credentials

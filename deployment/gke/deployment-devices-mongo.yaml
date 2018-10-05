@@ -28,6 +28,8 @@ spec:
   selector:
     matchLabels:
       app: devices-mongo
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -42,6 +44,10 @@ spec:
         volumeMounts:
         - name: devices-mongo-persistent-storage
           mountPath: /data/db
+        resources:
+          requests:
+            cpu: "50m"
+
       volumes:
       - name: devices-mongo-persistent-storage
         persistentVolumeClaim:
