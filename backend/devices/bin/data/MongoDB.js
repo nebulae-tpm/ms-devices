@@ -62,18 +62,14 @@ class MongoDB {
       observer.next('Creating index for Device.Devices => ({ id: 1 })  ');
       await this.db.collection('Devices').createIndex({ "id": 1 });
 
-      observer.next('Creating index for Device.Devices => ({ deviceStatus.alarmRamActive: 1 })  ');
-      await this.db.collection('Devices').createIndex({ "deviceStatus.alarmRamActive": 1 });
 
-      observer.next('Creating index for Device.Devices => ({deviceStatus.alarmSdActive: 1 })  ');
-      await this.db.collection('Devices').createIndex({ "deviceStatus.alarmSdActive": 1 });
-
-      observer.next('Creating index for Device.Devices => ({deviceStatus.alarmCpuActive: 1 })  ');
-      await this.db.collection('Devices').createIndex({ "deviceStatus.alarmCpuActive": 1 });
-
-      observer.next('Creating index for Device.Devices => ({deviceStatus.alarmTempActive: 1 })  ');
-      await this.db.collection('Devices').createIndex({ "deviceStatus.alarmTempActive": 1 });
+      observer.next('Creating index for Device.Devices => ({ id: 1 })  ');
+      await this.db.collection('DeviceHistory').createIndex({ "id": 1 });
       
+      observer.next('Creating index for Device.Devices => ({ dateTime: 1 })  ');
+      await this.db.collection('DeviceHistory').createIndex({ "dateTime": 1 });
+
+
       observer.next('All indexes created');
       observer.complete();
     });
