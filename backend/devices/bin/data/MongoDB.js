@@ -63,20 +63,14 @@ class MongoDB {
       await this.db.collection('Devices').createIndex({ "id": 1 });
 
 
-      observer.next('Creating index for Device.Devices => ({ id: 1 })  ');
-      await this.db.collection('DeviceHistory').createIndex({ "id": 1 });
-      
-      observer.next('Creating index for Device.Devices => ({ dateTime: 1 })  ');
-      await this.db.collection('DeviceHistory').createIndex({ "dateTime": 1 });
+      observer.next('Creating index for Device.DeviceHistory => ({ id: 1 })  ');
+      await this.db.collection('DeviceHistory').createIndex({ "id": 1,  "dateTime": 1 });      
 
-      observer.next('Creating index for Device.Devices => ({ timestamp: 1 })  ');
-      await this.db.collection('DeviceAlarm').createIndex({ "timestamp": 1 });
+      observer.next('Creating index for Device.DeviceAlarm => ({ timestamp: 1, type: 1, deviceId: 1 })  ');
+      await this.db.collection('DeviceAlarm').createIndex({ "timestamp": 1, "type": 1, "deviceId": 1 });
 
-      observer.next('Creating index for Device.Devices => ({ timestamp: 1 })  ');
-      await this.db.collection('type').createIndex({ "type": 1 });
-
-      observer.next('Creating index for Device.Devices => ({ deviceId: 1 })  ');
-      await this.db.collection('type').createIndex({ "deviceId": 1 });
+      observer.next('Creating index for Device.DeviceAlarm => ({ deviceId: 1 })  ');
+      await this.db.collection('DeviceAlarm').createIndex({ "deviceId": 1 });
 
 
       observer.next('All indexes created');
