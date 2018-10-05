@@ -69,6 +69,15 @@ class MongoDB {
       observer.next('Creating index for Device.Devices => ({ dateTime: 1 })  ');
       await this.db.collection('DeviceHistory').createIndex({ "dateTime": 1 });
 
+      observer.next('Creating index for Device.Devices => ({ timestamp: 1 })  ');
+      await this.db.collection('DeviceAlarm').createIndex({ "timestamp": 1 });
+
+      observer.next('Creating index for Device.Devices => ({ timestamp: 1 })  ');
+      await this.db.collection('type').createIndex({ "type": 1 });
+
+      observer.next('Creating index for Device.Devices => ({ deviceId: 1 })  ');
+      await this.db.collection('type').createIndex({ "deviceId": 1 });
+
 
       observer.next('All indexes created');
       observer.complete();
