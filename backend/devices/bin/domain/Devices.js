@@ -2,7 +2,7 @@
 
 const Rx = require('rxjs');
 const DeviceDA = require('../data/DeviceDA');
-const CustomError = require('../tools/customError')
+const { CustomError , DefaultError} = require('../tools/customError')
 
 let instance;
 
@@ -92,38 +92,38 @@ class Devices {
   }
 
   buildSuccessResponse$(rawRespponse) {
-    return Rx.Observable.of(rawRespponse).map(resp => {
-      return {
-        data: resp,
-        result: {
-          code: 200
-        }
-      };
-    });
+    return Rx.Observable.of(rawRespponse).map(resp => ({
+      data: resp,
+      result: {
+        code: 200
+      }
+    })
+    )
   }
 
+  /**
+   * Error catcher
+   * @param {Error} err 
+   */
   errorHandler$(err) {
     return Rx.Observable.of(err).map(err => {
       const exception = { data: null, result: {} };
-      if (err instanceof CustomError) {
-        exception.result = {
-          code: err.code,
-          error: err.getContent()
-        };
-      } else {
-        exception.result = {
-          code: new DefaultError(err.message).code,
-          error: {
-            name: 'Error',
-            msg: err.toString()
-          }
-        };
+      const isCustomError = err instanceof CustomError;
+      if (!isCustomError) {
+        err = new DefaultError(err);
       }
+      exception.result = {
+        code: err.code,
+        error: { ...err.getContent() }
+      };
       return exception;
     });
   }
 }
 
+/**
+ * @returns {Devices}
+ */
 module.exports = () => {
   if (!instance) {
     instance = new Devices();

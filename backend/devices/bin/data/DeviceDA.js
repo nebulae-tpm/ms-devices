@@ -796,4 +796,7 @@ class DeviceDA {
   //#endregion
 }
 
+/**
+ * @returns {DeviceDA}
+ */
 module.exports = DeviceDA;
