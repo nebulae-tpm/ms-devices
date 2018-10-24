@@ -1,5 +1,4 @@
 'use strict';
-
 const devices = require('../../domain/Devices')();
 const broker = require('../../tools/broker/BrokerFactory')();
 const Rx = require('rxjs');
