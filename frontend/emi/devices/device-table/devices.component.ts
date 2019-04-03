@@ -71,7 +71,6 @@ export class DevicesComponent implements OnInit {
   ngOnInit() {
     this.subscribers.push(
       this.route.queryParams.subscribe(params => {
-        console.log(params)
         this.devicesService.setFilterTemplate(params['filterTemplate']);
         this.refreshDataTable(
           this.page,

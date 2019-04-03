@@ -110,7 +110,6 @@ class PubSubBroker {
                     ({ topicName, subsription, subscriptionName }) => {
                         this.listeningTopics[topicName] = subscriptionName;
                         subsription.on(`message`, message => {
-                            // console.log(`Received message ${message.id}:`);
                             this.incomingMessages$.next(
                                 {
                                     id: message.id,
