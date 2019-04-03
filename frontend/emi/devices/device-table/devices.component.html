@@ -11,7 +11,7 @@
     <div class="header white-fg" fxLayout="column" fxLayoutAlign="center center" fxLayout.gt-xs="row" fxLayoutAlign.gt-xs="space-between center">
 
       <!-- APP TITLE -->
-      <div class="logo my-12 m-sm-0" fxLayout="row" fxLayoutAlign="start center">
+      <div class="logo my-12 m-sm-0" fxLayout="row" fxLayoutAlign="start center" fxShow fxHide.xs>
         <mat-icon class="logo-icon mr-16" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'50ms',scale:'0.2'}}">speaker_phone</mat-icon>
         <span class="logo-text h1" *fuseIfOnDom [@animate]="{value:'*',params:{delay:'100ms',x:'-25px'}}">{{deviceTitle}}</span>
       </div>
@@ -20,8 +20,8 @@
 
       <!-- SEARCH -->
       <div fxLayout="column" fxLayout.gt-sm="row">
-        <div *ngIf="showFilters()" class="search-input-wrapper mx-12 m-md-0" fxFlex="1 0 auto" fxLayout="row" fxLayoutAlign="start center">
-          <label for="search" style="margin-bottom: 10px" class="mr-20">
+        <div *ngIf="showFilters()" class="search-input-wrapper mx-12 m-md-0" fxLayout="row" fxLayoutAlign="start center">
+          <label for="search" style="margin-bottom: 10px" class="mr-8">
             <span class="mat-title">Filtrar por:</span>
           </label>
           <mat-form-field class="mr-20">
@@ -32,8 +32,23 @@
             </mat-select>
           </mat-form-field>
         </div>
+
+        <div class="search-input-wrapper mx-12 m-md-0"  fxLayout="row" fxLayoutAlign="start center">
+          <label for="search" style="margin-bottom: 10px" class="mr-8">
+            <span class="mat-title">Ult conexión ></span>
+          </label>
+
+          <mat-form-field>
+            <input matInput [matDatepicker]="picker" placeholder="Fecha" [(ngModel)]="filterLastConnection" (dateChange)="changeLastConnectionFilter()">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+        </div>
+
+
         <div class="search-input-wrapper mx-12 m-md-0" fxFlex="1 0 auto" fxLayout="row" fxLayoutAlign="start center">
-          <label *ngIf="showFilters()" for="search" class="mr-8">
+          <label *ngIf="showFilters()" for="search" class="ml-8">
             <mat-icon class="secondary-text">search</mat-icon>
           </label>
           <mat-form-field [ngClass]="{'hide-component': !showFilters(), 'show-component': showFilters()}" floatPlaceholder="never" fxFlex="1 0 auto">

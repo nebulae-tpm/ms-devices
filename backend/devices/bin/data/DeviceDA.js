@@ -57,6 +57,7 @@ class DeviceDA {
   static getDevicesByGeneralFilter(filterTemplate, page, count) {
     const collection = mongoDB.db.collection('Devices');
     let orderObject = {};
+
     const filterObject = {
       $or: [
         {
@@ -80,6 +81,13 @@ class DeviceDA {
         { id: { $regex: `${filterTemplate.searchValue}.*`, $options: 'i' } }
       ]
     };
+
+    
+    //console.log('filterTemplate.searchLastConnection => ', filterTemplate.searchLastConnection);
+    if(filterTemplate.searchLastConnection){
+      filterObject['timestamp'] = {$gte: filterTemplate.searchLastConnection};
+    }
+
     if (filterTemplate.alarmFilter) {
       switch (filterTemplate.alarmFilter) {
         case 'RAM':

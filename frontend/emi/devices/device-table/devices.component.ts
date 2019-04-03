@@ -45,6 +45,7 @@ export class DevicesComponent implements OnInit {
   page = 0;
   count = 10;
   filterText = '';
+  filterLastConnection = null;
   sortColumn = null;
   sortOrder = null;
   alarms = ['ALARMAS', 'CPU', 'RAM', 'SD', 'TEMP'];
@@ -121,6 +122,11 @@ export class DevicesComponent implements OnInit {
   changeAlarmFilter($event) {
     this.refreshDataTable(this.page, this.count);
   }
+
+  changeLastConnectionFilter() {
+    this.refreshDataTable(this.page, this.count);
+  }
+
   showFilters() {
     return this.devicesService.presentationType == PresentationType.GENERAL_VIEW;
   }
@@ -144,6 +150,7 @@ export class DevicesComponent implements OnInit {
       ) {
         filterObject = {
           id: 0,
+          searchLastConnection: this.filterLastConnection ? this.filterLastConnection.getTime(): null,
           searchValue: this.filterText,
           sortColumn: this.sortColumn,
           sortOrder: this.sortOrder,
@@ -194,6 +201,7 @@ export class DevicesComponent implements OnInit {
   clearFilter() {
     this.currentAlarmFilter = 'ALARMAS';
     this.filterText = '';
+    this.filterLastConnection = null;
     this.devicesService.presentationType = PresentationType.GENERAL_VIEW;
     this.refreshDataTable(this.page, this.count);
     this.getAndInitTranslations();
