@@ -62,7 +62,8 @@ export const locale = {
       SHOW_LOCATION: 'Show location',
       SITE: 'Site',
       CLEAR_FILTER: 'Clear',
-      VALUE: 'Value'
+      VALUE: 'Value',
+      LAST_CONNECTION: 'Last connection >'
     }
   }
 };

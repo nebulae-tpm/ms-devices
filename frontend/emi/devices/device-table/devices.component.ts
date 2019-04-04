@@ -22,11 +22,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PresentationType } from './presentation-type';
 import { TranslateService } from '@ngx-translate/core';
 
+///////// DATEPICKER //////////
+import {DateAdapter, MAT_DATE_LOCALE} from '@angular/material/core';
+
+
 @Component({
   selector: 'device',
   templateUrl: './devices.component.html',
   styleUrls: ['./devices.component.scss'],
-  animations: fuseAnimations
+  animations: fuseAnimations,
+  providers: [
+    {provide: MAT_DATE_LOCALE, useValue: 'es'},
+  ]
 })
 export class DevicesComponent implements OnInit {
   dataSource = new MatTableDataSource();
@@ -61,7 +68,8 @@ export class DevicesComponent implements OnInit {
     private devicesService: DevicesService,
     private route: ActivatedRoute,
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private adapter: DateAdapter<any>,
   ) {
     this.translationLoader.loadTranslations(english, spanish);
     this.translate.onLangChange.subscribe((e: Event) => {
@@ -70,6 +78,7 @@ export class DevicesComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.onLangChange();
     this.subscribers.push(
       this.route.queryParams.subscribe(params => {
         this.devicesService.setFilterTemplate(params['filterTemplate']);
@@ -111,6 +120,19 @@ export class DevicesComponent implements OnInit {
         this.tableSize = result;
       })
     );
+  }
+
+  /**
+   * Changes the internationalization of the dateTimePicker component
+   */
+  onLangChange() {
+    this.subscribers.push(this.translate.onLangChange
+      .startWith({ lang: this.translate.currentLang })
+      .subscribe(event => {
+        if (event) {
+          this.adapter.setLocale(event.lang);
+        }
+      }));
   }
 
   getAndInitTranslations() {
